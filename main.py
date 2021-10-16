@@ -19,6 +19,7 @@ sources_list = [opensubtitles_search_url]
 
 # Making a class which will spawn children for specific sites
 class siteSearch():
+    # This special method __init__ is a contructor.
     def __init__(self, site_to_search):
         self.site_to_search = site_to_search
 
@@ -28,12 +29,19 @@ class siteSearch():
         return self.user_input
     
     def get_url(self, search_string):
-        self.response = requests.get('{}{}'.format(self.site_to_search, search_string), 'html.parser')
+        self.response = requests.get('{}{}'.format(self.site_to_search, search_string))
         return self.response.text
     
     def soupify(self, html_to_parse):
-        self.soup = BeautifulSoup(html_to_parse)
-        return self.soup.prettify()
+        soup = BeautifulSoup(html_to_parse, 'html.parser')
+        find_a = soup.find_all('a')
+        tag_name_list = []
+        for tag in find_a:
+            tag_name_list.append(tag.text)
+        return tag_name_list
+
+    def parse_for_titles(self):
+        pass
 
     def run(self):
         user_input = self.get_user_input()
@@ -41,6 +49,7 @@ class siteSearch():
         soup = self.soupify(url_to_parse)
         return soup
 
+# This is an object which is made by instructions in class.
 openSubtitles = siteSearch(sources_list[0])
 
 print(openSubtitles.run())
