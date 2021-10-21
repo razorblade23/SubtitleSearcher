@@ -8,20 +8,26 @@
     This will install all the modules needed for this to work
 '''
 # Importing modules
+import PySimpleGUI as sg
 from bs4 import BeautifulSoup
 import requests
 
 # Setting global variables
-opensubtitles_search_url = 'https://www.opensubtitles.org/hr/search2/sublanguageid-hrv/moviename-'
+opensubtitles_search_url = 'https://www.opensubtitles.org/hr/search2/'
 # there will be more of these
 # Putting all of sources in the list
 sources_list = [opensubtitles_search_url]
 
+def langSelector(language_to_search):
+    return 'sublanguageid-{}/'.format(language_to_search)
+
+
 # Making a class which will spawn children for specific sites
 class siteSearch():
     # This special method __init__ is a contructor.
-    def __init__(self, site_to_search):
+    def __init__(self, site_to_search, language_to_search):
         self.site_to_search = site_to_search
+        self.lang = language_to_search
 
     def get_user_input(self):
         self.user_input = input('Please enter name and year of the movie: \n')
@@ -29,12 +35,13 @@ class siteSearch():
         return self.user_input
     
     def get_url(self, search_string):
-        self.response = requests.get('{}{}'.format(self.site_to_search, search_string))
+
+        self.response = requests.get('{}sublanguageid-{}/moviename-{}'.format(self.site_to_search, self.lang, search_string))
         return self.response.text
     
     def soupify(self, html_to_parse):
         soup = BeautifulSoup(html_to_parse, 'html.parser')
-        find_a = soup.find_all('a')
+        find_a = soup.find_all('table')
         tag_name_list = []
         for tag in find_a:
             tag_name_list.append(tag.text)
@@ -49,7 +56,9 @@ class siteSearch():
         soup = self.soupify(url_to_parse)
         return soup
 
-# This is an object which is made by instructions in class.
-openSubtitles = siteSearch(sources_list[0])
+# Video to search first implementation
+#video_to_search = sg.popup_get_file('Please choose a video file for subtitle search', 'Choose a file')
+
+openSubtitles = siteSearch(sources_list[0], 'eng')
 
 print(openSubtitles.run())
