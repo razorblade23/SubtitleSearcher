@@ -20,9 +20,22 @@ sources_list = [opensubtitles_search_url]
 def langSelector(language_to_search):
     return 'sublanguageid-{}/'.format(language_to_search)
 
+layout = [
+    [sg.Text('Subtitle Search', justification='center')],
+    [sg.Text('Project aiming to make finding and downloading subtitles a breeze!', justification='center')]
+]
+
+window = sg.Window(title='SubtitleSearcher', layout=layout)
+
+
+
 # Video to search first implementation
 #video_to_search = sg.popup_get_file('Please choose a video file for subtitle search', 'Choose a file')
 
 openSubtitles = siteSearch(sources_list[0], 'eng')
 
-print(openSubtitles.run())
+while True:
+    event, values = window.read()
+
+    if event == sg.WIN_CLOSED:
+        break
