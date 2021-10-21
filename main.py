@@ -31,7 +31,7 @@ layout = [
     ]),
     sg.Column(layout=[
         [sg.Text('Choose a language for search', font='Any 14')],
-        [sg.Checkbox('English'), sg.Checkbox('Croatian'), sg.Checkbox('Serbian'), sg.Checkbox('Bosnian')]
+        [sg.Checkbox('English'), sg.Checkbox('Croatian'), sg.Checkbox('Serbian'), sg.Checkbox('Bosnian'), sg.Checkbox('Slovenian')]
     ])]
     
 ]
