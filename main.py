@@ -26,8 +26,8 @@ layout = [
     [sg.TabGroup(layout=[
         [sg.Tab(title='Main', layout=[
             [sg.Column(layout=[
-            [sg.Button('Choose a file', size=(30,2))], 
-            [sg.Button('Choose a folder', size=(30,2))],
+            [sg.FileBrowse('Choose a single file', size=(30,2), key='ChooseSingle')], 
+            [sg.FilesBrowse('Choose multiple files', size=(30,2), key='ChooseMultiple')],
         ]),
         sg.Column(layout=[
             [sg.Text('Choose a language for search', font='Any 14')],
