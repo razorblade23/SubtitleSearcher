@@ -9,6 +9,7 @@
 '''
 # Importing modules
 from SubtitleSearcher.openSubtitles import siteSearch
+from SubtitleSearcher.static.images import *
 import PySimpleGUI as sg
 
 # Setting global variables
@@ -21,11 +22,21 @@ def langSelector(language_to_search):
     return 'sublanguageid-{}/'.format(language_to_search)
 
 layout = [
-    [sg.Text('Subtitle Search', justification='center')],
-    [sg.Text('Project aiming to make finding and downloading subtitles a breeze!', justification='center')]
+    [sg.Image(data=logo)],
+    [sg.Text('Subtitle Search', font='Any 22')],
+    [sg.Text('Project aiming to make finding and downloading subtitles a breeze!', font='Any 16')],
+    [sg.Column(layout=[
+        [sg.Button('Choose a file', size=(30,2))], 
+        [sg.Button('Choose a folder', size=(30,2))],
+    ]),
+    sg.Column(layout=[
+        [sg.Text('Choose a language for search', font='Any 14')],
+        [sg.Checkbox('English'), sg.Checkbox('Croatian'), sg.Checkbox('Serbian'), sg.Checkbox('Bosnian')]
+    ])]
+    
 ]
 
-window = sg.Window(title='SubtitleSearcher', layout=layout)
+window = sg.Window(title='SubtitleSearcher', layout=layout, text_justification='center', element_justification='center')
 
 
 
