@@ -9,7 +9,6 @@
 '''
 # Importing modules
 from SubtitleSearcher.openSubtitles import siteSearch
-from SubtitleSearcher.static.images import *
 import PySimpleGUI as sg
 
 # Setting global variables
@@ -22,21 +21,29 @@ def langSelector(language_to_search):
     return 'sublanguageid-{}/'.format(language_to_search)
 
 layout = [
-    [sg.Image(data=logo)],
-    [sg.Text('Subtitle Search', font='Any 22')],
+    [sg.Image(source='SubtitleSearcher/static/images/logo.png')],
     [sg.Text('Project aiming to make finding and downloading subtitles a breeze!', font='Any 16')],
-    [sg.Column(layout=[
-        [sg.Button('Choose a file', size=(30,2))], 
-        [sg.Button('Choose a folder', size=(30,2))],
-    ]),
-    sg.Column(layout=[
-        [sg.Text('Choose a language for search', font='Any 14')],
-        [sg.Checkbox('English'), sg.Checkbox('Croatian'), sg.Checkbox('Serbian'), sg.Checkbox('Bosnian'), sg.Checkbox('Slovenian')]
+    [sg.TabGroup(layout=[
+        [sg.Tab(title='Main', layout=[
+            [sg.Column(layout=[
+            [sg.Button('Choose a file', size=(30,2))], 
+            [sg.Button('Choose a folder', size=(30,2))],
+        ]),
+        sg.Column(layout=[
+            [sg.Text('Choose a language for search', font='Any 14')],
+            [sg.Checkbox('English'), sg.Checkbox('Croatian'), sg.Checkbox('Serbian'), sg.Checkbox('Bosnian'), sg.Checkbox('Slovenian')]
     ])]
-    
+        ])],
+        [sg.Tab(title='openSubtitles', layout=[
+            [sg.Checkbox('Use opensubtitles.org?')],
+            [sg.Text('You must input your opensubtitles account information !')],
+            [sg.InputText('Username')],
+            [sg.InputText('Password')]
+        ])]
+    ])]
 ]
 
-window = sg.Window(title='SubtitleSearcher', layout=layout, text_justification='center', element_justification='center')
+window = sg.Window(title='SubtitleSearcher', layout=layout, element_justification='center')
 
 
 
