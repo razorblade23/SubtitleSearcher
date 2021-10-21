@@ -26,8 +26,8 @@ layout = [
     [sg.TabGroup(layout=[
         [sg.Tab(title='Main', layout=[
             [sg.Frame(title='Select files', layout=[
-            [sg.FileBrowse('Choose a single file', size=(30,2), key='ChooseSingle')], 
-            [sg.FilesBrowse('Choose multiple files', size=(30,2), key='ChooseMultiple')],
+            [sg.FileBrowse('Choose a single file', size=(30,2), key='ChooseSingle', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))], 
+            [sg.FilesBrowse('Choose multiple files', size=(30,2), key='ChooseMultiple', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))],
         ]),
         sg.Frame(title='Select options', layout=[
             [sg.Text('Choose a language for search', font='Any 14')],
