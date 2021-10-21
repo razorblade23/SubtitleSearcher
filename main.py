@@ -25,20 +25,20 @@ layout = [
     [sg.Text('Project aiming to make finding and downloading subtitles a breeze!', font='Any 16')],
     [sg.TabGroup(layout=[
         [sg.Tab(title='Main', layout=[
-            [sg.Column(layout=[
+            [sg.Frame(title='Select files', layout=[
             [sg.FileBrowse('Choose a single file', size=(30,2), key='ChooseSingle')], 
             [sg.FilesBrowse('Choose multiple files', size=(30,2), key='ChooseMultiple')],
         ]),
-        sg.Column(layout=[
+        sg.Frame(title='Select options', layout=[
             [sg.Text('Choose a language for search', font='Any 14')],
-            [sg.Checkbox('English'), sg.Checkbox('Croatian'), sg.Checkbox('Serbian'), sg.Checkbox('Bosnian'), sg.Checkbox('Slovenian')]
+            [sg.Checkbox('English', key='LangENG'), sg.Checkbox('Croatian', key='LangCRO'), sg.Checkbox('Serbian', key='LangSRB'), sg.Checkbox('Bosnian', key='LangBOS'), sg.Checkbox('Slovenian', key='LangSLO')]
     ])]
         ])],
         [sg.Tab(title='openSubtitles', layout=[
-            [sg.Checkbox('Use opensubtitles.org?')],
+            [sg.Checkbox('Use opensubtitles.org?', key='UseOPENSUBTITLES')],
             [sg.Text('You must input your opensubtitles account information !')],
-            [sg.InputText('Username')],
-            [sg.InputText('Password')]
+            [sg.InputText('Username', key='openUSERNAME')],
+            [sg.InputText('Password', key='openPASS')]
         ])]
     ])]
 ]
