@@ -25,19 +25,33 @@ layout = [
     [sg.Text('Project aiming to make finding and downloading subtitles a breeze!', font='Any 16')],
     [sg.TabGroup(layout=[
         [sg.Tab(title='Main', layout=[
-            [sg.Frame(title='Select files', layout=[
-            [sg.InputText(disabled=True), sg.FileBrowse('Single file', size=(8,2), key='ChooseSingle', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))], 
-            [sg.InputText(disabled=True), sg.FilesBrowse('Multiple files', size=(8,2), key='ChooseMultiple', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))],
+            [sg.Frame(title='Search for subtitles', layout=[
+                [sg.TabGroup(layout=[
+                    [sg.Tab(title='Search by file', layout=[
+                        [sg.InputText(disabled=True), sg.FileBrowse('Single file', size=(8,2), key='ChooseSingle', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))], 
+                        [sg.InputText(disabled=True), sg.FilesBrowse('Multiple files', size=(8,2), key='ChooseMultiple', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))],
+                        [sg.Button('Search for subtitles')]
+                    ])],
+                    [sg.Tab(title='Search by IMDB ID', layout=[
+                        [sg.Frame(title='ID', layout=[
+                            [sg.Text('Enter IMDB ID')],
+                            [sg.InputText(key='IMDBID', size=(8,1))],
+                            [sg.Button('Search for movie subtitles', key='SEARCHBYIMDB')]
+                        ]), sg.Frame(title='Rezultat', layout=[
+                            [sg.Text(key='MovieTitle')]
+                        ])]
+                    ])]
+                ])]
         ]),
-        sg.Frame(title='Select options', layout=[
-            [sg.Checkbox('Use opensubtitles.org ?')],
-            [sg.Checkbox('Use titlovi.com ?', disabled=True)],
-            [sg.Checkbox('Use podnapisi.net ?', disabled=True)],
-            [sg.Checkbox('Use openSubtitles ?', disabled=True)],
-            [sg.Frame(title='Additional settings', layout=[
-                [sg.Checkbox('Keep on top ?', key='KeepOnTop')]
-            ])],
-            [sg.Button('Save', key='Save')]
+            sg.Frame(title='Select options', layout=[
+                [sg.Checkbox('Use opensubtitles.org ?', key='USEOPEN')],
+                [sg.Checkbox('Use titlovi.com ?', disabled=True)],
+                [sg.Checkbox('Use podnapisi.net ?', disabled=True)],
+                [sg.Checkbox('Use openSubtitles ?', disabled=True)],
+                [sg.Frame(title='Additional settings', layout=[
+                    [sg.Checkbox('Keep on top ?', key='KeepOnTop')]
+                ])],
+                [sg.Button('Save', key='Save')]
     ])]
         ])],
         [sg.Tab(title='Languages', layout=[
@@ -71,3 +85,17 @@ while True:
             window.keep_on_top_clear()
         else:
             window.keep_on_top_set()
+    if event == 'SEARCHBYIMDB':
+        language_selected = []
+        if values['LangENG']:
+            language_selected.append('eng')
+        elif values['LangCRO']:
+            language_selected.append('hrv')
+        elif values['LangSRB']:
+            language_selected.append('srb')
+        elif values['LangBOS']:
+            language_selected.append('bos')
+        else:
+            sg.popup_ok('Language is not selected')
+            continue
+        subtitles_dict = search_by_imdb(values['IMDBID'], language_selected[0])
