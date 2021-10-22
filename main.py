@@ -26,8 +26,8 @@ layout = [
     [sg.TabGroup(layout=[
         [sg.Tab(title='Main', layout=[
             [sg.Frame(title='Select files', layout=[
-            [sg.InputText(disabled=True), sg.FileBrowse('Single file', size=(8,2), key='ChooseSingle', file_types=(('Video files', '.avi'),('All files', '*'),))], 
-            [sg.InputText(disabled=True), sg.FilesBrowse('Multiple files', size=(8,2), key='ChooseMultiple', file_types=(('Video files', '.avi'),('All files', '*'),))],
+            [sg.InputText(disabled=True), sg.FileBrowse('Single file', size=(8,2), key='ChooseSingle', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))], 
+            [sg.InputText(disabled=True), sg.FilesBrowse('Multiple files', size=(8,2), key='ChooseMultiple', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))],
         ]),
         sg.Frame(title='Select options', layout=[
             [sg.Checkbox('Use opensubtitles.org ?')],
