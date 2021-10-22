@@ -6,7 +6,7 @@ import json
 main_search_url = 'https://rest.opensubtitles.org/search/'
 headers = {'user-agent': 'TemporaryUserAgent'}
 
-def search_by_imdb(imdb_id, language_code):
+def search_by_imdb(imdb_id, language_code='eng'):
     request = requests.get('{}imdbid-{}/sublanguageid-{}'.format(main_search_url, imdb_id, language_code), headers=headers)
     json_req = json.loads(request.text)
     return json_req

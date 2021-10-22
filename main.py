@@ -9,6 +9,7 @@
 '''
 # Importing modules
 from SubtitleSearcher.openSubtitles import search_by_imdb
+from SubtitleSearcher import imdb_metadata
 import PySimpleGUI as sg
 
 # Setting global variables
@@ -36,7 +37,7 @@ layout = [
                         [sg.Frame(title='ID', layout=[
                             [sg.Text('Enter IMDB ID')],
                             [sg.InputText(key='IMDBID', size=(8,1))],
-                            [sg.Button('Search for movie subtitles', key='SEARCHBYIMDB', disabled=True), sg.Button('Search for movie on IMDB', key='SEARCHONIMDB')]
+                            [sg.Button('Search for movie subtitles', key='SEARCHBYIMDB', disabled=False), sg.Button('Search for movie on IMDB', key='SEARCHONIMDB')]
                         ]), sg.Frame(title='Rezultat', layout=[
                             [sg.Text(key='MovieTitle')],
                             [sg.Text(key='MovieYear')]
@@ -101,19 +102,7 @@ while True:
             continue
         subtitles_dict = print(search_by_imdb(values['IMDBID'], language_selected[0]))
     if event == 'SEARCHONIMDB':
-        language_selected = []
-        if values['LangENG']:
-            language_selected.append('eng')
-        elif values['LangCRO']:
-            language_selected.append('hrv')
-        elif values['LangSRB']:
-            language_selected.append('srb')
-        elif values['LangBOS']:
-            language_selected.append('bos')
-        else:
-            sg.popup_ok('Language is not selected')
-            continue
-        _dict = search_by_imdb(values['IMDBID'], language_selected[0])
+        _dict = search_by_imdb(values['IMDBID'])
         movie_name = _dict[0]['MovieName']
         movie_year = _dict[0]['MovieYear']
         window['MovieTitle'].update(value=movie_name)
