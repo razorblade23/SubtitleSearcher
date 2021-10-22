@@ -8,7 +8,7 @@
     This will install all the modules needed for this to work
 '''
 # Importing modules
-from SubtitleSearcher.openSubtitles import siteSearch
+from SubtitleSearcher.openSubtitles import search_by_imdb
 import PySimpleGUI as sg
 
 # Setting global variables
@@ -45,12 +45,12 @@ layout = [
 
 window = sg.Window(title='SubtitleSearcher', layout=layout, element_justification='center')
 
+search_by_imdb('4145054')
 
 
 # Video to search first implementation
 #video_to_search = sg.popup_get_file('Please choose a video file for subtitle search', 'Choose a file')
 
-openSubtitles = siteSearch(sources_list[0], 'eng')
 
 while True:
     event, values = window.read()
