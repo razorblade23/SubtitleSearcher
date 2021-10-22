@@ -43,7 +43,7 @@ layout = [
     ])]
 ]
 
-window = sg.Window(title='SubtitleSearcher', layout=layout, element_justification='center')
+window = sg.Window(title='SubtitleSearcher', layout=layout, element_justification='center', keep_on_top=True)
 
 search_by_imdb('0499549', 'eng')
 
