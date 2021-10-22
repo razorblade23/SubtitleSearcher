@@ -9,7 +9,7 @@ headers = {'user-agent': 'TemporaryUserAgent'}
 def search_by_imdb(imdb_id, language_code):
     request = requests.get('{}imdbid-{}/sublanguageid-{}'.format(main_search_url, imdb_id, language_code), headers=headers)
     json_req = json.loads(request.text)
-    print(json_req)
+    return json_req
 
 def hashFile(name): 
       try: 
