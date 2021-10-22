@@ -26,15 +26,23 @@ layout = [
     [sg.TabGroup(layout=[
         [sg.Tab(title='Main', layout=[
             [sg.Frame(title='Select files', layout=[
-            [sg.FileBrowse('Choose a single file', size=(30,2), key='ChooseSingle', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))], 
-            [sg.FilesBrowse('Choose multiple files', size=(30,2), key='ChooseMultiple', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))],
+            [sg.InputText(disabled=True), sg.FileBrowse('Single file', size=(8,2), key='ChooseSingle', file_types=(('Video files', '.avi'),('All files', '*'),))], 
+            [sg.InputText(disabled=True), sg.FilesBrowse('Multiple files', size=(8,2), key='ChooseMultiple', file_types=(('Video files', '.avi'),('All files', '*'),))],
         ]),
         sg.Frame(title='Select options', layout=[
-            [sg.Text('Choose a language for search', font='Any 14')],
-            [sg.Checkbox('English', key='LangENG'), sg.Checkbox('Croatian', key='LangCRO'), sg.Checkbox('Serbian', key='LangSRB'), sg.Checkbox('Bosnian', key='LangBOS'), sg.Checkbox('Slovenian', key='LangSLO')],
-            [sg.Checkbox('Keep on top ?', key='KeepOnTop')],
+            [sg.Checkbox('Use opensubtitles.org ?')],
+            [sg.Checkbox('Use titlovi.com ?', disabled=True)],
+            [sg.Checkbox('Use podnapisi.net ?', disabled=True)],
+            [sg.Checkbox('Use openSubtitles ?', disabled=True)],
+            [sg.Frame(title='Additional settings', layout=[
+                [sg.Checkbox('Keep on top ?', key='KeepOnTop')]
+            ])],
             [sg.Button('Save', key='Save')]
     ])]
+        ])],
+        [sg.Tab(title='Languages', layout=[
+            [sg.Text('Choose a language for search', font='Any 14')],
+            [sg.Checkbox('English', key='LangENG'), sg.Checkbox('Croatian', key='LangCRO'), sg.Checkbox('Serbian', key='LangSRB'), sg.Checkbox('Bosnian', key='LangBOS'), sg.Checkbox('Slovenian', key='LangSLO')]
         ])],
         [sg.Tab(title='openSubtitles', layout=[
             [sg.Checkbox('Use opensubtitles.org?', key='UseOPENSUBTITLES')],
