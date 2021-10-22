@@ -31,7 +31,9 @@ layout = [
         ]),
         sg.Frame(title='Select options', layout=[
             [sg.Text('Choose a language for search', font='Any 14')],
-            [sg.Checkbox('English', key='LangENG'), sg.Checkbox('Croatian', key='LangCRO'), sg.Checkbox('Serbian', key='LangSRB'), sg.Checkbox('Bosnian', key='LangBOS'), sg.Checkbox('Slovenian', key='LangSLO')]
+            [sg.Checkbox('English', key='LangENG'), sg.Checkbox('Croatian', key='LangCRO'), sg.Checkbox('Serbian', key='LangSRB'), sg.Checkbox('Bosnian', key='LangBOS'), sg.Checkbox('Slovenian', key='LangSLO')],
+            [sg.Checkbox('Keep on top ?', key='KeepOnTop')],
+            [sg.Button('Save', key='Save')]
     ])]
         ])],
         [sg.Tab(title='openSubtitles', layout=[
@@ -43,9 +45,9 @@ layout = [
     ])]
 ]
 
-window = sg.Window(title='SubtitleSearcher', layout=layout, element_justification='center', keep_on_top=True)
+window = sg.Window(title='SubtitleSearcher', layout=layout, element_justification='center')
 
-search_by_imdb('0499549', 'eng')
+#search_by_imdb('0499549', 'eng')
 
 
 # Video to search first implementation
@@ -53,7 +55,11 @@ search_by_imdb('0499549', 'eng')
 
 
 while True:
-    event, values = window.read()
-
+    event, values = window.read(timeout=400)
     if event == sg.WIN_CLOSED:
         break
+    if event == 'Save':
+        if values['KeepOnTop'] == False:
+            window.keep_on_top_clear()
+        else:
+            window.keep_on_top_set()
