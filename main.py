@@ -45,7 +45,7 @@ layout = [
 
 window = sg.Window(title='SubtitleSearcher', layout=layout, element_justification='center')
 
-search_by_imdb('4145054')
+search_by_imdb('0499549', 'eng')
 
 
 # Video to search first implementation
