@@ -1,25 +1,27 @@
 '''
     Before running this as python script you must install python3 and a good idea is to make a virtual enviroment.
     Virtual enviroment is often called venv. As of python 3.6 venv is automaticly included in python installation.
-    
+
+    Create empty folder in terminal and enter it.
+
+    For Windows activation:
+    -> python -m venv venv/
+    -> venv/Scripts/activate.ps1 (for PowerShell terminal)
+    -> venv/Scripts/activate.bat (for CMD terminal)
+    For Linux activation:
+    -> python3 -m venv venv/.
+    -> source venv/bin/activate
+
     When you are in your activated virtual enviroment (there is a name of your env in parenthesis () before command in terminal) run:
     pip install -r requirements.txt
 
     This will install all the modules needed for this to work
 '''
 # Importing modules
-from SubtitleSearcher.openSubtitles import search_by_imdb
+from SubtitleSearcher import openSubtitles
 from SubtitleSearcher import imdb_metadata
 import PySimpleGUI as sg
 
-# Setting global variables
-opensubtitles_search_url = 'https://www.opensubtitles.org/hr/search2/'
-# there will be more of these
-# Putting all of sources in the list
-sources_list = [opensubtitles_search_url]
-
-def langSelector(language_to_search):
-    return 'sublanguageid-{}/'.format(language_to_search)
 
 layout = [
     [sg.Image(source='SubtitleSearcher/static/images/logo.png')],
@@ -39,8 +41,8 @@ layout = [
                             [sg.InputText(key='IMDBID', size=(8,1))],
                             [sg.Button('Search for movie subtitles', key='SEARCHBYIMDB', disabled=False), sg.Button('Search for movie on IMDB', key='SEARCHONIMDB')]
                         ]), sg.Frame(title='Rezultat', layout=[
-                            [sg.Text(key='MovieTitle')],
-                            [sg.Text(key='MovieYear')]
+                            [sg.Text('', key='MovieTitle')],
+                            [sg.Text('', key='MovieYear')]
                         ])]
                     ])]
                 ])]
@@ -71,12 +73,6 @@ layout = [
 
 window = sg.Window(title='SubtitleSearcher', layout=layout, element_justification='center')
 
-#search_by_imdb('0499549', 'eng')
-
-
-# Video to search first implementation
-#video_to_search = sg.popup_get_file('Please choose a video file for subtitle search', 'Choose a file')
-
 
 while True:
     event, values = window.read(timeout=400)
@@ -100,11 +96,8 @@ while True:
         else:
             sg.popup_ok('Language is not selected')
             continue
-        subtitles_dict = print(search_by_imdb(values['IMDBID'], language_selected[0]))
+        subtitles_dict = print(openSubtitles.search_by_imdb(values['IMDBID'], language_selected[0]))
     if event == 'SEARCHONIMDB':
-        _dict = search_by_imdb(values['IMDBID'])
-        movie_name = _dict[0]['MovieName']
-        movie_year = _dict[0]['MovieYear']
-        window['MovieTitle'].update(value=movie_name)
-        window['MovieYear'].update(value=movie_year)
-        window.refresh()
+        _dict = imdb_metadata.search_by_id(values['IMDBID'])
+        window['MovieTitle'].update(value=_dict['resource']['title'])
+        window['MovieYear'].update(value=_dict['resource']['year'])

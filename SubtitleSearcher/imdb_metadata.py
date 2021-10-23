@@ -1,4 +1,5 @@
-from openSubtitles import requests
+from SubtitleSearcher.openSubtitles import requests
+import json
 
 url = "https://imdb8.p.rapidapi.com/title/find"
 
@@ -28,5 +29,5 @@ def search_by_id(id_raw):
 
     response = requests.request("GET", url, headers=headers, params=querystring)
 
-    return response.text
+    return json.loads(response.text)
 
