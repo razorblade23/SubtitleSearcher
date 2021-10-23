@@ -31,9 +31,9 @@ layout = [
             [sg.Frame(title='Search for subtitles', layout=[
                 [sg.TabGroup(layout=[
                     [sg.Tab(title='Search by file', layout=[
-                        [sg.InputText(disabled=True), sg.FileBrowse('Single file', size=(8,2), key='ChooseSingle', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))], 
+                        [sg.InputText(disabled=True, key='SINGLEFILE'), sg.FileBrowse('Single file', size=(8,2), key='ChooseSingle', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))], 
                         [sg.InputText(disabled=True), sg.FilesBrowse('Multiple files', size=(8,2), key='ChooseMultiple', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))],
-                        [sg.Button('Search for subtitles')]
+                        [sg.Button('Search for subtitles', key='SEARCHBYFILE')]
                     ])],
                     [sg.Tab(title='Search by IMDB ID', layout=[
                         [sg.Frame(title='ID', layout=[
@@ -101,3 +101,7 @@ while True:
         _dict = imdb_metadata.search_by_id(values['IMDBID'])
         window['MovieTitle'].update(value=_dict['resource']['title'])
         window['MovieYear'].update(value=_dict['resource']['year'])
+    
+    if event == 'SEARCHBYFILE':
+        hashed_file = openSubtitles.hashFile(values['SINGLEFILE'])
+        print(hashed_file)

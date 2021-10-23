@@ -11,7 +11,7 @@ def search_by_imdb(imdb_id, language_code='eng'):
     return json_req
 
 def hashFile(name): 
-      try: 
+    try: 
         longlongformat = '<q'  # little-endian long long
         bytesize = struct.calcsize(longlongformat) 
             
@@ -21,25 +21,25 @@ def hashFile(name):
         hash = filesize 
             
         if filesize < 65536 * 2: 
-                return "SizeError" 
+            return "SizeError" 
             
-        for x in range(65536/bytesize): 
-                buffer = f.read(bytesize) 
-                (l_value,)= struct.unpack(longlongformat, buffer)  
-                hash += l_value 
-                hash = hash & 0xFFFFFFFFFFFFFFFF #to remain as 64bit number  
+        for x in range(int(65536/bytesize)):
+            buffer = f.read(bytesize)
+            (l_value,)= struct.unpack(longlongformat, buffer)
+            hash += l_value
+            hash = hash & 0xFFFFFFFFFFFFFFFF #to remain as 64bit number
                     
 
         f.seek(max(0,filesize-65536),0) 
-        for x in range(65536/bytesize): 
-                buffer = f.read(bytesize) 
-                (l_value,)= struct.unpack(longlongformat, buffer)  
-                hash += l_value 
-                hash = hash & 0xFFFFFFFFFFFFFFFF 
+        for x in range(int(65536/bytesize)): 
+            buffer = f.read(bytesize) 
+            (l_value,)= struct.unpack(longlongformat, buffer)  
+            hash += l_value 
+            hash = hash & 0xFFFFFFFFFFFFFFFF 
             
         f.close() 
         returnedhash =  "%016x" % hash 
-        return returnedhash 
+        return returnedhash
     
-      except(IOError): 
-                return "IOError"
+    except(IOError): 
+        return "IOError"
