@@ -20,6 +20,7 @@
 # Importing modules
 from SubtitleSearcher import openSubtitles
 from SubtitleSearcher import imdb_metadata
+from SubtitleSearcher.static.images.base64_img import icon
 import PySimpleGUI as sg
 
 
@@ -31,9 +32,9 @@ layout = [
             [sg.Frame(title='Search for subtitles', layout=[
                 [sg.TabGroup(layout=[
                     [sg.Tab(title='Search by file', layout=[
-                        [sg.InputText(disabled=True, key='SINGLEFILE'), sg.FileBrowse('Single file', size=(8,2), key='ChooseSingle', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))], 
-                        [sg.InputText(disabled=True), sg.FilesBrowse('Multiple files', size=(8,2), key='ChooseMultiple', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))],
-                        [sg.Button('Search for subtitles', key='SEARCHBYFILE')]
+                        [sg.InputText(disabled=True, key='SINGLEFILE', default_text='Browse this to select a single file !'), sg.FileBrowse('Browse', size=(8,2), key='ChooseSingle', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))], 
+                        [sg.InputText(disabled=True, key='MULTIPLEFILES', default_text='Browse this to select multiple files !'), sg.FilesBrowse('Browse', size=(8,2), key='ChooseMultiple', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))],
+                        [sg.Button('Search for single file', key='SEARCHBYSINGLEFILE'), sg.Button('Search multiple files', key='SEARCHBYMULTIFILE')]
                     ])],
                     [sg.Tab(title='Search by IMDB ID', layout=[
                         [sg.Frame(title='ID', layout=[
@@ -71,7 +72,7 @@ layout = [
     ])]
 ]
 
-window = sg.Window(title='SubtitleSearcher', layout=layout, element_justification='center')
+window = sg.Window(title='SubtitleSearcher', layout=layout, element_justification='center', icon=icon)
 
 
 while True:
@@ -102,6 +103,6 @@ while True:
         window['MovieTitle'].update(value=_dict['resource']['title'])
         window['MovieYear'].update(value=_dict['resource']['year'])
     
-    if event == 'SEARCHBYFILE':
+    if event == 'SEARCHBYSINGLEFILE':
         hashed_file = openSubtitles.hashFile(values['SINGLEFILE'])
         print(hashed_file)
