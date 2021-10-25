@@ -30,7 +30,7 @@ if system == 'Windows':
 if system == 'Linux':
     icon = 'SubtitleSearcher/static/images/image.png'
 
-sg.theme('Black')
+sg.theme('DarkBrown4')
 
 layout = [
     [sg.Image(source='SubtitleSearcher/static/images/logo.png')],
