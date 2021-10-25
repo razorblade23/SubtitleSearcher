@@ -19,3 +19,12 @@ Every advice and help is more than welcome.
 
 
 ## Changelog
+
+- the app has its new name "Subby Doo"
+- rearranged the UI
+- brand new LOGO and ICON
+- added an option for subtitle search by IMDB ID
+- Always on top option
+
+More to come soon!
+
