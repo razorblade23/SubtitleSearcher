@@ -30,7 +30,7 @@ if system == 'Windows':
 if system == 'Linux':
     icon = 'SubtitleSearcher/static/images/image.png'
 
-sg.theme('Black')
+sg.theme('DarkBrown4')
 
 layout = [
     [sg.Image(source='SubtitleSearcher/static/images/logo.png')],
@@ -112,5 +112,9 @@ while True:
         window['MovieYear'].update(value=_dict['resource']['year'])
     
     if event == 'SEARCHBYSINGLEFILE':
-        hashed_file = openSubtitles.hashFile(values['SINGLEFILE'])
-        print(hashed_file)
+        opensubs = openSubtitles.searchOpenSubtitles()
+        hashed_file = opensubs.hashFile(values['SINGLEFILE'])
+        fileSize = opensubs.sizeOfFile(values['SINGLEFILE'])
+        link = opensubs.create_link(bytesize=fileSize, hash=hashed_file, language='hrv')
+        subtitles = opensubs.request_subtitles(link)
+        print(subtitles)
