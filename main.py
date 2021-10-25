@@ -20,8 +20,15 @@
 # Importing modules
 from SubtitleSearcher import openSubtitles
 from SubtitleSearcher import imdb_metadata
-from SubtitleSearcher.static.images.base64_img import icon
+#from SubtitleSearcher.static.images.base64_img import icon
 import PySimpleGUI as sg
+import platform
+
+system = platform.system()
+if system == 'Windows':
+    icon = 'SubtitleSearcher/static/images/image.ico'
+if system == 'Linux':
+    icon = 'SubtitleSearcher/static/images/image.png'
 
 
 layout = [
@@ -72,7 +79,7 @@ layout = [
     ])]
 ]
 
-window = sg.Window(title='SubtitleSearcher', layout=layout, element_justification='center', icon=icon)
+window = sg.Window(title='Subby doo', layout=layout, element_justification='center', icon=icon, finalize=True)
 
 
 while True:
