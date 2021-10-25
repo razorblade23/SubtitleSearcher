@@ -22,7 +22,7 @@ Every advice and help is more than welcome.
 
 - the app has its new name "Subby Doo"
 - rearranged the UI
-- brand new LOGO and ICON thanks to Everlong Memories ([Facebook](https://www.facebook.com/Everlong-Memories-105967217783434)) ([Instagram](https://www.instagram.com/everlong_memories/) )
+- brand new LOGO and ICON thanks to Everlong Memories ([Facebook](https://www.facebook.com/Everlong-Memories-105967217783434)) ([Instagram](https://www.instagram.com/everlong_memories/))
 - added an option for subtitle search by IMDB ID
 - Always on top option
 
