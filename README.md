@@ -26,5 +26,11 @@ Every advice and help is more than welcome.
 - added an option for subtitle search by IMDB ID
 - Always on top option
 
+![SS3](https://user-images.githubusercontent.com/22005396/138736273-7a8c7223-173f-42e2-88f2-eec70c04d875.png)
+![SS4](https://user-images.githubusercontent.com/22005396/138736270-c736d0a4-74a8-4ee6-a47b-03de7869e102.png)
+
+
+
+
 More to come soon!
 
