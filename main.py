@@ -39,8 +39,15 @@ def main_window():
                 [sg.Frame(title='Search for subtitles', layout=[
                     [sg.TabGroup(layout=[
                         [sg.Tab(title='Search by file', layout=[
-                            [sg.InputText(disabled=True, key='SINGLEFILE', default_text='Browse this to select a single file !'), sg.FileBrowse('Browse', size=(8,2), key='ChooseSingle', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))], 
-                            [sg.InputText(disabled=True, key='MULTIPLEFILES', default_text='Browse this to select multiple files !'), sg.FilesBrowse('Browse', size=(8,2), key='ChooseMultiple', file_types=(('Video files', '.avi'),('Video files', '.mkv'),))],
+                            [sg.InputText(disabled=True, key='SINGLEFILE', 
+                                            default_text='Browse this to select a single file !', 
+                                            disabled_readonly_text_color='red'), 
+                                sg.FileBrowse('Browse', size=(8,2), initial_folder='Downloads', key='ChooseSingle', 
+                                                file_types=(('Video files', '.avi'),('Video files', '.mkv'),))], 
+                            [sg.InputText(disabled=True, key='MULTIPLEFILES', default_text='Browse this to select multiple files !', 
+                                            disabled_readonly_text_color='red'), 
+                            sg.FilesBrowse('Browse', size=(8,2), key='ChooseMultiple', 
+                                            file_types=(('Video files', '.avi'),('Video files', '.mkv'),))],
                             [sg.Button('Search for single file', key='SEARCHBYSINGLEFILE'), sg.Button('Search multiple files', key='SEARCHBYMULTIFILE')]
                         ])],
                         [sg.Tab(title='Search by IMDB ID', layout=[
@@ -84,7 +91,7 @@ def subs_window():
     layout = [
         [sg.Frame(title='Options', layout=[
             [sg.B(), sg.B(), sg.B(), sg.B()]
-        ])]
+        ])],
     ]
     return layout
 
@@ -132,6 +139,7 @@ while True:
                 movie.set_metadata(subtitle['MovieName'], subtitle['MovieYear'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['IDMovieImdb'])
                 print(movie.download_link)
         WINDOWSUBS = True
-    #if WINDOWSUBS:
-    #    window_download_subs = sg.Window(title='Subbydoo - download subs', layout=subs_window(), element_justification='center', icon=icon, finalize=True)
-    #    event_subs, values_subs = window_download_subs.read(timeout=400)
+    if WINDOWSUBS:
+        WINDOWSUBS = False
+        window_download_subs = sg.Window(title='Subbydoo - download subs', layout=subs_window(), element_justification='center', icon=icon, finalize=True)
+        event_subs, values_subs = window_download_subs.read(timeout=400)
