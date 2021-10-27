@@ -172,7 +172,6 @@ while True:
         link = opensubs.create_link(bytesize=fileSize, hash=hashed_file, language='hrv')
         print('Created link for opensubtitles\n{}'.format(link))
         subtitles = opensubs.request_subtitles(link)
-        subtitles = []
         print('Trying get subtitles by hash')
         if len(subtitles) == 0:
             movie_name = sg.popup_get_text('Finding subtitles using hash failed!\nPlease input name of your movie.')
