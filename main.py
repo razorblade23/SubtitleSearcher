@@ -107,7 +107,7 @@ def subs_window():
             ])],
         ])],
         [sg.Frame(title='Select subtitle', layout=[
-            [sg.Table(values=['Ovo jos nije u funkciji','Treba doraditi','Ovdje ce se prikazivati titlovi'], headings=['Subtitle name', 'Language', '3', '4', '5'], auto_size_columns=False)]
+            [sg.Table(values=[['','','']], headings=['#', 'Subtitle name', 'Subtitle language'], auto_size_columns=True)]
         ]),
         sg.Frame(title='Selected file metadata', layout=[
             [sg.Column(layout=[
@@ -119,7 +119,7 @@ def subs_window():
                 [sg.T(key='SUBLANG', text_color='white')]
             ])],
             [sg.Column(layout=[
-                [sg.T('Subtitle score (based on hash of file):')],
+                [sg.T('Subtitle score:')],
                 [sg.T(key='SUBSCORE', text_color='white')]
             ])],
         ])]
