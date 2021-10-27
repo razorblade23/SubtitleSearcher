@@ -14,3 +14,6 @@ class Movie:
     
     def add_imdb_metadata(self):
         imdb_response = search_by_id(self.imdb_id)
+
+class MovieSubtitle(Movie):
+    pass

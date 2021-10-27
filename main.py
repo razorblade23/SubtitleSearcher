@@ -167,9 +167,13 @@ while True:
             sg.popup_ok('File not found, please try again', title='File not found')
             continue
         movie = movies.Movie(fileSize, hashed_file)
+        print('Movie object with size {} and hash {} created'.format(movie.byte_size, movie.file_hash))
         link = opensubs.create_link(bytesize=fileSize, hash=hashed_file, language='hrv')
+        print('Created link for opensubtitles\n{}'.format(link))
         subtitles = opensubs.request_subtitles(link)
         for number, subtitle in enumerate(subtitles):
+            print('Number of subtitle\n{}'.format(number))
+            print('Subtitle metadata\n{}'.format(subtitle))
             if number == 0:
                 movie.set_metadata(subtitle['MovieName'], subtitle['MovieYear'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['IDMovieImdb'])
                 print(movie.download_link)
