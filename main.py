@@ -90,8 +90,39 @@ def main_window():
 def subs_window():
     layout = [
         [sg.Frame(title='Options', layout=[
-            [sg.B(), sg.B(), sg.B(), sg.B()]
+            [sg.Checkbox('Match subtitle filename with movie filename?'), sg.Checkbox('Append language code to end of subtitle file?')]
         ])],
+        [sg.Frame(title='Selected movie metadata', layout=[
+            [sg.Column(layout=[
+                [sg.T('Movie name:')],
+                [sg.T(key='MOVIENAME', text_color='white')]
+            ]),
+            sg.Column(layout=[
+                [sg.T('Movie year:')],
+                [sg.T(key='MOVIEYEAR', text_color='white')]
+            ]),
+            sg.Column(layout=[
+                [sg.T('Movie IMDB ID:')],
+                [sg.T(key='IMDBID', text_color='white')]
+            ])],
+        ])],
+        [sg.Frame(title='Select subtitle', layout=[
+            [sg.Table(values=['Ovo jos nije u funkciji','Treba doraditi','Ovdje ce se prikazivati titlovi'], headings=['Subtitle name', 'Language', '3', '4', '5'], auto_size_columns=False)]
+        ]),
+        sg.Frame(title='Selected file metadata', layout=[
+            [sg.Column(layout=[
+                [sg.T('Subtitle name:')],
+                [sg.T(key='SUBNAME', text_color='white')]
+            ])],
+            [sg.Column(layout=[
+                [sg.T('Subtitle language:')],
+                [sg.T(key='SUBLANG', text_color='white')]
+            ])],
+            [sg.Column(layout=[
+                [sg.T('Subtitle score (based on hash of file):')],
+                [sg.T(key='SUBSCORE', text_color='white')]
+            ])],
+        ])]
     ]
     return layout
 
@@ -143,3 +174,6 @@ while True:
         WINDOWSUBS = False
         window_download_subs = sg.Window(title='Subbydoo - download subs', layout=subs_window(), element_justification='center', icon=icon, finalize=True)
         event_subs, values_subs = window_download_subs.read(timeout=400)
+        window_download_subs['MOVIENAME'].update(movie.name)
+        window_download_subs['MOVIEYEAR'].update(movie.year)
+        window_download_subs['IMDBID'].update(movie.imdb_id)
