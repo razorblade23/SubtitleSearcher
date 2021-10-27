@@ -176,14 +176,21 @@ while True:
         print('Trying get subtitles by hash')
         if len(subtitles) == 0:
             movie_name = sg.popup_get_text('Finding subtitles using hash failed!\nPlease input name of your movie.')
+            movie_name.lower()
             movie_name = urllib.parse.quote(movie_name)
-            link = opensubs.create_link(query=movie_name)
+            link = opensubs.create_link(query=movie_name, language='hrv')
             print('New link:\n{}'.format(link))
             try:
                 subtitles = opensubs.request_subtitles(link)
+                for number, subtitle in enumerate(subtitles):
+                    print('Number of subtitle\n{}'.format(number))
+                    print('Subtitle metadata\n{}'.format(subtitle))
+                    if number == 0:
+                        movie.set_metadata(subtitle['MovieName'], subtitle['MovieYear'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['IDMovieImdb'])
+                        print(movie.download_link)
             except:
-                sg.popup_ok('There is maintanance under way on open subtitles servers.\nWe can`t use it. Sorry for trouble :(')
-            print('Subtitle metadata\n{}'.format(subtitles))
+                sg.popup_ok('We got error 503.\nThat usually means there is maintanance\n under way on open subtitles servers.\nPlease try another method for serching or try again later',
+                            title='Error')
         else:
             for number, subtitle in enumerate(subtitles):
                 print('Number of subtitle\n{}'.format(number))
