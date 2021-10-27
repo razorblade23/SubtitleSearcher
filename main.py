@@ -108,7 +108,7 @@ def subs_window():
             ])],
         ])],
         [sg.Frame(title='Select subtitle', layout=[
-            [sg.Table(values=[['','','']], headings=['#', 'Subtitle name', 'Subtitle language'], auto_size_columns=True)]
+            [sg.Table(values=[['','','']], headings=['#', 'Subtitle name', 'Subtitle language'], auto_size_columns=True, key='SUBSTABLE')]
         ]),
         sg.Frame(title='Selected file metadata', layout=[
             [sg.Column(layout=[
@@ -168,35 +168,32 @@ while True:
             sg.popup_ok('File not found, please try again', title='File not found')
             continue
         movie = movies.Movie(fileSize, hashed_file)
-        print('Movie object with size {} and hash {} created'.format(movie.byte_size, movie.file_hash))
         link = opensubs.create_link(bytesize=fileSize, hash=hashed_file, language='hrv')
-        print('Created link for opensubtitles\n{}'.format(link))
         subtitles = opensubs.request_subtitles(link)
-        print('Trying get subtitles by hash')
+        subtitles = []
+        all_subs = []
         if len(subtitles) == 0:
             movie_name = sg.popup_get_text('Finding subtitles using hash failed!\nPlease input name of your movie.')
             movie_name.lower()
             movie_name = urllib.parse.quote(movie_name)
             link = opensubs.create_link(query=movie_name, language='hrv')
-            print('New link:\n{}'.format(link))
             try:
                 subtitles = opensubs.request_subtitles(link)
                 for number, subtitle in enumerate(subtitles):
-                    print('Number of subtitle\n{}'.format(number))
-                    print('Subtitle metadata\n{}'.format(subtitle))
                     if number == 0:
                         movie.set_metadata(subtitle['MovieName'], subtitle['MovieYear'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['IDMovieImdb'])
-                        print(movie.download_link)
+                    number = movies.MovieSubtitle(subtitle['SubFileName'], subtitle['SubLanguageID'], subtitle['SubFormat'], subtitle['SubDownloadsCnt'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['Score'])
+                    all_subs.append(number)
             except:
                 sg.popup_ok('We got error 503.\nThat usually means there is maintanance\n under way on open subtitles servers.\nPlease try another method for serching or try again later',
                             title='Error')
         else:
             for number, subtitle in enumerate(subtitles):
-                print('Number of subtitle\n{}'.format(number))
-                print('Subtitle metadata\n{}'.format(subtitle))
+                #sub = movies.MovieSubtitle(number, subtitle['SubFileName'], subtitle['SubLanguageID'], subtitle['SubFormat'], subtitle['SubDownloadsCnt'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['Score'])
                 if number == 0:
                     movie.set_metadata(subtitle['MovieName'], subtitle['MovieYear'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['IDMovieImdb'])
-                    print(movie.download_link)
+                number = movies.MovieSubtitle(subtitle['SubFileName'], subtitle['SubLanguageID'], subtitle['SubFormat'], subtitle['SubDownloadsCnt'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['Score'])
+                all_subs.append(number)
         WINDOWSUBS = True
     if WINDOWSUBS:
         WINDOWSUBS = False
@@ -206,5 +203,12 @@ while True:
             window_download_subs['MOVIENAME'].update(movie.name)
             window_download_subs['MOVIEYEAR'].update(movie.year)
             window_download_subs['IMDBID'].update(movie.imdb_id)
+            subs_list = []
+            for i in range(len(all_subs)):
+                subs_dict = {}
+                subs_dict['ID'] = i
+                subs_dict['SubFileName'] = all_subs[i].sub_file_name
+                subs_dict['SubLangID'] = all_subs[i].sub_lang_id
+                subs_list.append(subs_dict)
         except:
             pass
