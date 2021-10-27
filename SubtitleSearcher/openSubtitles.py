@@ -21,7 +21,7 @@ class searchOpenSubtitles:
         self.season = 'season-'
         self.language = 'sublanguageid-'
 
-    def create_link(self, episode=None, imdb=None, bytesize=None, hash=None, season=None, language=None):
+    def create_link(self, episode=None, imdb=None, query=None, bytesize=None, hash=None, season=None, language=None):
         self.link_text = f'{self.base_url}'
         if episode != None:
             episode_str = f'/{self.episode}{episode}'
@@ -29,6 +29,8 @@ class searchOpenSubtitles:
         if imdb != None:
             imdb_str = f'/{self.imdb}{imdb}'
             self.link_text = self.link_text + imdb_str
+        if query != None:
+            self.link_text = self.link_text + query
         if bytesize != None:
             bytesize_str = f'/{self.bytesize}{bytesize}'
             self.link_text = self.link_text + bytesize_str

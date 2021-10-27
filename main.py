@@ -171,17 +171,28 @@ while True:
         link = opensubs.create_link(bytesize=fileSize, hash=hashed_file, language='hrv')
         print('Created link for opensubtitles\n{}'.format(link))
         subtitles = opensubs.request_subtitles(link)
-        for number, subtitle in enumerate(subtitles):
-            print('Number of subtitle\n{}'.format(number))
-            print('Subtitle metadata\n{}'.format(subtitle))
-            if number == 0:
-                movie.set_metadata(subtitle['MovieName'], subtitle['MovieYear'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['IDMovieImdb'])
-                print(movie.download_link)
+        print('Trying get subtitles by hash')
+        if len(subtitles) == 0:
+            movie_name = sg.popup_get_text('Finding subtitles using hash failed!\nPlease input name of your movie.')
+            movie_name = movie_name.replace(' ', '%20')
+            link = opensubs.create_link(query=movie_name)
+            subtitles = opensubs.request_subtitles(link)
+            print('Subtitle metadata\n{}'.format(subtitles))
+        else:
+            for number, subtitle in enumerate(subtitles):
+                print('Number of subtitle\n{}'.format(number))
+                print('Subtitle metadata\n{}'.format(subtitle))
+                if number == 0:
+                    movie.set_metadata(subtitle['MovieName'], subtitle['MovieYear'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['IDMovieImdb'])
+                    print(movie.download_link)
         WINDOWSUBS = True
     if WINDOWSUBS:
         WINDOWSUBS = False
         window_download_subs = sg.Window(title='Subbydoo - download subs', layout=subs_window(), element_justification='center', icon=icon, finalize=True)
         event_subs, values_subs = window_download_subs.read(timeout=400)
-        window_download_subs['MOVIENAME'].update(movie.name)
-        window_download_subs['MOVIEYEAR'].update(movie.year)
-        window_download_subs['IMDBID'].update(movie.imdb_id)
+        try:
+            window_download_subs['MOVIENAME'].update(movie.name)
+            window_download_subs['MOVIEYEAR'].update(movie.year)
+            window_download_subs['IMDBID'].update(movie.imdb_id)
+        except:
+            pass
