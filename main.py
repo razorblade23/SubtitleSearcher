@@ -42,11 +42,11 @@ def main_window():
                             [sg.InputText(disabled=True, key='SINGLEFILE', 
                                             default_text='Browse this to select a single file !', 
                                             disabled_readonly_text_color='red'), 
-                                sg.FileBrowse('Browse', size=(8,2), initial_folder='Downloads', key='ChooseSingle', 
+                                sg.FileBrowse('Browse', size=(8,2), initial_folder='~/Downloads', key='ChooseSingle', 
                                                 file_types=(('Video files', '.avi'),('Video files', '.mkv'),))], 
                             [sg.InputText(disabled=True, key='MULTIPLEFILES', default_text='Browse this to select multiple files !', 
                                             disabled_readonly_text_color='red'), 
-                            sg.FilesBrowse('Browse', size=(8,2), key='ChooseMultiple', 
+                            sg.FilesBrowse('Browse', size=(8,2), key='ChooseMultiple', initial_folder='~/Downloads',
                                             file_types=(('Video files', '.avi'),('Video files', '.mkv'),))],
                             [sg.Button('Search for single file', key='SEARCHBYSINGLEFILE'), sg.Button('Search multiple files', key='SEARCHBYMULTIFILE')]
                         ])],
