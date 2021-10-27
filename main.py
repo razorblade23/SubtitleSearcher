@@ -160,8 +160,12 @@ while True:
     
     if event == 'SEARCHBYSINGLEFILE':
         opensubs = openSubtitles.searchOpenSubtitles()
-        hashed_file = opensubs.hashFile(values['SINGLEFILE'])
-        fileSize = opensubs.sizeOfFile(values['SINGLEFILE'])
+        try:
+            hashed_file = opensubs.hashFile(values['SINGLEFILE'])
+            fileSize = opensubs.sizeOfFile(values['SINGLEFILE'])
+        except FileNotFoundError:
+            sg.popup_ok('File not found, please try again', title='File not found')
+            continue
         movie = movies.Movie(fileSize, hashed_file)
         link = opensubs.create_link(bytesize=fileSize, hash=hashed_file, language='hrv')
         subtitles = opensubs.request_subtitles(link)
