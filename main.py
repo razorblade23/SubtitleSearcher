@@ -193,6 +193,8 @@ while True:
                     movie.set_metadata(subtitle['MovieName'], subtitle['MovieYear'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['IDMovieImdb'])
                 number = movies.MovieSubtitle(subtitle['SubFileName'], subtitle['SubLanguageID'], subtitle['SubFormat'], subtitle['SubDownloadsCnt'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['Score'])
                 all_subs.append(number)
+        print('Total numbers of subtitles found for this entry: {}'.format(len(all_subs)))
+        print('Use this link to download first in the list:\n{}'.format(all_subs[0].sub_download_link))
         WINDOWSUBS = True
     if WINDOWSUBS:
         WINDOWSUBS = False
@@ -202,12 +204,5 @@ while True:
             window_download_subs['MOVIENAME'].update(movie.name)
             window_download_subs['MOVIEYEAR'].update(movie.year)
             window_download_subs['IMDBID'].update(movie.imdb_id)
-            subs_list = []
-            for i in range(len(all_subs)):
-                subs_dict = {}
-                subs_dict['ID'] = i
-                subs_dict['SubFileName'] = all_subs[i].sub_file_name
-                subs_dict['SubLangID'] = all_subs[i].sub_lang_id
-                subs_list.append(subs_dict)
         except:
             pass
