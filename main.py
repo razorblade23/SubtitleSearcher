@@ -21,6 +21,7 @@
 from SubtitleSearcher import openSubtitles, imdb_metadata, movies
 import PySimpleGUI as sg
 import platform
+import urllib.parse
 
 system = platform.system()
 if system == 'Windows':
@@ -171,13 +172,17 @@ while True:
         link = opensubs.create_link(bytesize=fileSize, hash=hashed_file, language='hrv')
         print('Created link for opensubtitles\n{}'.format(link))
         subtitles = opensubs.request_subtitles(link)
+        subtitles = []
         print('Trying get subtitles by hash')
         if len(subtitles) == 0:
             movie_name = sg.popup_get_text('Finding subtitles using hash failed!\nPlease input name of your movie.')
-            movie_name = movie_name.replace(' ', '%20')
+            movie_name = urllib.parse.quote(movie_name)
             link = opensubs.create_link(query=movie_name)
             print('New link:\n{}'.format(link))
-            subtitles = opensubs.request_subtitles(link)
+            try:
+                subtitles = opensubs.request_subtitles(link)
+            except:
+                sg.popup_ok('There is maintanance under way on open subtitles servers.\nWe can`t use it. Sorry for trouble :(')
             print('Subtitle metadata\n{}'.format(subtitles))
         else:
             for number, subtitle in enumerate(subtitles):

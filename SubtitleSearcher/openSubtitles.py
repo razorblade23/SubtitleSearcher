@@ -16,6 +16,7 @@ class searchOpenSubtitles:
         self.http_header = {'user-agent': 'TemporaryUserAgent'}
         self.episode = 'episode-'
         self.imdb = 'imdbid-'
+        self.query = 'query-'
         self.bytesize = 'moviebytesize-'
         self.hash = 'moviehash-'
         self.season = 'season-'
@@ -30,7 +31,8 @@ class searchOpenSubtitles:
             imdb_str = f'/{self.imdb}{imdb}'
             self.link_text = self.link_text + imdb_str
         if query != None:
-            self.link_text = self.link_text + query
+            query_string = f'/{self.query}{query}'
+            self.link_text = self.link_text + query_string
         if bytesize != None:
             bytesize_str = f'/{self.bytesize}{bytesize}'
             self.link_text = self.link_text + bytesize_str
