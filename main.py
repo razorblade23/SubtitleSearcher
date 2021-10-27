@@ -194,7 +194,8 @@ while True:
                 number = movies.MovieSubtitle(subtitle['SubFileName'], subtitle['SubLanguageID'], subtitle['SubFormat'], subtitle['SubDownloadsCnt'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['Score'])
                 all_subs.append(number)
         print('Total numbers of subtitles found for this entry: {}'.format(len(all_subs)))
-        print('Use this link to download first in the list:\n{}'.format(all_subs[0].sub_download_link))
+        print('Use this link to download first in the list in GZ format:\n{}'.format(all_subs[0].sub_download_link))
+        print('Use this link to download first in the list in ZIP format:\n{}'.format(all_subs[0].sub_zip_donwload_link))
         WINDOWSUBS = True
     if WINDOWSUBS:
         WINDOWSUBS = False
