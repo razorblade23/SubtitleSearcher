@@ -176,6 +176,7 @@ while True:
             movie_name = sg.popup_get_text('Finding subtitles using hash failed!\nPlease input name of your movie.')
             movie_name = movie_name.replace(' ', '%20')
             link = opensubs.create_link(query=movie_name)
+            print('New link:\n{}'.format(link))
             subtitles = opensubs.request_subtitles(link)
             print('Subtitle metadata\n{}'.format(subtitles))
         else:
