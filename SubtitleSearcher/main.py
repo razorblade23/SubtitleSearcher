@@ -18,7 +18,8 @@
     This will install all the modules needed for this to work
 '''
 # Importing modules
-from SubtitleSearcher import openSubtitles, imdb_metadata, movies
+import os
+from SubtitleSearcher.data import openSubtitles, movies
 import PySimpleGUI as sg
 import platform
 import urllib.parse
@@ -29,7 +30,7 @@ if system == 'Windows':
 if system == 'Linux':
     icon = 'SubtitleSearcher/static/images/image.png'
 
-WINDOWSUBS = False
+
 
 def main_window():
     layout = [
@@ -79,7 +80,6 @@ def main_window():
                 [sg.Checkbox('English', key='LangENG'), sg.Checkbox('Croatian', key='LangCRO'), sg.Checkbox('Serbian', key='LangSRB'), sg.Checkbox('Bosnian', key='LangBOS'), sg.Checkbox('Slovenian', key='LangSLO')]
             ])],
             [sg.Tab(title='openSubtitles', layout=[
-                [sg.Checkbox('Use opensubtitles.org?', key='UseOPENSUBTITLES')],
                 [sg.Text('You must input your opensubtitles account information !')],
                 [sg.InputText('Username', key='openUSERNAME')],
                 [sg.InputText('Password', key='openPASS')]
@@ -129,81 +129,95 @@ def subs_window():
 
 sg.theme('DarkBrown4')
 
-window = sg.Window(title='Subbydoo', layout=main_window(), element_justification='center', icon=icon, finalize=True)
 
-while True:
-    event, values = window.read(timeout=400)
-    if event == sg.WIN_CLOSED:
-        break
-    if event == 'Save':
-        if values['KeepOnTop'] == False:
-            window.keep_on_top_clear()
-        else:
-            window.keep_on_top_set()
-    if event == 'SEARCHBYIMDB':
-        language_selected = []
-        if values['LangENG']:
-            language_selected.append('eng')
-        elif values['LangCRO']:
-            language_selected.append('hrv')
-        elif values['LangSRB']:
-            language_selected.append('srb')
-        elif values['LangBOS']:
-            language_selected.append('bos')
-        else:
-            sg.popup_ok('Language is not selected')
-            continue
-        subtitles_dict = print(openSubtitles.search_by_imdb(values['IMDBID'], language_selected[0]))
-    if event == 'SEARCHONIMDB':
-        _dict = imdb_metadata.search_by_id(values['IMDBID'])
-        window['MovieTitle'].update(value=_dict['resource']['title'])
-        window['MovieYear'].update(value=_dict['resource']['year'])
-    
-    if event == 'SEARCHBYSINGLEFILE':
-        opensubs = openSubtitles.searchOpenSubtitles()
-        try:
-            hashed_file = opensubs.hashFile(values['SINGLEFILE'])
-            fileSize = opensubs.sizeOfFile(values['SINGLEFILE'])
-        except FileNotFoundError:
-            sg.popup_ok('File not found, please try again', title='File not found')
-            continue
-        movie = movies.Movie(fileSize, hashed_file)
-        link = opensubs.create_link(bytesize=fileSize, hash=hashed_file, language='hrv')
-        subtitles = opensubs.request_subtitles(link)
-        all_subs = []
-        if len(subtitles) == 0:
-            movie_name = sg.popup_get_text('Finding subtitles using hash failed!\nPlease input name of your movie.')
-            movie_name.lower()
-            movie_name = urllib.parse.quote(movie_name)
-            link = opensubs.create_link(query=movie_name, language='hrv')
+
+# Start infinite loop for your GUI windows and reading from them
+def run():
+    WINDOWSUBS = False
+    window = sg.Window(title='Subbydoo', layout=main_window(), element_justification='center', icon=icon, finalize=True)
+    while True:
+        event, values = window.read(timeout=400) # This window.read() is how you get all values and events from your windows
+        if event == sg.WIN_CLOSED: # If window is closed break from the loop
+            break
+        if event == 'Save':
+            if values['KeepOnTop'] == False:
+                window.keep_on_top_clear()
+            else:
+                window.keep_on_top_set()
+        if event == 'SEARCHBYIMDB':
+            language_selected = []
+            if values['LangENG']:
+                language_selected.append('eng')
+            elif values['LangCRO']:
+                language_selected.append('hrv')
+            elif values['LangSRB']:
+                language_selected.append('srb')
+            elif values['LangBOS']:
+                language_selected.append('bos')
+            else:
+                sg.popup_ok('Language is not selected')
+                continue
+            subtitles_dict = print(openSubtitles.search_by_imdb(values['IMDBID'], language_selected[0]))
+        #if event == 'SEARCHONIMDB':
+        #    _dict = imdb_metadata.search_by_id(values['IMDBID'])
+        #    window['MovieTitle'].update(value=_dict['resource']['title'])
+        #    window['MovieYear'].update(value=_dict['resource']['year'])
+        
+        if event == 'SEARCHBYSINGLEFILE':
+            opensubs = openSubtitles.searchOpenSubtitles()
             try:
+                hashed_file = opensubs.hashFile(values['SINGLEFILE'])
+                fileSize = opensubs.sizeOfFile(values['SINGLEFILE'])
+            except FileNotFoundError:
+                sg.popup_ok('File not found, please try again', title='File not found')
+                continue
+            else:
+                movie = movies.Movie(fileSize, hashed_file)
+                link = opensubs.create_link(bytesize=fileSize, hash=hashed_file, language='hrv')
                 subtitles = opensubs.request_subtitles(link)
+            subtitles = []
+            all_subs = []
+            if len(subtitles) == 0: # If finding movie with hash failed and list "subtitles" is empty so it len
+                movie_name = sg.popup_get_text('Finding subtitles using hash failed!\nPlease input name of your movie.')
+                movie_name.lower()
+                movie_name = urllib.parse.quote(movie_name)
+                link = opensubs.create_link(query=movie_name, language='hrv')
+                try:
+                    subtitles = opensubs.request_subtitles(link)
+                    for number, subtitle in enumerate(subtitles):
+                        if number == 0:
+                            movie.set_metadata(subtitle['MovieName'], subtitle['MovieYear'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['IDMovieImdb'])
+                        number = movies.MovieSubtitle(subtitle['SubFileName'], subtitle['SubLanguageID'], subtitle['SubFormat'], subtitle['SubDownloadsCnt'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['Score'])
+                        all_subs.append(number)
+                except:
+                    sg.popup_ok('We got error 503.\nThat usually means there is maintanance\n under way on open subtitles servers.\nPlease try another method for serching or try again later',
+                                title='Error', )
+            else:
                 for number, subtitle in enumerate(subtitles):
+                    #sub = movies.MovieSubtitle(number, subtitle['SubFileName'], subtitle['SubLanguageID'], subtitle['SubFormat'], subtitle['SubDownloadsCnt'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['Score'])
                     if number == 0:
                         movie.set_metadata(subtitle['MovieName'], subtitle['MovieYear'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['IDMovieImdb'])
                     number = movies.MovieSubtitle(subtitle['SubFileName'], subtitle['SubLanguageID'], subtitle['SubFormat'], subtitle['SubDownloadsCnt'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['Score'])
                     all_subs.append(number)
+            print('Total numbers of subtitles found for this entry: {}'.format(len(all_subs)))
+            print('Score of a subtitle is used to determine how well it will fit for your movie')
+            print('This is first five matching subtitles')
+            for i in range(5):
+                print()
+                print('Score for first subtitle in list: {}'.format(all_subs[i].score))
+                print('Use this link to download first in the list in GZ format:\n{}'.format(all_subs[i].sub_download_link))
+                print('Use this link to download first in the list in ZIP format:\n{}'.format(all_subs[i].sub_zip_donwload_link))
+            WINDOWSUBS = True
+        if WINDOWSUBS:
+            WINDOWSUBS = False
+            window_download_subs = sg.Window(title='Subbydoo - download subs', layout=subs_window(), element_justification='center', icon=icon, finalize=True)
+            event_subs, values_subs = window_download_subs.read(timeout=400)
+            try:
+                window_download_subs['MOVIENAME'].update(movie.name)
+                window_download_subs['MOVIEYEAR'].update(movie.year)
+                window_download_subs['IMDBID'].update(movie.imdb_id)
             except:
-                sg.popup_ok('We got error 503.\nThat usually means there is maintanance\n under way on open subtitles servers.\nPlease try another method for serching or try again later',
-                            title='Error')
-        else:
-            for number, subtitle in enumerate(subtitles):
-                #sub = movies.MovieSubtitle(number, subtitle['SubFileName'], subtitle['SubLanguageID'], subtitle['SubFormat'], subtitle['SubDownloadsCnt'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['Score'])
-                if number == 0:
-                    movie.set_metadata(subtitle['MovieName'], subtitle['MovieYear'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['IDMovieImdb'])
-                number = movies.MovieSubtitle(subtitle['SubFileName'], subtitle['SubLanguageID'], subtitle['SubFormat'], subtitle['SubDownloadsCnt'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['Score'])
-                all_subs.append(number)
-        print('Total numbers of subtitles found for this entry: {}'.format(len(all_subs)))
-        print('Use this link to download first in the list in GZ format:\n{}'.format(all_subs[0].sub_download_link))
-        print('Use this link to download first in the list in ZIP format:\n{}'.format(all_subs[0].sub_zip_donwload_link))
-        WINDOWSUBS = True
-    if WINDOWSUBS:
-        WINDOWSUBS = False
-        window_download_subs = sg.Window(title='Subbydoo - download subs', layout=subs_window(), element_justification='center', icon=icon, finalize=True)
-        event_subs, values_subs = window_download_subs.read(timeout=400)
-        try:
-            window_download_subs['MOVIENAME'].update(movie.name)
-            window_download_subs['MOVIEYEAR'].update(movie.year)
-            window_download_subs['IMDBID'].update(movie.imdb_id)
-        except:
-            pass
+                pass
+
+    os.system('clear') # Clears terminal window
+    window.close() # Closes main window

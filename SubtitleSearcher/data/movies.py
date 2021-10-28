@@ -1,5 +1,5 @@
-from SubtitleSearcher.imdb_metadata import search_by_id
-
+#from SubtitleSearcher.imdb_metadata import search_by_id
+import pandas as pd
 class Movie:
     def __init__(self, byte_size, file_hash):
         self.byte_size = byte_size
@@ -12,8 +12,8 @@ class Movie:
         self.zip_download_link = zip_download_link
         self.imdb_id = imdb_id
     
-    def add_imdb_metadata(self):
-        imdb_response = search_by_id(self.imdb_id)
+    #def add_imdb_metadata(self):
+    #    imdb_response = search_by_id(self.imdb_id)
 
 class MovieSubtitle():
     def __init__(self, sub_file_name, sub_lang_id, sub_format, sub_download_count, sub_download_link, sub_zip_donwload_link, score):
