@@ -202,7 +202,7 @@ def run():
             print('Total numbers of subtitles found for this entry: {}'.format(len(all_subs)))
             print('Score of a subtitle is used to determine how well it will fit for your movie')
             print('This is first five matching subtitles')
-            for i in range(5):
+            for i in range(len(all_subs)):
                 print()
                 print('Score for first subtitle in list: {}'.format(all_subs[i].score))
                 print('Use this link to download first in the list in GZ format:\n{}'.format(all_subs[i].sub_download_link))
