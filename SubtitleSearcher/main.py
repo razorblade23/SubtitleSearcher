@@ -175,7 +175,7 @@ def run():
                 movie = movies.Movie(fileSize, hashed_file)
                 link = opensubs.create_link(bytesize=fileSize, hash=hashed_file, language='hrv')
                 subtitles = opensubs.request_subtitles(link)
-            subtitles = []
+            subtitles=[]
             all_subs = []
             if len(subtitles) == 0: # If finding movie with hash failed and list "subtitles" is empty so it len
                 movie_name = sg.popup_get_text('Finding subtitles using hash failed!\nPlease input name of your movie.')
@@ -201,12 +201,17 @@ def run():
                     all_subs.append(number)
             print('Total numbers of subtitles found for this entry: {}'.format(len(all_subs)))
             print('Score of a subtitle is used to determine how well it will fit for your movie')
-            print('This is first five matching subtitles')
+            print('Here are all matching subtitles')
             for i in range(len(all_subs)):
+                if i > 9:
+                    continue
                 print()
-                print('Score for first subtitle in list: {}'.format(all_subs[i].score))
-                print('Use this link to download first in the list in GZ format:\n{}'.format(all_subs[i].sub_download_link))
-                print('Use this link to download first in the list in ZIP format:\n{}'.format(all_subs[i].sub_zip_donwload_link))
+                print('Subtitle number: {}'.format(i+1))
+                print('Subtitle name:\n{}'.format(all_subs[i].sub_file_name))
+                print('Subtitle downloads count: {}'.format(all_subs[i].sub_download_count))
+                print('Score: {}'.format(all_subs[i].score))
+                print('Use this link to download in GZ format:\n{}'.format(all_subs[i].sub_download_link))
+                print('Use this link to download in ZIP format:\n{}'.format(all_subs[i].sub_zip_donwload_link))
             WINDOWSUBS = True
         if WINDOWSUBS:
             WINDOWSUBS = False
