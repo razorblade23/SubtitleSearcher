@@ -40,5 +40,9 @@ def extract_zip():
 
 def move_files(filename, path_to_movie):
     src_path = f'extracted/{filename}'
-    dst_path = f'{path_to_movie}.srt'
+    org_string = path_to_movie
+    size = len(org_string)
+    # Slice string to remove last 3 characters from string
+    mod_string = org_string[:size - 4]
+    dst_path = f'{mod_string}.srt'
     shutil.move(src_path, dst_path)
