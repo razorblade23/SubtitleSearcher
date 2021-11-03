@@ -32,6 +32,7 @@ if system == 'Linux':
     icon = 'SubtitleSearcher/static/images/image.png'
 
 WINDOWSUBS = False
+language_selected = []
 
 def main_window():
     layout = [
@@ -78,7 +79,7 @@ def main_window():
             ])],
             [sg.Tab(title='Languages', layout=[
                 [sg.Text('Choose a language for search', font='Any 14')],
-                [sg.Checkbox('English', key='LangENG'), sg.Checkbox('Croatian', key='LangCRO'), sg.Checkbox('Serbian', key='LangSRB'), sg.Checkbox('Bosnian', key='LangBOS'), sg.Checkbox('Slovenian', key='LangSLO')]
+                [sg.Radio('Croatian', key='LangCRO', default=True, group_id=1), sg.Radio('English', key='LangENG', group_id=1), sg.Radio('Serbian', key='LangSRB', group_id=1), sg.Radio('Bosnian', key='LangBOS', group_id=1), sg.Radio('Slovenian', key='LangSLO', group_id=1)]
             ])],
             [sg.Tab(title='openSubtitles', layout=[
                 [sg.Text('You must input your opensubtitles account information !')],
@@ -133,21 +134,14 @@ sg.theme('DarkBrown4')
 
 # Start infinite loop for your GUI windows and reading from them
 def run():
-    global WINDOWSUBS
+    global WINDOWSUBS, language_selected
     window = sg.Window(title='Subbydoo', layout=main_window(), element_justification='center', icon=icon, finalize=True)
     while True:
         event, values = window.read(timeout=400) # This window.read() is how you get all values and events from your windows
         #print(f'Event: {event}')
         #print(f'Values: {values}')
-        if event == sg.WIN_CLOSED: # If window is closed break from the loop
-            break
-        if event == 'Save':
-            if values['KeepOnTop'] == False:
-                window.keep_on_top_clear()
-            else:
-                window.keep_on_top_set()
-        if event == 'SEARCHBYIMDB':
-            language_selected = []
+        language_selected = []
+        try:
             if values['LangENG']:
                 language_selected.append('eng')
             elif values['LangCRO']:
@@ -156,16 +150,18 @@ def run():
                 language_selected.append('srb')
             elif values['LangBOS']:
                 language_selected.append('bos')
+        except TypeError:
+            pass
+
+        if event == sg.WIN_CLOSED: # If window is closed break from the loop
+            break
+        if event == 'Save':
+            if values['KeepOnTop'] == False:
+                window.keep_on_top_clear()
             else:
-                sg.popup_ok('Language is not selected')
-                continue
-            subtitles_dict = print(openSubtitles.search_by_imdb(values['IMDBID'], language_selected[0]))
-        #if event == 'SEARCHONIMDB':
-        #    _dict = imdb_metadata.search_by_id(values['IMDBID'])
-        #    window['MovieTitle'].update(value=_dict['resource']['title'])
-        #    window['MovieYear'].update(value=_dict['resource']['year'])
-        
+                window.keep_on_top_set()
         if event == 'SEARCHBYSINGLEFILE':
+            lang = language_selected[0]
             opensubs = openSubtitles.searchOpenSubtitles()
             try:
                 hashed_file = opensubs.hashFile(values['SINGLEFILE'])
@@ -175,7 +171,7 @@ def run():
                 continue
             else:
                 movie = movies.Movie(fileSize, hashed_file)
-                link = opensubs.create_link(bytesize=fileSize, hash=hashed_file, language='hrv')
+                link = opensubs.create_link(bytesize=fileSize, hash=hashed_file, language=lang)
                 subtitles = opensubs.request_subtitles(link)
             #subtitles=[] # Comment / Uncomment this to simulate finding hash failed
             all_subs = []
@@ -183,7 +179,7 @@ def run():
                 movie_name = sg.popup_get_text('Finding subtitles using hash failed!\nPlease input name of your movie.')
                 movie_name.lower() # Make all letters of movie name lowercase
                 movie_name = urllib.parse.quote(movie_name) # Make words URL friendly
-                link = opensubs.create_link(query=movie_name, language='hrv') # Create a link to search for movie by its name and language
+                link = opensubs.create_link(query=movie_name, language=lang) # Create a link to search for movie by its name and language
                 try:
                     subtitles = opensubs.request_subtitles(link)
                     for number, subtitle in enumerate(subtitles):
@@ -238,11 +234,12 @@ def run():
                 window_download_subs['SUBSCORE'].update(sub_selected_score)
                 window_download_subs['DOWNLOADSUB'].update(disabled=False)
             if event_subs == 'DOWNLOADSUB':
-                unzipped_sub = handle_zip.download_zip(sub_selected_zip_down)
-                if unzipped_sub:
+                selected_sub = handle_zip.ZipHandler(sub_selected_filename, sub_selected_zip_down, values['SINGLEFILE'])
+                downloadIt = selected_sub.download_zip()
+                if downloadIt:
                     sg.popup_ok('File downloaded succesfully.', title='Success')
-                    handle_zip.extract_zip()
-                    handle_zip.move_files(sub_selected_filename, values['SINGLEFILE'])
+                    selected_sub.extract_zip()
+                    selected_sub.move_files()
                 else:
                     sg.popup_ok('There was an error in dowloading file, please try again')
             window_download_subs['MOVIENAME'].update(movie.name)
@@ -256,3 +253,4 @@ def run():
 
     #os.system('clear') # Clears terminal window
     window.close() # Closes main window
+    return
