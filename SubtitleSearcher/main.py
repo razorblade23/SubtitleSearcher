@@ -30,7 +30,7 @@ if system == 'Windows':
 if system == 'Linux':
     icon = 'SubtitleSearcher/static/images/image.png'
 
-
+WINDOWSUBS = False
 
 def main_window():
     layout = [
@@ -123,17 +123,16 @@ def subs_window():
                 [sg.T('Subtitle score:')],
                 [sg.T(key='SUBSCORE', text_color='white')]
             ])],
-        ])]
+        ])],
+        [sg.Button('Download', key='DOWNLOADSUB', disabled=True)]
     ]
     return layout
 
 sg.theme('DarkBrown4')
 
-
-
 # Start infinite loop for your GUI windows and reading from them
 def run():
-    WINDOWSUBS = False
+    global WINDOWSUBS
     window = sg.Window(title='Subbydoo', layout=main_window(), element_justification='center', icon=icon, finalize=True)
     while True:
         event, values = window.read(timeout=400) # This window.read() is how you get all values and events from your windows
@@ -177,6 +176,7 @@ def run():
                 movie = movies.Movie(fileSize, hashed_file)
                 link = opensubs.create_link(bytesize=fileSize, hash=hashed_file, language='hrv')
                 subtitles = opensubs.request_subtitles(link)
+            ###### Uncomment below to simulate finding hash failed ######
             subtitles=[]
             all_subs = []
             if len(subtitles) == 0: # If finding movie with hash failed and list "subtitles" is empty so it length is 0 
@@ -214,32 +214,35 @@ def run():
             #    print('Score: {}'.format(all_subs[i].score))
             #    print('Use this link to download in GZ format:\n{}'.format(all_subs[i].sub_download_link))
             #    print('Use this link to download in ZIP format:\n{}'.format(all_subs[i].sub_zip_donwload_link))
+        if not WINDOWSUBS and event == 'SEARCHBYSINGLEFILE':
             WINDOWSUBS = True
+            layout_select_subs = subs_window()
+            window_download_subs = sg.Window(title='Subbydoo - download subs', layout=layout_select_subs, element_justification='center', icon=icon, finalize=True)
         if WINDOWSUBS:
-            WINDOWSUBS = False
-            window_download_subs = sg.Window(title='Subbydoo - download subs', layout=subs_window(), element_justification='center', icon=icon, finalize=True)
             event_subs, values_subs = window_download_subs.read(timeout=400)
-            print(f'Event: {event_subs}')
+            #print(f'Event: {event_subs}')
             #print(f'Values: {values_subs}')
-            try:
-                window_download_subs['MOVIENAME'].update(movie.name)
-                window_download_subs['MOVIEYEAR'].update(movie.year)
-                window_download_subs['IMDBID'].update(movie.imdb_id)
-                nmb = []
-                sub_name = []
-                sub_lang = []
-                whole_list = []
-                for q in range(len(all_subs)):
-                    nmb.append(q)
-                    sub_name.append(all_subs[q].sub_file_name)
-                    sub_lang.append(all_subs[q].sub_lang_id)
-                for t in range(len(all_subs)):
-                    whole_list.append(nmb[t])
-                    whole_list.append(sub_name[t])
-                    whole_list.append(sub_lang[t])
-                window_download_subs['SUBSTABLE'].update(values=sub_name)
-            except:
-                pass
+            if event_subs == sg.WIN_CLOSED:
+                WINDOWSUBS = False
+                window_download_subs.close()
+                continue
+            if event_subs == 'SUBSTABLE':
+                for sub in all_subs:
+                    if sub.sub_file_name == values_subs['SUBSTABLE'][0]:
+                        sub_selected_filename = sub.sub_file_name
+                        sub_selected_lang = sub.sub_lang_id
+                        sub_selected_score = sub.score
+                window_download_subs['SUBNAME'].update(sub_selected_filename)
+                window_download_subs['SUBLANG'].update(sub_selected_lang)
+                window_download_subs['SUBSCORE'].update(sub_selected_score)
+            window_download_subs['MOVIENAME'].update(movie.name)
+            window_download_subs['MOVIEYEAR'].update(movie.year)
+            window_download_subs['IMDBID'].update(movie.imdb_id)
+            sub_name = []
+            for q in range(len(all_subs)):
+                sub_name.append(all_subs[q].sub_file_name)
+            window_download_subs['SUBSTABLE'].update(values=sub_name)
+            
 
     #os.system('clear') # Clears terminal window
     window.close() # Closes main window
