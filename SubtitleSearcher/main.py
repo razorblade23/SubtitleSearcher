@@ -240,7 +240,7 @@ def run():
             if event_subs == 'DOWNLOADSUB':
                 unzipped_sub = handle_zip.download_zip(sub_selected_zip_down)
                 if unzipped_sub:
-                    sg.popup_ok('File downloaded succesfully.\nYou can find it in downloaded folder in zip format', title='Success')
+                    sg.popup_ok('File downloaded succesfully.', title='Success')
                     handle_zip.extract_zip()
                     handle_zip.move_files(sub_selected_filename, values['SINGLEFILE'])
                 else:
