@@ -109,20 +109,20 @@ def subs_window():
             ])],
         ])],
         [sg.Frame(title='Select subtitle', layout=[
-            [sg.Listbox(values=[['1','2','3'],['4','4','4']], key='SUBSTABLE', size=(50,10), select_mode='LISTBOX_SELECT_MODE_SINGLE', enable_events=True)]
+            [sg.Listbox(values=[['1','2','3'],['4','4','4']], key='SUBSTABLE', size=(80,20), select_mode='LISTBOX_SELECT_MODE_SINGLE', enable_events=True)]
         ]),
         sg.Frame(title='Selected file metadata', layout=[
             [sg.Column(layout=[
                 [sg.T('Subtitle name:')],
-                [sg.T(key='SUBNAME', text_color='white', size=(80,1))]
+                [sg.T(key='SUBNAME', text_color='white', size=(65,1))]
             ])],
             [sg.Column(layout=[
                 [sg.T('Subtitle language:')],
-                [sg.T(key='SUBLANG', text_color='white', size=(5,1))]
+                [sg.T(key='SUBLANG', text_color='white', size=(10,1))]
             ])],
             [sg.Column(layout=[
                 [sg.T('Subtitle score:')],
-                [sg.T(key='SUBSCORE', text_color='white', size=(5,1))]
+                [sg.T(key='SUBSCORE', text_color='white', size=(10,1))]
             ])],
         ])],
         [sg.Button('Download', key='DOWNLOADSUB', disabled=True)]
@@ -240,7 +240,9 @@ def run():
             if event_subs == 'DOWNLOADSUB':
                 unzipped_sub = handle_zip.download_zip(sub_selected_zip_down)
                 if unzipped_sub:
-                    sg.popup_ok('File downloaded succesfully.\nYou can find it in downloaded folder in zip format')
+                    sg.popup_ok('File downloaded succesfully.\nYou can find it in downloaded folder in zip format', title='Success')
+                    handle_zip.extract_zip()
+                    handle_zip.move_files(sub_selected_filename, values['SINGLEFILE'])
                 else:
                     sg.popup_ok('There was an error in dowloading file, please try again')
             window_download_subs['MOVIENAME'].update(movie.name)
