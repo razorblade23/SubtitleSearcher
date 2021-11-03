@@ -19,7 +19,8 @@
 '''
 # Importing modules
 import os
-from SubtitleSearcher.data import openSubtitles, movies
+from tkinter.constants import FALSE
+from SubtitleSearcher.data import openSubtitles, movies, handle_zip
 import PySimpleGUI as sg
 import platform
 import urllib.parse
@@ -231,9 +232,13 @@ def run():
                         sub_selected_filename = sub.sub_file_name
                         sub_selected_lang = sub.sub_lang_id
                         sub_selected_score = sub.score
+                        sub_selected_zip_down = sub.sub_zip_donwload_link
                 window_download_subs['SUBNAME'].update(sub_selected_filename)
                 window_download_subs['SUBLANG'].update(sub_selected_lang)
                 window_download_subs['SUBSCORE'].update(sub_selected_score)
+                window_download_subs['DOWNLOADSUB'].update(disabled=False)
+            if event_subs == 'DOWNLOADSUB':
+                unzipped_sub = handle_zip.download_zip(sub_selected_zip_down)
             window_download_subs['MOVIENAME'].update(movie.name)
             window_download_subs['MOVIEYEAR'].update(movie.year)
             window_download_subs['IMDBID'].update(movie.imdb_id)
