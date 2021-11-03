@@ -126,7 +126,8 @@ def subs_window():
                 [sg.T(key='SUBSCORE', text_color='white', size=(10,1))]
             ])],
         ])],
-        [sg.Button('Download', key='DOWNLOADSUB', disabled=True)]
+        [sg.Button('Download', key='DOWNLOADSUB', disabled=True)],
+        [sg.StatusBar('', key='STATUSBAR', size=(60,1))]
     ]
     return layout
 
@@ -218,6 +219,7 @@ def run():
             event_subs, values_subs = window_download_subs.read(timeout=400)
             #print(f'Event: {event_subs}')
             #print(f'Values: {values_subs}')
+            window_download_subs['STATUSBAR'].update(value='Subtitles found: {} | Language selected: {}'.format(len(all_subs), language_selected[0]))
             if event_subs == sg.WIN_CLOSED:
                 WINDOWSUBS = False
                 window_download_subs.close()
