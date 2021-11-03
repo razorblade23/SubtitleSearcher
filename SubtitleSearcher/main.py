@@ -97,15 +97,15 @@ def subs_window():
         [sg.Frame(title='Selected movie metadata', layout=[
             [sg.Column(layout=[
                 [sg.T('Movie name:')],
-                [sg.T(key='MOVIENAME', text_color='white')]
+                [sg.T(key='MOVIENAME', text_color='white', size=(30,1))]
             ]),
             sg.Column(layout=[
                 [sg.T('Movie year:')],
-                [sg.T(key='MOVIEYEAR', text_color='white')]
+                [sg.T(key='MOVIEYEAR', text_color='white', size=(5,1))]
             ]),
             sg.Column(layout=[
                 [sg.T('Movie IMDB ID:')],
-                [sg.T(key='IMDBID', text_color='white')]
+                [sg.T(key='IMDBID', text_color='white', size=(8,1))]
             ])],
         ])],
         [sg.Frame(title='Select subtitle', layout=[
@@ -114,15 +114,15 @@ def subs_window():
         sg.Frame(title='Selected file metadata', layout=[
             [sg.Column(layout=[
                 [sg.T('Subtitle name:')],
-                [sg.T(key='SUBNAME', text_color='white')]
+                [sg.T(key='SUBNAME', text_color='white', size=(80,1))]
             ])],
             [sg.Column(layout=[
                 [sg.T('Subtitle language:')],
-                [sg.T(key='SUBLANG', text_color='white')]
+                [sg.T(key='SUBLANG', text_color='white', size=(5,1))]
             ])],
             [sg.Column(layout=[
                 [sg.T('Subtitle score:')],
-                [sg.T(key='SUBSCORE', text_color='white')]
+                [sg.T(key='SUBSCORE', text_color='white', size=(5,1))]
             ])],
         ])],
         [sg.Button('Download', key='DOWNLOADSUB', disabled=True)]
@@ -239,6 +239,10 @@ def run():
                 window_download_subs['DOWNLOADSUB'].update(disabled=False)
             if event_subs == 'DOWNLOADSUB':
                 unzipped_sub = handle_zip.download_zip(sub_selected_zip_down)
+                if unzipped_sub:
+                    sg.popup_ok('File downloaded succesfully.\nYou can find it in downloaded folder in zip format')
+                else:
+                    sg.popup_ok('There was an error in dowloading file, please try again')
             window_download_subs['MOVIENAME'].update(movie.name)
             window_download_subs['MOVIEYEAR'].update(movie.year)
             window_download_subs['IMDBID'].update(movie.imdb_id)
