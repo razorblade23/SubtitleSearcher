@@ -108,7 +108,7 @@ def subs_window():
             ])],
         ])],
         [sg.Frame(title='Select subtitle', layout=[
-            [sg.Table(values=[['','','']], headings=['#', 'Subtitle name', 'Subtitle language'], auto_size_columns=True, key='SUBSTABLE')]
+            [sg.Listbox(values=[['1','2','3'],['4','4','4']], key='SUBSTABLE', size=(50,10), select_mode='LISTBOX_SELECT_MODE_SINGLE', enable_events=True)]
         ]),
         sg.Frame(title='Selected file metadata', layout=[
             [sg.Column(layout=[
@@ -137,6 +137,8 @@ def run():
     window = sg.Window(title='Subbydoo', layout=main_window(), element_justification='center', icon=icon, finalize=True)
     while True:
         event, values = window.read(timeout=400) # This window.read() is how you get all values and events from your windows
+        #print(f'Event: {event}')
+        #print(f'Values: {values}')
         if event == sg.WIN_CLOSED: # If window is closed break from the loop
             break
         if event == 'Save':
@@ -177,11 +179,11 @@ def run():
                 subtitles = opensubs.request_subtitles(link)
             subtitles=[]
             all_subs = []
-            if len(subtitles) == 0: # If finding movie with hash failed and list "subtitles" is empty so it len
+            if len(subtitles) == 0: # If finding movie with hash failed and list "subtitles" is empty so it length is 0 
                 movie_name = sg.popup_get_text('Finding subtitles using hash failed!\nPlease input name of your movie.')
-                movie_name.lower()
-                movie_name = urllib.parse.quote(movie_name)
-                link = opensubs.create_link(query=movie_name, language='hrv')
+                movie_name.lower() # Make all letters of movie name lowercase
+                movie_name = urllib.parse.quote(movie_name) # Make words URL friendly
+                link = opensubs.create_link(query=movie_name, language='hrv') # Create a link to search for movie by its name and language
                 try:
                     subtitles = opensubs.request_subtitles(link)
                     for number, subtitle in enumerate(subtitles):
@@ -199,30 +201,45 @@ def run():
                         movie.set_metadata(subtitle['MovieName'], subtitle['MovieYear'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['IDMovieImdb'])
                     number = movies.MovieSubtitle(subtitle['SubFileName'], subtitle['SubLanguageID'], subtitle['SubFormat'], subtitle['SubDownloadsCnt'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['Score'])
                     all_subs.append(number)
-            print('Total numbers of subtitles found for this entry: {}'.format(len(all_subs)))
-            print('Score of a subtitle is used to determine how well it will fit for your movie')
-            print('Here are all matching subtitles')
-            for i in range(len(all_subs)):
-                if i > 9:
-                    continue
-                print()
-                print('Subtitle number: {}'.format(i+1))
-                print('Subtitle name:\n{}'.format(all_subs[i].sub_file_name))
-                print('Subtitle downloads count: {}'.format(all_subs[i].sub_download_count))
-                print('Score: {}'.format(all_subs[i].score))
-                print('Use this link to download in GZ format:\n{}'.format(all_subs[i].sub_download_link))
-                print('Use this link to download in ZIP format:\n{}'.format(all_subs[i].sub_zip_donwload_link))
+            #print('Total numbers of subtitles found for this entry: {}'.format(len(all_subs)))
+            #print('Score of a subtitle is used to determine how well it will fit for your movie')
+            #print('Here are first 10 matching subtitles')
+            #for i in range(len(all_subs)):
+            #    if i >= 10:
+            #        continue
+            #    print()
+            #    print('Subtitle number: {}'.format(i+1))
+            #    print('Subtitle name:\n{}'.format(all_subs[i].sub_file_name))
+            #    print('Subtitle downloads count: {}'.format(all_subs[i].sub_download_count))
+            #    print('Score: {}'.format(all_subs[i].score))
+            #    print('Use this link to download in GZ format:\n{}'.format(all_subs[i].sub_download_link))
+            #    print('Use this link to download in ZIP format:\n{}'.format(all_subs[i].sub_zip_donwload_link))
             WINDOWSUBS = True
         if WINDOWSUBS:
             WINDOWSUBS = False
             window_download_subs = sg.Window(title='Subbydoo - download subs', layout=subs_window(), element_justification='center', icon=icon, finalize=True)
             event_subs, values_subs = window_download_subs.read(timeout=400)
+            print(f'Event: {event_subs}')
+            #print(f'Values: {values_subs}')
             try:
                 window_download_subs['MOVIENAME'].update(movie.name)
                 window_download_subs['MOVIEYEAR'].update(movie.year)
                 window_download_subs['IMDBID'].update(movie.imdb_id)
+                nmb = []
+                sub_name = []
+                sub_lang = []
+                whole_list = []
+                for q in range(len(all_subs)):
+                    nmb.append(q)
+                    sub_name.append(all_subs[q].sub_file_name)
+                    sub_lang.append(all_subs[q].sub_lang_id)
+                for t in range(len(all_subs)):
+                    whole_list.append(nmb[t])
+                    whole_list.append(sub_name[t])
+                    whole_list.append(sub_lang[t])
+                window_download_subs['SUBSTABLE'].update(values=sub_name)
             except:
                 pass
 
-    os.system('clear') # Clears terminal window
+    #os.system('clear') # Clears terminal window
     window.close() # Closes main window
