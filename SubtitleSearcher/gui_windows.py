@@ -20,9 +20,9 @@ def main_window():
                                             disabled_readonly_text_color='red'), 
                             sg.FilesBrowse('Browse', size=(8,2), key='ChooseMultiple', initial_folder='~/Downloads',
                                             file_types=(('Video files', '.avi'),('Video files', '.mkv'),))],
-                            [sg.Button('Search for single file', key='SEARCHBYSINGLEFILE'), sg.Button('Search multiple files', key='SEARCHBYMULTIFILE')]
+                            [sg.Button('Search for single file', key='SEARCHBYSINGLEFILE', disabled=True), sg.Button('Search multiple files', key='SEARCHBYMULTIFILE', disabled=True)]
                         ])],
-                        [sg.Tab(title='Search by IMDB ID', layout=[
+                        [sg.Tab(title='Search by IMDB ID', disabled=True, layout=[
                             [sg.Frame(title='ID', layout=[
                                 [sg.Text('Enter IMDB ID')],
                                 [sg.InputText(key='IMDBID', size=(8,1))],

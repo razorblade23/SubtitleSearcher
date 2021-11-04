@@ -1,22 +1,3 @@
-'''
-    Before running this as python script you must install python3 and a good idea is to make a virtual enviroment.
-    Virtual enviroment is often called venv. As of python 3.6 venv is automaticly included in python installation.
-
-    Create empty folder in terminal and enter it.
-
-    For Windows activation:
-    -> python -m venv venv/
-    -> venv/Scripts/activate.ps1 (for PowerShell terminal)
-    -> venv/Scripts/activate.bat (for CMD terminal)
-    For Linux activation:
-    -> python3 -m venv venv/.
-    -> source venv/bin/activate
-
-    When you are in your activated virtual enviroment (there is a name of your env in parenthesis () before command in terminal) run:
-    pip install -r requirements.txt
-
-    This will install all the modules needed for this to work
-'''
 # Importing modules
 import os
 import PySimpleGUI as sg
@@ -54,6 +35,12 @@ def run():
                 window.keep_on_top_clear()
             else:
                 window.keep_on_top_set()
+
+        if values['SINGLEFILE'] != 'Browse this to select a single file !':
+            window['SEARCHBYSINGLEFILE'].update(disabled=False)
+        
+        if values['MULTIPLEFILES'] != 'Browse this to select multiple files !':
+            window['SEARCHBYMULTIFILE'].update(disabled=False)
 
         if event == 'SEARCHBYSINGLEFILE':
             language_selected = gui_control.language_selector(values)
@@ -93,6 +80,7 @@ def run():
                     sg.popup_ok('File downloaded succesfully.', title='Success')
                     selected_sub.extract_zip()
                     selected_sub.move_files()
+                    selected_sub.delete_remains()
                 else:
                     sg.popup_ok('There was an error in dowloading file, please try again')
 

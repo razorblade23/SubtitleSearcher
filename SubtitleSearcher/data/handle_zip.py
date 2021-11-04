@@ -54,3 +54,18 @@ class ZipHandler:
         mod_string = org_string[:size - 4]
         dst_path = f'{mod_string}.srt'
         shutil.move(src_path, dst_path)
+    
+    def delete_remains(self):
+        with os.scandir(self.download_folder) as entries:
+            for entry in entries:
+                if entry.is_dir() and not entry.is_symlink():
+                    shutil.rmtree(entry.path)
+                else:
+                    os.remove(entry.path)
+        
+        with os.scandir(self.extracted_folder) as entries:
+            for entry in entries:
+                if entry.is_dir() and not entry.is_symlink():
+                    shutil.rmtree(entry.path)
+                else:
+                    os.remove(entry.path)
