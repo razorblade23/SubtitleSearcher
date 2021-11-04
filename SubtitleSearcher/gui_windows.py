@@ -86,8 +86,16 @@ def subs_window():
                 [sg.T(key='SUBNAME', text_color='white', size=(65,1))]
             ])],
             [sg.Column(layout=[
+                [sg.T('Subtitle extension:')],
+                [sg.T(key='SUBEXTENSION', text_color='white', size=(10,1))]
+            ])],
+            [sg.Column(layout=[
                 [sg.T('Subtitle language:')],
                 [sg.T(key='SUBLANG', text_color='white', size=(10,1))]
+            ])],
+            [sg.Column(layout=[
+                [sg.T('Subtitle downloads count:')],
+                [sg.T(key='SUBDOWNCOUNT', text_color='white', size=(10,1))]
             ])],
             [sg.Column(layout=[
                 [sg.T('Subtitle score:')],
