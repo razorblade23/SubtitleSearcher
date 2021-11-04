@@ -1,6 +1,7 @@
 /venv
-**/__pycache__
+**/__pycache__/
 *.pyc
+run.spec
 downloaded
 extracted
 build
