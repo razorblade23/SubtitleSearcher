@@ -47,11 +47,13 @@ class ZipHandler:
         with ZipFile(file_name, 'r') as zip:
             zip.extractall(path='extracted')
 
-    def move_files(self):
+    def move_files(self, append_lang_code=None):
         src_path = f'extracted/{self.filename}'
         org_string = self.movie_folder
         size = len(org_string)
         mod_string = org_string[:size - 4]
+        if append_lang_code != None:
+            mod_string = f'{mod_string}-{append_lang_code}'
         dst_path = f'{mod_string}.srt'
         shutil.move(src_path, dst_path)
     

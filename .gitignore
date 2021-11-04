@@ -2,3 +2,5 @@
 **__pycache__
 downloaded
 extracted
+build/**
+dist/**

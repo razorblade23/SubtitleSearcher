@@ -16,7 +16,7 @@ WINDOWSUBS = False
 language_selected = []
 
 main_layout = gui_windows.main_window()
-single_sub_layout = gui_windows.subs_window()
+
 
 # Start infinite loop for your GUI windows and reading from them
 def run():
@@ -49,6 +49,7 @@ def run():
 
         if not WINDOWSUBS and event == 'SEARCHBYSINGLEFILE':
             WINDOWSUBS = True
+            single_sub_layout = gui_windows.subs_window()
             window_download_subs = sg.Window(title='Subbydoo - download subs', layout=single_sub_layout, element_justification='center', icon=icon, finalize=True)
         
         if WINDOWSUBS:
@@ -56,6 +57,7 @@ def run():
             #print(f'Event: {event_subs}')
             #print(f'Values: {values_subs}')
             window_download_subs['STATUSBAR'].update(value='Subtitles found: {} | Language selected: {}'.format(len(all_subs), language_selected[0]))
+            
             if event_subs == sg.WIN_CLOSED:
                 WINDOWSUBS = False
                 window_download_subs.close()
@@ -77,7 +79,7 @@ def run():
                 selected_sub = handle_zip.ZipHandler(sub_selected_filename, sub_selected_zip_down, values['SINGLEFILE'])
                 downloadIt = selected_sub.download_zip()
                 if downloadIt:
-                    sg.popup_ok('File downloaded succesfully.', title='Success')
+                    sg.popup_ok('File downloaded succesfully.\nYou can find your subtitle in movie folder', title='Success', no_titlebar=True)
                     selected_sub.extract_zip()
                     selected_sub.move_files()
                     selected_sub.delete_remains()

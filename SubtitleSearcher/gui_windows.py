@@ -61,7 +61,7 @@ def main_window():
 def subs_window():
     layout = [
         [sg.Frame(title='Options', layout=[
-            [sg.Checkbox('Match subtitle filename with movie filename?'), sg.Checkbox('Append language code to end of subtitle file?')]
+            [sg.Checkbox('Match subtitle filename with movie filename?', default=True)], [sg.Checkbox('Append language code to end of subtitle file?')]
         ])],
         [sg.Frame(title='Selected movie metadata', layout=[
             [sg.Column(layout=[
