@@ -1,5 +1,3 @@
-#from SubtitleSearcher.imdb_metadata import search_by_id
-import pandas as pd
 class Movie:
     def __init__(self, byte_size, file_hash):
         self.byte_size = byte_size

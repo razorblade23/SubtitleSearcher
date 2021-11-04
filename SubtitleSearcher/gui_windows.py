@@ -4,7 +4,7 @@ sg.theme('DarkBrown4')
 
 def main_window():
     layout = [
-        [sg.Image(source='SubtitleSearcher/static/images/logo.png')],
+        #[sg.Image(source='SubtitleSearcher/static/images/logo.png')],
         [sg.Text('Project aiming to make finding and downloading subtitles a breeze!', font='Any 16')],
         [sg.TabGroup(layout=[
             [sg.Tab(title='Main', layout=[
