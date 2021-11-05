@@ -63,7 +63,7 @@ def subs_window():
         [sg.Frame(title='Selected movie metadata', layout=[
             [sg.Column(layout=[
                 [sg.T('Name:')],
-                [sg.T(key='MOVIENAME', text_color='white', size=(18,1))]
+                [sg.T(key='MOVIENAME', text_color='white', size=(26,1))]
             ]),
             sg.Column(layout=[
                 [sg.T('Year:')],

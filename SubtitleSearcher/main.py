@@ -90,7 +90,7 @@ def run():
                 else:
                     sg.popup_ok('There was an error in dowloading file, please try again')
 
-            window_download_subs['MOVIENAME'].update(movie.name)
+            window_download_subs['MOVIENAME'].update(movie.title)
             window_download_subs['MOVIEYEAR'].update(movie.year)
             window_download_subs['IMDBID'].update(movie.imdb_id)
             sub_name = []
@@ -99,6 +99,6 @@ def run():
             window_download_subs['SUBSTABLE'].update(values=sub_name)
             
 
-    #os.system('clear') # Clears terminal window
+    os.system('clear') # Clears terminal window
     window.close() # Closes main window
     return

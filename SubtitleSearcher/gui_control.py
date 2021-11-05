@@ -1,4 +1,4 @@
-import imdb
+import ntpath
 from SubtitleSearcher.data import imdb_metadata
 
 def language_selector(values):
@@ -27,34 +27,37 @@ def search_by_single_file(values, lang):
     except FileNotFoundError:
         sg.popup_ok('File not found, please try again', title='File not found')
     else:
-        sg.popup_quick_message('Movie hash found\nSearching for a match')
-        movie = movies.Movie(fileSize, hashed_file)
-        link = opensubs.create_link(bytesize=fileSize, hash=hashed_file, language=lang)
+        print(f'File hash found: {hashed_file}')
+        movie = movies.Movie(fileSize, hashed_file, values['SINGLEFILE'], ntpath.basename(values['SINGLEFILE']))
+        movie.set_from_filename()
+        print('Getting IMDB ID by movie name')
+        movie_imdb_metadata = imdb_metadata.search_imdb_by_title(movie.title)
+        movie_imdb_id = movie_imdb_metadata[0].movieID
+        movie.set_imdb_id(movie_imdb_id)
+        print(f'Movie name: {movie.title} - IMDB ID: {movie.imdb_id}')
+        link = opensubs.create_link(imdb=movie.imdb_id, bytesize=fileSize, hash=hashed_file, language=lang)
         subtitles = opensubs.request_subtitles(link)
-    subtitles=[] # Comment / Uncomment this to simulate finding hash failed
+    #subtitles=[] # Comment / Uncomment this to simulate finding hash failed
     all_subs = []
-    if len(subtitles) == 0: # If finding movie with hash failed and list "subtitles" is empty so it length is 0 
-        movie_name = sg.popup_get_text('Hash search failed !\nPlease enter name of your movie.')
+    sg.popup_quick_message('Getting movie metadata, please wait', text_color='white')
+    if len(subtitles) == 0: # If finding movie with hash failed and list "subtitles" is empty so it length is 0
+        print('Finding movie using hash failed, using name + IMDB ID')
+        movie_name = movie.title
         if movie_name != None:
             movie_name.lower() # Make all letters of movie name lowercase
             movie_name = urllib.parse.quote(movie_name) # Make words URL friendly
-            sg.popup_quick_message('Getting movie metadata, please wait', text_color='white')
-            movie_id = imdb_metadata.search_imdb_by_title(movie_name)
-            link = opensubs.create_link(imdb=movie_id[0].movieID, query=movie_name, language=lang) # Create a link to search for movie by its name and language
+            link = opensubs.create_link(imdb=movie.imdb_id, query=movie_name, language=lang) # Create a link to search for movie by its name and language
         try:
             subtitles = opensubs.request_subtitles(link)
             for number, subtitle in enumerate(subtitles):
-                if number == 0:
-                    movie.set_metadata(subtitle['MovieName'], subtitle['MovieYear'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['IDMovieImdb'])
                 number = movies.MovieSubtitle(subtitle['SubFileName'], subtitle['SubLanguageID'], subtitle['SubFormat'], subtitle['SubDownloadsCnt'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['Score'])
                 all_subs.append(number)
         except:
             sg.popup_ok('We got error 503.\nThat usually means there is maintanance\n under way on open subtitles servers.\nPlease try another method for serching or try again later',
                         title='Error', )
     else:
+        print('File found using hash')
         for number, subtitle in enumerate(subtitles):
-            if number == 0:
-                movie.set_metadata(subtitle['MovieName'], subtitle['MovieYear'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['IDMovieImdb'])
             number = movies.MovieSubtitle(subtitle['SubFileName'], subtitle['SubLanguageID'], subtitle['SubFormat'], subtitle['SubDownloadsCnt'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['Score'])
             all_subs.append(number)
     return movie, all_subs
