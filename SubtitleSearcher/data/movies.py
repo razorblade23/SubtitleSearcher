@@ -35,8 +35,8 @@ class Movie:
     def set_imdb_id(self, imdb_id):
         self.imdb_id = imdb_id
     
-    #def add_imdb_metadata(self):
-    #    imdb_response = search_by_id(self.imdb_id)
+    def set_movie_kind(self, kind):
+        self.kind = kind
 
 class MovieSubtitle():
     def __init__(self, sub_file_name, sub_lang_id, sub_format, sub_download_count, sub_download_link, sub_zip_donwload_link, score):

@@ -27,21 +27,23 @@ def search_by_single_file(values, lang):
     except FileNotFoundError:
         sg.popup_ok('File not found, please try again', title='File not found')
     else:
-        print(f'File hash found: {hashed_file}')
         movie = movies.Movie(fileSize, hashed_file, values['SINGLEFILE'], ntpath.basename(values['SINGLEFILE']))
         movie.set_from_filename()
         print('Getting IMDB ID by movie name')
-        movie_imdb_metadata = imdb_metadata.search_imdb_by_title(movie.title)
-        movie_imdb_id = movie_imdb_metadata[0].movieID
+        metadata = imdb_metadata.search_imdb_by_title(movie.title)
+        type_of_video = metadata[0]['kind']
+        movie.set_movie_kind(type_of_video)
+        movie_imdb_id = metadata[0].movieID
         movie.set_imdb_id(movie_imdb_id)
         print(f'Movie name: {movie.title} - IMDB ID: {movie.imdb_id}')
         link = opensubs.create_link(imdb=movie.imdb_id, bytesize=fileSize, hash=hashed_file, language=lang)
+        print('Requesting subtitles by video hash')
         subtitles = opensubs.request_subtitles(link)
     #subtitles=[] # Comment / Uncomment this to simulate finding hash failed
     all_subs = []
-    sg.popup_quick_message('Getting movie metadata, please wait', text_color='white')
+    sg.popup_quick_message('Getting movie metadata, please wait', text_color='white', auto_close_duration=1)
     if len(subtitles) == 0: # If finding movie with hash failed and list "subtitles" is empty so it length is 0
-        print('Finding movie using hash failed, using name + IMDB ID')
+        print('Finding movie using hash failed\n--> using name + IMDB ID')
         movie_name = movie.title
         if movie_name != None:
             movie_name.lower() # Make all letters of movie name lowercase
@@ -56,7 +58,7 @@ def search_by_single_file(values, lang):
             sg.popup_ok('We got error 503.\nThat usually means there is maintanance\n under way on open subtitles servers.\nPlease try another method for serching or try again later',
                         title='Error', )
     else:
-        print('File found using hash')
+        print('Finding movie using hash succesful')
         for number, subtitle in enumerate(subtitles):
             number = movies.MovieSubtitle(subtitle['SubFileName'], subtitle['SubLanguageID'], subtitle['SubFormat'], subtitle['SubDownloadsCnt'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['Score'])
             all_subs.append(number)

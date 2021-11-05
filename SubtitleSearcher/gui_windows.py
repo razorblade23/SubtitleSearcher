@@ -60,7 +60,7 @@ def main_window():
 
 def subs_window():
     layout = [
-        [sg.Frame(title='Selected movie metadata', layout=[
+        [sg.Frame(title='Selected file metadata', layout=[
             [sg.Column(layout=[
                 [sg.T('Name:')],
                 [sg.T(key='MOVIENAME', text_color='white', size=(26,1))]
@@ -78,7 +78,7 @@ def subs_window():
                 [sg.T(key='KIND', text_color='white', size=(12,1))]
             ]),
             sg.Column(layout=[
-                [sg.T('Wrong movie / tv show?')],
+                [sg.T('Wrong movie/tv show?')],
                 [sg.B('Change movie/tv show', key='CHANGEMOVIE')]
             ])],
         ]),
@@ -88,7 +88,7 @@ def subs_window():
         [sg.Frame(title='Select subtitle', layout=[
             [sg.Listbox(values=[['1','2','3'],['4','4','4']], key='SUBSTABLE', size=(80,20), select_mode='LISTBOX_SELECT_MODE_SINGLE', enable_events=True)]
         ]),
-        sg.Frame(title='Selected file metadata', layout=[
+        sg.Frame(title='Selected subtitle metadata', layout=[
             [sg.Column(layout=[
                 [sg.T('Subtitle name:')],
                 [sg.T(key='SUBNAME', text_color='white', size=(65,1))]
