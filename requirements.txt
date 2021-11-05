@@ -5,3 +5,4 @@ PySimpleGUI==4.51.2
 requests==2.26.0
 soupsieve==2.2.1
 urllib3==1.26.7
+imdbpy

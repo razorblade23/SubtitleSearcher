@@ -27,13 +27,14 @@ def search_by_single_file(values, lang):
     except FileNotFoundError:
         sg.popup_ok('File not found, please try again', title='File not found')
     else:
+        sg.popup_quick_message('Movie hash found\nSearching for a match')
         movie = movies.Movie(fileSize, hashed_file)
         link = opensubs.create_link(bytesize=fileSize, hash=hashed_file, language=lang)
         subtitles = opensubs.request_subtitles(link)
     subtitles=[] # Comment / Uncomment this to simulate finding hash failed
     all_subs = []
     if len(subtitles) == 0: # If finding movie with hash failed and list "subtitles" is empty so it length is 0 
-        movie_name = sg.popup_get_text('Finding subtitles using hash failed!\nPlease input name of your movie.')
+        movie_name = sg.popup_get_text('Hash search failed !\nPlease enter name of your movie.')
         if movie_name != None:
             movie_name.lower() # Make all letters of movie name lowercase
             movie_name = urllib.parse.quote(movie_name) # Make words URL friendly

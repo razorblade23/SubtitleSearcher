@@ -62,16 +62,24 @@ def subs_window():
     layout = [
         [sg.Frame(title='Selected movie metadata', layout=[
             [sg.Column(layout=[
-                [sg.T('Movie name:')],
-                [sg.T(key='MOVIENAME', text_color='white', size=(30,1))]
+                [sg.T('Name:')],
+                [sg.T(key='MOVIENAME', text_color='white', size=(18,1))]
             ]),
             sg.Column(layout=[
-                [sg.T('Movie year:')],
+                [sg.T('Year:')],
                 [sg.T(key='MOVIEYEAR', text_color='white', size=(5,1))]
             ]),
             sg.Column(layout=[
-                [sg.T('Movie IMDB ID:')],
+                [sg.T('IMDB ID:')],
                 [sg.T(key='IMDBID', text_color='white', size=(8,1))]
+            ]),
+            sg.Column(layout=[
+                [sg.T('Kind:')],
+                [sg.T(key='KIND', text_color='white', size=(12,1))]
+            ]),
+            sg.Column(layout=[
+                [sg.T('Wrong movie / tv show?')],
+                [sg.B('Change movie/tv show', key='CHANGEMOVIE')]
             ])],
         ]),
         sg.Frame(title='Options', layout=[
