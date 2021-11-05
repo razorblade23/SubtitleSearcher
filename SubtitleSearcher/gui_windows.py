@@ -4,7 +4,7 @@ sg.theme('DarkBrown4')
 
 def main_window():
     layout = [
-        #[sg.Image(source='SubtitleSearcher/static/images/logo.png')],
+        [sg.Image(source='SubtitleSearcher/static/images/logo.png')],
         [sg.Text('Project aiming to make finding and downloading subtitles a breeze!', font='Any 16')],
         [sg.TabGroup(layout=[
             [sg.Tab(title='Main', layout=[
@@ -60,9 +60,6 @@ def main_window():
 
 def subs_window():
     layout = [
-        [sg.Frame(title='Options', layout=[
-            [sg.Checkbox('Match subtitle filename with movie filename?', default=True)], [sg.Checkbox('Append language code to end of subtitle file?')]
-        ])],
         [sg.Frame(title='Selected movie metadata', layout=[
             [sg.Column(layout=[
                 [sg.T('Movie name:')],
@@ -76,6 +73,9 @@ def subs_window():
                 [sg.T('Movie IMDB ID:')],
                 [sg.T(key='IMDBID', text_color='white', size=(8,1))]
             ])],
+        ]),
+        sg.Frame(title='Options', layout=[
+            [sg.Checkbox('Match subtitle filename with movie filename?', default=True)], [sg.Checkbox('Append language code to end of subtitle file?')]
         ])],
         [sg.Frame(title='Select subtitle', layout=[
             [sg.Listbox(values=[['1','2','3'],['4','4','4']], key='SUBSTABLE', size=(80,20), select_mode='LISTBOX_SELECT_MODE_SINGLE', enable_events=True)]

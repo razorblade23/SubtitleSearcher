@@ -1,4 +1,5 @@
-
+import imdb
+from SubtitleSearcher.data import imdb_metadata
 
 def language_selector(values):
     language_selected = []
@@ -29,14 +30,16 @@ def search_by_single_file(values, lang):
         movie = movies.Movie(fileSize, hashed_file)
         link = opensubs.create_link(bytesize=fileSize, hash=hashed_file, language=lang)
         subtitles = opensubs.request_subtitles(link)
-    #subtitles=[] # Comment / Uncomment this to simulate finding hash failed
+    subtitles=[] # Comment / Uncomment this to simulate finding hash failed
     all_subs = []
     if len(subtitles) == 0: # If finding movie with hash failed and list "subtitles" is empty so it length is 0 
         movie_name = sg.popup_get_text('Finding subtitles using hash failed!\nPlease input name of your movie.')
         if movie_name != None:
             movie_name.lower() # Make all letters of movie name lowercase
             movie_name = urllib.parse.quote(movie_name) # Make words URL friendly
-            link = opensubs.create_link(query=movie_name, language=lang) # Create a link to search for movie by its name and language
+            sg.popup_quick_message('Getting movie metadata, please wait', text_color='white')
+            movie_id = imdb_metadata.search_imdb_by_title(movie_name)
+            link = opensubs.create_link(imdb=movie_id[0].movieID, query=movie_name, language=lang) # Create a link to search for movie by its name and language
         try:
             subtitles = opensubs.request_subtitles(link)
             for number, subtitle in enumerate(subtitles):

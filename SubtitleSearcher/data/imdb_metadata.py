@@ -1,5 +1,9 @@
-from SubtitleSearcher.openSubtitles import requests
+from SubtitleSearcher.data.openSubtitles import requests
 import json
+from imdb import IMDb
+
+IMDB = IMDb()
+
 
 url = "https://imdb8.p.rapidapi.com/title/find"
 
@@ -31,3 +35,6 @@ def search_by_id(id_raw):
 
     return json.loads(response.text)
 
+def search_imdb_by_title(title):
+    search = IMDB.search_movie(title)
+    return search
