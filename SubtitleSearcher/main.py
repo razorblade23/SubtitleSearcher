@@ -4,6 +4,7 @@ import PySimpleGUI as sg
 from tkinter.constants import FALSE
 from SubtitleSearcher.data import handle_zip
 from SubtitleSearcher import gui_control, gui_windows
+from contextlib import suppress
 import platform
 
 system = platform.system()
@@ -90,10 +91,10 @@ def run():
                 else:
                     sg.popup_ok('There was an error in dowloading file, please try again')
 
-            window_download_subs['MOVIENAME'].update(movie.title)
-            window_download_subs['MOVIEYEAR'].update(movie.year)
-            window_download_subs['IMDBID'].update(movie.imdb_id)
-            window_download_subs['KIND'].update(movie.kind)
+            with suppress(Exception): window_download_subs['MOVIENAME'].update(movie.title)
+            with suppress(Exception): window_download_subs['MOVIEYEAR'].update(movie.year)
+            with suppress(Exception): window_download_subs['IMDBID'].update(movie.imdb_id)
+            with suppress(Exception): window_download_subs['KIND'].update(movie.kind)
             sub_name = []
             for q in range(len(all_subs)):
                 sub_name.append(all_subs[q].sub_file_name)
