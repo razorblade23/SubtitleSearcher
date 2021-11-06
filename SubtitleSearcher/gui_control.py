@@ -57,13 +57,13 @@ def search_by_single_file(values, lang, window):
         try:
             subtitles = opensubs.request_subtitles(link)
             for number, subtitle in enumerate(subtitles):
-                number = movies.Subtitle(subtitle['SubFileName'], subtitle['SubLanguageID'], subtitle['SubFormat'], subtitle['SubDownloadsCnt'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['Score'])
+                number = movies.Subtitle(subtitle)
                 all_subs.append(number)
         except:
             sg.popup_ok('We got error 503.\nThat usually means there is maintanance\n under way on open subtitles servers.\nPlease try another method for serching or try again later',
                         title='Error', )
     else:
         for number, subtitle in enumerate(subtitles):
-            number = movies.Subtitle(subtitle['SubFileName'], subtitle['SubLanguageID'], subtitle['SubFormat'], subtitle['SubDownloadsCnt'], subtitle['SubDownloadLink'], subtitle['ZipDownloadLink'], subtitle['Score'])
+            number = movies.Subtitle(subtitle)
             all_subs.append(number)
     return movie, all_subs

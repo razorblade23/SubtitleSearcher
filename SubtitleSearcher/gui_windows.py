@@ -96,23 +96,33 @@ def subs_window():
         sg.Frame(title='Selected subtitle metadata', layout=[
             [sg.Column(layout=[
                 [sg.T('Subtitle name:')],
-                [sg.T(key='SUBNAME', text_color='white', size=(65,1))]
+                [sg.T(key='SUBNAME', text_color='white', size=(65,1))],
+                [sg.T('Subtitle size: '),
+                sg.T(key='SUBSIZE', text_color='white', size=(8,1))],
+                [sg.T('Subtitle hash: '),
+                sg.T(key='SUBHASH', text_color='white', size=(8,1))]
             ])],
             [sg.Column(layout=[
-                [sg.T('Subtitle extension:')],
-                [sg.T(key='SUBEXTENSION', text_color='white', size=(10,1))]
+                [sg.T('Subtitle user ID: '),
+                sg.T(key='SUBUSERID', text_color='white', size=(10,1))],
+                [sg.T('Subtitle user nickname: '),
+                sg.T(key='SUBUSERNICK', text_color='white', size=(16,1))],
+                [sg.T('Subtitle add date: '),
+                sg.T(key='SUBADDDATE', text_color='white', size=(20,1))],
             ])],
             [sg.Column(layout=[
-                [sg.T('Subtitle language:')],
-                [sg.T(key='SUBLANG', text_color='white', size=(10,1))]
+                [sg.T('Subtitle extension: '),
+                sg.T(key='SUBEXTENSION', text_color='white', size=(10,1))],
+                [sg.T('Subtitle language: '),
+                sg.T(key='SUBLANG', text_color='white', size=(10,1))]
             ])],
             [sg.Column(layout=[
-                [sg.T('Subtitle downloads count:')],
-                [sg.T(key='SUBDOWNCOUNT', text_color='white', size=(10,1))]
+                [sg.T('Subtitle downloads count: '),
+                sg.T(key='SUBDOWNCOUNT', text_color='white', size=(10,1))]
             ])],
             [sg.Column(layout=[
-                [sg.T('Subtitle score:')],
-                [sg.T(key='SUBSCORE', text_color='white', size=(10,1))]
+                [sg.T('Subtitle score: '),
+                sg.T(key='SUBSCORE', text_color='white', size=(10,1))]
             ])],
         ])],
         [sg.Button('Download', key='DOWNLOADSUB', disabled=True)],
