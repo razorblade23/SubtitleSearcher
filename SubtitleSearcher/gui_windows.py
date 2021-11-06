@@ -107,6 +107,8 @@ def subs_window():
                 sg.T(key='SUBUSERID', text_color='white', size=(10,1))],
                 [sg.T('Subtitle user nickname: '),
                 sg.T(key='SUBUSERNICK', text_color='white', size=(16,1))],
+                [sg.T('Subtitle author comment: '),
+                sg.T(key='SUBUSERCOMMENT', text_color='white', size=(16,1))],
                 [sg.T('Subtitle add date: '),
                 sg.T(key='SUBADDDATE', text_color='white', size=(20,1))],
             ])],

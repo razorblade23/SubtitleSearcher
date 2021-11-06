@@ -76,7 +76,7 @@ def run():
                         window_download_subs['SUBUSERID'].update(sub.UserID)
                         window_download_subs['SUBUSERNICK'].update(sub.UserNickName)
                         window_download_subs['SUBADDDATE'].update(sub.SubAddDate)
-
+                        window_download_subs['SUBUSERCOMMENT'].update(sub.SubAuthorComment)
                         window_download_subs['SUBEXTENSION'].update(sub.SubFormat)
                         window_download_subs['SUBLANG'].update(sub.LanguageName)
                         window_download_subs['SUBDOWNCOUNT'].update(str(sub.SubDownloadsCnt) + ' times')
