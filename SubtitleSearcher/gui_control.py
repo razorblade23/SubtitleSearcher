@@ -36,6 +36,7 @@ def search_by_single_file(values, lang, window):
     else:
         movie = movies.Movie(fileSize, hashed_file, values['SINGLEFILE'], ntpath.basename(values['SINGLEFILE']))
         movie.set_from_filename()
+        print(movie.movie_info)
         metadata = imdb_metadata.search_imdb_by_title(movie.title)
         type_of_video = metadata[0]['kind']
         movie.set_movie_kind(type_of_video)
