@@ -81,6 +81,7 @@ def run():
                         window_download_subs['SUBLANG'].update(sub.LanguageName)
                         window_download_subs['SUBDOWNCOUNT'].update(str(sub.SubDownloadsCnt) + ' times')
                         window_download_subs['SUBSCORE'].update(str(sub.Score) + ' %')
+                        print(sub.SubFileName) # ovdje mjenjaj sto ti ispisuje
                 window_download_subs['DOWNLOADSUB'].update(disabled=False)
 
             if event_subs == 'DOWNLOADSUB':
