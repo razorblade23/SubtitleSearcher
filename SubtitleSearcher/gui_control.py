@@ -52,7 +52,7 @@ def search_by_single_file(values, lang, window):
         if movie_name != None:
             movie_name.lower() # Make all letters of movie name lowercase
             movie_name = urllib.parse.quote(movie_name) # Make words URL friendly
-            link = opensubs.create_link(imdb=movie.imdb_id, hash=movie.file_hash, bytesize=movie.byte_size, query=f'{movie_name} {movie.excess}', language=lang) # Create a link to search for movie by its name and language
+            link = opensubs.create_link(imdb=movie.imdb_id, hash=movie.file_hash, bytesize=movie.byte_size, query=f'{movie_name}', language=lang) # Create a link to search for movie by its name and language
         try:
             subtitles = opensubs.request_subtitles(link)
             for number, subtitle in enumerate(subtitles):
