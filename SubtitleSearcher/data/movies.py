@@ -62,11 +62,45 @@ class Movie:
         self.kind = kind
 
 class Subtitle():
-    def __init__(self, sub_file_name, sub_lang_id, sub_format, sub_download_count, sub_download_link, sub_zip_donwload_link, score):
-        self.sub_file_name = sub_file_name
-        self.sub_lang_id = sub_lang_id
-        self.sub_format = sub_format
-        self.sub_download_count = sub_download_count
-        self.sub_download_link = sub_download_link
-        self.sub_zip_donwload_link = sub_zip_donwload_link
-        self.score = score
+    def __init__(self, subtitle):
+        self.IDSubtitleFile = subtitle['IDSubtitleFile']
+        self.SubFileName = subtitle['SubFileName']
+        self.SubActualCD = subtitle['SubActualCD']
+        self.SubSize = subtitle['SubSize']
+        self.SubHash = subtitle['SubHash']
+        self.SubLastTS = subtitle['SubLastTS']
+        self.SubTSGroup = subtitle['SubTSGroup']
+        self.InfoReleaseGroup = subtitle['InfoReleaseGroup']
+        self.InfoFormat = subtitle['InfoFormat']
+        self.IDSubtitle = subtitle['IDSubtitle']
+        self.UserID = subtitle['UserID']
+        self.SubLanguageID = subtitle['SubLanguageID']
+        self.SubFormat = subtitle['SubFormat']
+        self.SubSumCD = subtitle['SubSumCD']
+        self.SubAuthorComment = subtitle['SubAuthorComment']
+        self.SubAddDate = subtitle['SubAddDate']
+        self.SubBad = subtitle['SubBad']
+        self.SubRating = subtitle['SubRating']
+        self.SubSumVotes = subtitle['SubSumVotes']
+        self.SubDownloadsCnt = subtitle['SubDownloadsCnt']
+        self.MovieReleaseName = subtitle['MovieReleaseName']
+        self.MovieFPS = subtitle['MovieFPS']
+        self.IDMovie = subtitle['IDMovie']
+        self.IDMovieImdb = subtitle['IDMovieImdb']
+        self.MovieName = subtitle['MovieName']
+        self.MovieNameEng = subtitle['MovieNameEng']
+        self.MovieYear = subtitle['MovieYear']
+        self.MovieImdbRating = subtitle['MovieImdbRating']
+        self.UserNickName = subtitle['UserNickName']
+        self.SubTranslator = subtitle['SubTranslator']
+        self.ISO639 = subtitle['ISO639']
+        self.LanguageName = subtitle['LanguageName']
+        self.SubHearingImpaired = subtitle['SubHearingImpaired']
+        self.UserRank = subtitle['UserRank']
+        self.SeriesSeason = subtitle['SeriesSeason']
+        self.SeriesEpisode = subtitle['SeriesEpisode']
+        self.MovieKind = subtitle['MovieKind']
+        self.SubDownloadLink = subtitle['SubDownloadLink']
+        self.ZipDownloadLink = subtitle['ZipDownloadLink']
+        self.SubtitlesLink = subtitle['SubtitlesLink']
+        self.Score = subtitle['Score']

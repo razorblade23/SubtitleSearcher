@@ -69,18 +69,18 @@ def run():
 
             if event_subs == 'SUBSTABLE':
                 for sub in all_subs:
-                    if sub.sub_file_name == values_subs['SUBSTABLE'][0]:
-                        sub_selected_filename = sub.sub_file_name
-                        sub_selected_format = sub.sub_format
-                        sub_selected_lang = sub.sub_lang_id
-                        sub_selected_downCount = sub.sub_download_count
-                        sub_selected_score = sub.score
-                        sub_selected_zip_down = sub.sub_zip_donwload_link
-                window_download_subs['SUBNAME'].update(sub_selected_filename)
-                window_download_subs['SUBEXTENSION'].update(sub_selected_format)
-                window_download_subs['SUBLANG'].update(sub_selected_lang)
-                window_download_subs['SUBDOWNCOUNT'].update(str(sub_selected_downCount) + ' times')
-                window_download_subs['SUBSCORE'].update(str(sub_selected_score) + ' %')
+                    if sub.SubFileName == values_subs['SUBSTABLE'][0]:
+                        window_download_subs['SUBNAME'].update(sub.SubFileName)
+                        window_download_subs['SUBSIZE'].update(sub.SubSize)
+                        window_download_subs['SUBHASH'].update(sub.SubHash)
+                        window_download_subs['SUBUSERID'].update(sub.UserID)
+                        window_download_subs['SUBUSERNICK'].update(sub.UserNickName)
+                        window_download_subs['SUBADDDATE'].update(sub.SubAddDate)
+
+                        window_download_subs['SUBEXTENSION'].update(sub.SubFormat)
+                        window_download_subs['SUBLANG'].update(sub.LanguageName)
+                        window_download_subs['SUBDOWNCOUNT'].update(str(sub.SubDownloadsCnt) + ' times')
+                        window_download_subs['SUBSCORE'].update(str(sub.Score) + ' %')
                 window_download_subs['DOWNLOADSUB'].update(disabled=False)
 
             if event_subs == 'DOWNLOADSUB':
@@ -101,7 +101,7 @@ def run():
             window_download_subs['KIND'].update(movie.kind)
             sub_name = []
             for q in range(len(all_subs)):
-                sub_name.append(all_subs[q].sub_file_name)
+                sub_name.append(all_subs[q].SubFileName)
             window_download_subs['SUBSTABLE'].update(values=sub_name)
             
 
