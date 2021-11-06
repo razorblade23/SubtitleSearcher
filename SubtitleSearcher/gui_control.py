@@ -28,7 +28,7 @@ def search_by_single_file(values, lang, window):
     from SubtitleSearcher.main import sg
     import urllib
     opensubs = openSubtitles.searchOpenSubtitles()
-    sg.popup_notify('Searching subtitles, please wait', title='Search started', display_duration_in_ms=2000, fade_in_duration=60)
+    sg.popup_notify('Searching subtitles, please wait', title='Search started', display_duration_in_ms=1200, fade_in_duration=100)
     try:
         hashed_file = opensubs.hashFile(values['SINGLEFILE'])
         fileSize = opensubs.sizeOfFile(values['SINGLEFILE'])
@@ -45,14 +45,14 @@ def search_by_single_file(values, lang, window):
         window['STATUSBAR'].update(f'Movie name: {movie.title} - IMDB ID: {movie.imdb_id}')
         link = opensubs.create_link(imdb=movie.imdb_id, bytesize=fileSize, hash=hashed_file, language=lang)
         subtitles = opensubs.request_subtitles(link)
-    subtitles=[] # Comment / Uncomment this to simulate finding hash failed
+    #subtitles=[] # Comment / Uncomment this to simulate finding hash failed
     all_subs = []
     if len(subtitles) == 0: # If finding movie with hash failed and list "subtitles" is empty so it length is 0
         movie_name = movie.title
         if movie_name != None:
             movie_name.lower() # Make all letters of movie name lowercase
             movie_name = urllib.parse.quote(movie_name) # Make words URL friendly
-            link = opensubs.create_link(imdb=movie.imdb_id, query=f'{movie_name} {movie.excess} {movie.extended}', language=lang) # Create a link to search for movie by its name and language
+            link = opensubs.create_link(query=f'{movie_name} {movie.excess} {movie.extended}', language=lang) # Create a link to search for movie by its name and language
         try:
             subtitles = opensubs.request_subtitles(link)
             for number, subtitle in enumerate(subtitles):

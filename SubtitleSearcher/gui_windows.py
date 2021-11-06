@@ -96,11 +96,7 @@ def subs_window():
         sg.Frame(title='Selected subtitle metadata', layout=[
             [sg.Column(layout=[
                 [sg.T('Subtitle name:')],
-                [sg.T(key='SUBNAME', text_color='white', size=(65,1))],
-                [sg.T('Subtitle size: '),
-                sg.T(key='SUBSIZE', text_color='white', size=(8,1))],
-                [sg.T('Subtitle hash: '),
-                sg.T(key='SUBHASH', text_color='white', size=(8,1))]
+                [sg.T(key='SUBNAME', text_color='white', size=(65,1))]
             ])],
             [sg.Column(layout=[
                 [sg.T('Subtitle user ID: '),

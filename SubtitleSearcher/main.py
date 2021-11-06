@@ -73,8 +73,6 @@ def run():
                         sub_selected_filename = sub.SubFileName
                         sub_selected_zip_down = sub.ZipDownloadLink
                         window_download_subs['SUBNAME'].update(sub.SubFileName)
-                        window_download_subs['SUBSIZE'].update(sub.SubSize)
-                        window_download_subs['SUBHASH'].update(sub.SubHash)
                         window_download_subs['SUBUSERID'].update(sub.UserID)
                         window_download_subs['SUBUSERNICK'].update(sub.UserNickName)
                         window_download_subs['SUBADDDATE'].update(sub.SubAddDate)
@@ -87,11 +85,11 @@ def run():
                 window_download_subs['DOWNLOADSUB'].update(disabled=False)
 
             if event_subs == 'DOWNLOADSUB':
-                sg.popup_notify('Started download of selected subtitle', title='Downloading subtitles', display_duration_in_ms=1000)
+                sg.popup_notify('Started download of selected subtitle', title='Downloading subtitles', display_duration_in_ms=800, fade_in_duration=100)
                 selected_sub = handle_zip.ZipHandler(sub_selected_filename, sub_selected_zip_down, values['SINGLEFILE'])
                 downloadIt = selected_sub.download_zip()
                 if downloadIt:
-                    sg.popup_notify('File downloaded succesfully.\nYou can find your subtitle in movie folder', title='Subtitle downloaded')
+                    sg.popup_notify('File downloaded succesfully.\nYou can find your subtitle in movie folder', title='Subtitle downloaded', display_duration_in_ms=3000, fade_in_duration=100)
                     selected_sub.extract_zip()
                     selected_sub.move_files()
                     selected_sub.delete_remains()
