@@ -8,6 +8,28 @@ class Movie:
         self.file_path = file_path
         self.file_name = file_name
 
+        self.audio = None
+        self.codec = None
+        self.container = None
+        self.episode = None
+        self.episodeName = None
+        self.excess = None
+        self.extended = None
+        self.garbage = None
+        self.group = None
+        self.hardcoded = None
+        self.language = None
+        self.proper = None
+        self.quality = None
+        self.region = None
+        self.repack = None
+        self.resolution = None
+        self.season = None
+        self.title = None
+        self.website = None
+        self.widescreen = None
+        self.year = None
+
     def set_from_filename(self):
         movie_info = PTN.parse(self.file_name)
         with suppress(KeyError): self.audio = movie_info['audio']
@@ -38,7 +60,7 @@ class Movie:
     def set_movie_kind(self, kind):
         self.kind = kind
 
-class MovieSubtitle():
+class Subtitle():
     def __init__(self, sub_file_name, sub_lang_id, sub_format, sub_download_count, sub_download_link, sub_zip_donwload_link, score):
         self.sub_file_name = sub_file_name
         self.sub_lang_id = sub_lang_id

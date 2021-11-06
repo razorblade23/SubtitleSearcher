@@ -47,14 +47,19 @@ def main_window():
             ])],
             [sg.Tab(title='Languages', layout=[
                 [sg.Text('Choose a language for search', font='Any 14')],
-                [sg.Radio('Croatian', key='LangCRO', default=True, group_id=1), sg.Radio('English', key='LangENG', group_id=1), sg.Radio('Serbian', key='LangSRB', group_id=1), sg.Radio('Bosnian', key='LangBOS', group_id=1), sg.Radio('Slovenian', key='LangSLO', group_id=1)]
+                [sg.Radio('Croatian', key='LangCRO', default=True, group_id=1), 
+                sg.Radio('English', key='LangENG', group_id=1), 
+                sg.Radio('Serbian', key='LangSRB', group_id=1), 
+                sg.Radio('Bosnian', key='LangBOS', group_id=1), 
+                sg.Radio('Slovenian', key='LangSLO', group_id=1)]
             ])],
             [sg.Tab(title='openSubtitles', layout=[
                 [sg.Text('You must input your opensubtitles account information !')],
                 [sg.InputText('Username', key='openUSERNAME')],
                 [sg.InputText('Password', key='openPASS')]
             ])]
-        ])]
+        ])],
+        [sg.StatusBar('', key='STATUSBAR', size=(90,1)), sg.StatusBar('', key='STATUSBAR1', size=(10,1), justification='right')]
     ]
     return layout
 
@@ -86,7 +91,7 @@ def subs_window():
             [sg.Checkbox('Match subtitle filename with movie filename?', default=True)], [sg.Checkbox('Append language code to end of subtitle file?')]
         ])],
         [sg.Frame(title='Select subtitle', layout=[
-            [sg.Listbox(values=[['1','2','3'],['4','4','4']], key='SUBSTABLE', size=(80,20), select_mode='LISTBOX_SELECT_MODE_SINGLE', enable_events=True)]
+            [sg.Listbox(values=[''], key='SUBSTABLE', size=(80,20), select_mode='LISTBOX_SELECT_MODE_SINGLE', enable_events=True)]
         ]),
         sg.Frame(title='Selected subtitle metadata', layout=[
             [sg.Column(layout=[

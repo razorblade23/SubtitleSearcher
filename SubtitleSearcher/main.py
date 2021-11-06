@@ -30,6 +30,11 @@ def run():
 
         if event == sg.WIN_CLOSED: # If window is closed break from the loop
             break
+        
+        language_selected = gui_control.language_selector(values)
+        lang = language_selected[0]
+        gui_control.StatusBarMainUpdate(window, f'SubbyDoo is ready. | Language selected: {lang}')
+        gui_control.StatusBarVersionUpdate(window, 'v.0.0.2-alpha')
 
         if event == 'Save':
             if values['KeepOnTop'] == False:
@@ -44,9 +49,7 @@ def run():
             window['SEARCHBYMULTIFILE'].update(disabled=False)
 
         if event == 'SEARCHBYSINGLEFILE':
-            language_selected = gui_control.language_selector(values)
-            lang = language_selected[0]
-            movie, all_subs = gui_control.search_by_single_file(values, lang)
+            movie, all_subs = gui_control.search_by_single_file(values, lang, window)
 
         if not WINDOWSUBS and event == 'SEARCHBYSINGLEFILE':
             WINDOWSUBS = True
@@ -76,11 +79,12 @@ def run():
                 window_download_subs['SUBNAME'].update(sub_selected_filename)
                 window_download_subs['SUBEXTENSION'].update(sub_selected_format)
                 window_download_subs['SUBLANG'].update(sub_selected_lang)
-                window_download_subs['SUBDOWNCOUNT'].update(sub_selected_downCount)
-                window_download_subs['SUBSCORE'].update(sub_selected_score)
+                window_download_subs['SUBDOWNCOUNT'].update(str(sub_selected_downCount) + ' times')
+                window_download_subs['SUBSCORE'].update(str(sub_selected_score) + ' %')
                 window_download_subs['DOWNLOADSUB'].update(disabled=False)
 
             if event_subs == 'DOWNLOADSUB':
+                sg.popup_notify('Started download of selected subtitle', title='SubbyDoo')
                 selected_sub = handle_zip.ZipHandler(sub_selected_filename, sub_selected_zip_down, values['SINGLEFILE'])
                 downloadIt = selected_sub.download_zip()
                 if downloadIt:
@@ -91,10 +95,10 @@ def run():
                 else:
                     sg.popup_ok('There was an error in dowloading file, please try again')
 
-            with suppress(Exception): window_download_subs['MOVIENAME'].update(movie.title)
-            with suppress(Exception): window_download_subs['MOVIEYEAR'].update(movie.year)
-            with suppress(Exception): window_download_subs['IMDBID'].update(movie.imdb_id)
-            with suppress(Exception): window_download_subs['KIND'].update(movie.kind)
+            window_download_subs['MOVIENAME'].update(movie.title)
+            window_download_subs['MOVIEYEAR'].update(movie.year)
+            window_download_subs['IMDBID'].update(movie.imdb_id)
+            window_download_subs['KIND'].update(movie.kind)
             sub_name = []
             for q in range(len(all_subs)):
                 sub_name.append(all_subs[q].sub_file_name)
