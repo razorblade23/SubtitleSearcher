@@ -37,6 +37,7 @@ def search_by_single_file(values, lang, window):
     else:
         movie = movies.Movie(fileSize, hashed_file, values['SINGLEFILE'], ntpath.basename(values['SINGLEFILE']))
         movie.set_from_filename()
+        print(f'\nMetadata extracted from filename:\n{movie.movie_info}')
         metadata = imdb_metadata.search_imdb_by_title(movie.title)
         type_of_video = metadata[0]['kind']
         movie.set_movie_kind(type_of_video)
@@ -56,6 +57,7 @@ def search_by_single_file(values, lang, window):
         try:
             subtitles = opensubs.request_subtitles(link)
             for number, subtitle in enumerate(subtitles):
+                print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
                 number = movies.Subtitle(subtitle)
                 all_subs.append(number)
         except:
@@ -63,6 +65,7 @@ def search_by_single_file(values, lang, window):
                         title='Error', )
     else:
         for number, subtitle in enumerate(subtitles):
+            print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
             number = movies.Subtitle(subtitle)
             all_subs.append(number)
     return movie, all_subs

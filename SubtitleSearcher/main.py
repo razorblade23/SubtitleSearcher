@@ -106,6 +106,6 @@ def run():
             window_download_subs['SUBSTABLE'].update(values=sub_name)
             
 
-    os.system('clear') # Clears terminal window
+    #os.system('clear') # Clears terminal window
     window.close() # Closes main window
     return
