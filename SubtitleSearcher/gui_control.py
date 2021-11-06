@@ -28,6 +28,7 @@ def search_by_single_file(values, lang, window):
     from SubtitleSearcher.main import sg
     import urllib
     opensubs = openSubtitles.searchOpenSubtitles()
+    sg.popup_notify('Searching subtitles, please wait', title='Search started', display_duration_in_ms=2000, fade_in_duration=60)
     try:
         hashed_file = opensubs.hashFile(values['SINGLEFILE'])
         fileSize = opensubs.sizeOfFile(values['SINGLEFILE'])
@@ -36,7 +37,6 @@ def search_by_single_file(values, lang, window):
     else:
         movie = movies.Movie(fileSize, hashed_file, values['SINGLEFILE'], ntpath.basename(values['SINGLEFILE']))
         movie.set_from_filename()
-        print(movie.movie_info)
         metadata = imdb_metadata.search_imdb_by_title(movie.title)
         type_of_video = metadata[0]['kind']
         movie.set_movie_kind(type_of_video)
@@ -47,7 +47,6 @@ def search_by_single_file(values, lang, window):
         subtitles = opensubs.request_subtitles(link)
     subtitles=[] # Comment / Uncomment this to simulate finding hash failed
     all_subs = []
-    sg.popup_quick_message('Getting movie metadata, please wait', text_color='white', auto_close_duration=1)
     if len(subtitles) == 0: # If finding movie with hash failed and list "subtitles" is empty so it length is 0
         movie_name = movie.title
         if movie_name != None:
