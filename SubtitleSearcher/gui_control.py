@@ -44,7 +44,7 @@ def search_by_single_file(values, lang, window):
         window['STATUSBAR'].update(f'Movie name: {movie.title} - IMDB ID: {movie.imdb_id}')
         link = opensubs.create_link(imdb=movie.imdb_id, bytesize=fileSize, hash=hashed_file, language=lang)
         subtitles = opensubs.request_subtitles(link)
-    #subtitles=[] # Comment / Uncomment this to simulate finding hash failed
+    subtitles=[] # Comment / Uncomment this to simulate finding hash failed
     all_subs = []
     sg.popup_quick_message('Getting movie metadata, please wait', text_color='white', auto_close_duration=1)
     if len(subtitles) == 0: # If finding movie with hash failed and list "subtitles" is empty so it length is 0
@@ -52,7 +52,7 @@ def search_by_single_file(values, lang, window):
         if movie_name != None:
             movie_name.lower() # Make all letters of movie name lowercase
             movie_name = urllib.parse.quote(movie_name) # Make words URL friendly
-            link = opensubs.create_link(imdb=movie.imdb_id, query=movie_name, language=lang) # Create a link to search for movie by its name and language
+            link = opensubs.create_link(imdb=movie.imdb_id, query=movie_name + '' + movie.excess, language=lang) # Create a link to search for movie by its name and language
         try:
             subtitles = opensubs.request_subtitles(link)
             for number, subtitle in enumerate(subtitles):
