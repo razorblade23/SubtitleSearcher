@@ -1,5 +1,7 @@
+from os import access
 import PTN
 from contextlib import suppress
+from SubtitleSearcher.data import starting_settings
 
 class Movie:
     def __init__(self, byte_size, file_hash, file_path, file_name):
@@ -38,6 +40,10 @@ class Movie:
         with suppress(KeyError): self.episode = self.movie_info['episode']
         with suppress(KeyError): self.episodeName = self.movie_info['episodeName']
         with suppress(KeyError): self.excess = self.movie_info['excess']
+        if isinstance(self.excess, list):
+            for excess in self.excess:
+                if starting_settings.trusted_coders.count(excess):
+                    self.excess = excess
         with suppress(KeyError): self.extended = self.movie_info['extended']
         with suppress(KeyError): self.garbage = self.movie_info['garbage']
         with suppress(KeyError): self.group = self.movie_info['group']
@@ -54,6 +60,14 @@ class Movie:
         with suppress(KeyError): self.widescreen = self.movie_info['widescreen']
         with suppress(KeyError): self.year = self.movie_info['year']
         
+    # Function to convert  
+    def listToString(self, s): 
+        
+        # initialize an empty string
+        str1 = " " 
+        
+        # return string  
+        return (str1.join(s))
 
     def set_imdb_id(self, imdb_id):
         self.imdb_id = imdb_id
@@ -63,6 +77,7 @@ class Movie:
 
 class Subtitle():
     def __init__(self, subtitle):
+        self.MatchedBy = subtitle['MatchedBy']
         self.IDSubtitleFile = subtitle['IDSubtitleFile']
         self.SubFileName = subtitle['SubFileName']
         self.SubActualCD = subtitle['SubActualCD']

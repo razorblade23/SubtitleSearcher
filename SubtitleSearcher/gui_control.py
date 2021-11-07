@@ -74,7 +74,7 @@ def search_by_single_file(values, lang, window):
     else:
         movie = movies.Movie(fileSize, hashed_file, values['SINGLEFILE'], ntpath.basename(values['SINGLEFILE']))
         movie.set_from_filename()
-        #print(f'\nMetadata extracted from filename:\n{movie.movie_info}')
+        print(f'\nMetadata extracted from filename:\n{movie.movie_info}')
         metadata = imdb_metadata.search_imdb_by_title(movie.title)
         type_of_video = metadata[0]['kind']
         movie.set_movie_kind(type_of_video)
@@ -82,15 +82,17 @@ def search_by_single_file(values, lang, window):
         movie.set_imdb_id(movie_imdb_id)
         window['STATUSBAR'].update(f'Movie name: {movie.title} - IMDB ID: {movie.imdb_id}')
         link = opensubs.create_link(imdb=movie.imdb_id, bytesize=fileSize, hash=hashed_file, language=lang)
+        print(f'Link1:\n{link}')
         subtitles = opensubs.request_subtitles(link)
-    #subtitles=[] # Comment / Uncomment this to simulate finding hash failed
+    subtitles=[] # Comment / Uncomment this to simulate finding hash failed
     all_subs = []
     if len(subtitles) == 0: # If finding movie with hash failed and list "subtitles" is empty so it length is 0
         movie_name = movie.title
         if movie_name != None:
             movie_name.lower() # Make all letters of movie name lowercase
-            movie_name = urllib.parse.quote(movie_name) # Make words URL friendly
             link = opensubs.create_link(query=f'{movie_name} {movie.excess} {movie.extended}', language=lang) # Create a link to search for movie by its name and language
+            link = urllib.parse.quote(link, safe=':/')
+            print(f'link2:\n{link}')
         try:
             subtitles = opensubs.request_subtitles(link)
             for number, subtitle in enumerate(subtitles):
@@ -99,7 +101,7 @@ def search_by_single_file(values, lang, window):
                 all_subs.append(number)
         except:
             sg.popup_ok('We got error 503.\nThat usually means there is maintanance\n under way on open subtitles servers.\nPlease try another method for serching or try again later',
-                        title='Error', )
+                        title='Error')
     else:
         for number, subtitle in enumerate(subtitles):
             #print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
