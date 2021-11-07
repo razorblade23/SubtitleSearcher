@@ -1,5 +1,43 @@
 import ntpath
 from SubtitleSearcher.data import imdb_metadata
+from SubtitleSearcher.main import sg
+
+def intro_dialog():
+    dialog = sg.popup_ok('''
+    This app is still in early alpha. 
+    Current version is 0.0.2-alpha.
+
+                        Not all features are developed.
+
+    Currently working:
+        * Searching using single video file
+
+        * Language chooser
+
+        * Searching by file hash first.
+            If that fails, then it searches by filename.
+
+        * First result is probably the best 
+            for your specific movie
+
+    Features to work on:
+        -> Quick mode - selects first subtitle in list 
+            automaticly and dowloads it next to file 
+            with matching filename.
+
+        -> Download and make local copy of IMDB database 
+            so it can work faster
+
+        -> Implementing more languages to choose from
+
+        -> Ability to select multiple languages 
+            (requires multiple querys to server)
+
+        -> Ability to select multiple sources 
+            for subtitles search 
+            (openSubtitles is only one for now)
+                ''', title='SubbyDoo v.0.0.2-alpha INFO', text_color='white')
+    return dialog
 
 def StatusBarMainUpdate(window, update):
     return window['STATUSBAR'].update(update)
@@ -25,7 +63,6 @@ def language_selector(values):
 
 def search_by_single_file(values, lang, window):
     from SubtitleSearcher.data import openSubtitles, movies
-    from SubtitleSearcher.main import sg
     import urllib
     opensubs = openSubtitles.searchOpenSubtitles()
     sg.popup_notify('Searching subtitles, please wait', title='Search started', display_duration_in_ms=1200, fade_in_duration=100)

@@ -18,40 +18,7 @@ language_selected = []
 
 main_layout = gui_windows.main_window()
 
-sg.popup_ok('''
-This app is still in early alpha. 
-Current version is 0.0.2-alpha.
-
-                    Not all features are developed.
-
-Currently working:
-    * Searching using single video file
-
-    * Language chooser
-
-    * Searching by file hash first.
-        If that fails, then it searches by filename.
-
-    * First result is probably the best 
-        for your specific movie
-
-Features to work on:
-    -> Quick mode - selects first subtitle in list 
-        automaticly and dowloads it next to file 
-        with matching filename.
-
-    -> Download and make local copy of IMDB database 
-        so it can work faster
-
-    -> Implementing more languages to choose from
-
-    -> Ability to select multiple languages 
-        (requires multiple querys to server)
-
-    -> Ability to select multiple sources 
-        for subtitles search 
-        (openSubtitles is only one for now)
-             ''', title='SubbyDoo v.0.0.2-alpha INFO', text_color='white')
+gui_control.intro_dialog()
 
 # Start infinite loop for your GUI windows and reading from them
 def run():
