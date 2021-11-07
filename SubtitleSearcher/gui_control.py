@@ -37,7 +37,7 @@ def search_by_single_file(values, lang, window):
     else:
         movie = movies.Movie(fileSize, hashed_file, values['SINGLEFILE'], ntpath.basename(values['SINGLEFILE']))
         movie.set_from_filename()
-        print(f'\nMetadata extracted from filename:\n{movie.movie_info}')
+        #print(f'\nMetadata extracted from filename:\n{movie.movie_info}')
         metadata = imdb_metadata.search_imdb_by_title(movie.title)
         type_of_video = metadata[0]['kind']
         movie.set_movie_kind(type_of_video)
@@ -46,7 +46,7 @@ def search_by_single_file(values, lang, window):
         window['STATUSBAR'].update(f'Movie name: {movie.title} - IMDB ID: {movie.imdb_id}')
         link = opensubs.create_link(imdb=movie.imdb_id, bytesize=fileSize, hash=hashed_file, language=lang)
         subtitles = opensubs.request_subtitles(link)
-    #subtitles=[] # Comment / Uncomment this to simulate finding hash failed
+    subtitles=[] # Comment / Uncomment this to simulate finding hash failed
     all_subs = []
     if len(subtitles) == 0: # If finding movie with hash failed and list "subtitles" is empty so it length is 0
         movie_name = movie.title
@@ -57,7 +57,7 @@ def search_by_single_file(values, lang, window):
         try:
             subtitles = opensubs.request_subtitles(link)
             for number, subtitle in enumerate(subtitles):
-                print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
+                #print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
                 number = movies.Subtitle(subtitle)
                 all_subs.append(number)
         except:
@@ -65,7 +65,7 @@ def search_by_single_file(values, lang, window):
                         title='Error', )
     else:
         for number, subtitle in enumerate(subtitles):
-            print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
+            #print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
             number = movies.Subtitle(subtitle)
             all_subs.append(number)
     return movie, all_subs
