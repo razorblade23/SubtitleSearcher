@@ -51,6 +51,25 @@ class searchOpenSubtitles:
         response = requests.get(link, headers=self.http_header)
         json_req = json.loads(response.text)
         return json_req
+    
+    @staticmethod
+    def make_search_string(title, year, quality, resolution, encoder, excess):
+        string_list = []
+        if not title == None:
+            string_list.append(str(title))
+        if not year == None:
+            string_list.append(str(year))
+        if not quality == None:
+            string_list.append(str(quality))
+        if not resolution == None:
+            string_list.append(str(resolution))
+        if not encoder == None or not encoder == 1 or not encoder == '1':
+            string_list.append(str(encoder))
+        if not excess == None:
+            string_list.append(str(excess))
+        string = ' '.join(string_list)
+        print(string)
+        return string
         
     @staticmethod
     def sizeOfFile(name):
