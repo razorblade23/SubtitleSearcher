@@ -90,7 +90,7 @@ def search_by_single_file(values, lang, window):
         movie_name = movie.title
         if movie_name != None:
             movie_name.lower() # Make all letters of movie name lowercase
-            link = opensubs.create_link(query=f'{movie_name} {movie.year} {movie.resolution} {movie.quality} {movie.encoder}', language=lang) # Create a link to search for movie by its name and language
+            link = opensubs.create_link(query=f'{movie_name} {movie.year} {movie.resolution} {movie.quality} {movie.encoder} {movie.excess}', language=lang) # Create a link to search for movie by its name and language
             link = urllib.parse.quote(link, safe=':/')
             print(f'link2:\n{link}')
         try:
