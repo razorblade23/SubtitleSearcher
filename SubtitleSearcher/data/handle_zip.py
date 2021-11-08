@@ -1,3 +1,4 @@
+import zipfile
 import requests
 import os
 from zipfile import ZipFile
@@ -44,8 +45,12 @@ class ZipHandler:
         # specifying the zip file name
         file_name = self.get_zip()
         # opening the zip file in READ mode
-        with ZipFile(file_name, 'r') as zip:
-            zip.extractall(path='extracted')
+        try:
+            with ZipFile(file_name, 'r') as zip:
+                zip.extractall(path='extracted')
+        except zipfile.BadZipFile:
+            print('Bad zip, cant continue')
+            return
 
     def move_files(self, append_lang_code=None):
         src_path = f'extracted/{self.filename}'

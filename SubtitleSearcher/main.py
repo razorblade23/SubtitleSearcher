@@ -25,7 +25,7 @@ def run():
     global WINDOWSUBS, language_selected
     window = sg.Window(title='Subbydoo', layout=main_layout, element_justification='center', icon=icon, finalize=True)
     while True:
-        event, values = window.read(timeout=400) # This window.read() is how you get all values and events from your windows
+        event, values = window.read(timeout=300) # This window.read() is how you get all values and events from your windows
         #print(f'Event: {event}')
         #print(f'Values: {values}')
 
@@ -52,11 +52,27 @@ def run():
         if event == 'SEARCHBYSINGLEFILE':
             movie, all_subs = gui_control.search_by_single_file(values, lang, window)
 
-        if not WINDOWSUBS and event == 'SEARCHBYSINGLEFILE':
+        if not WINDOWSUBS and event == 'SEARCHBYSINGLEFILE' and values['QuickMode'] == False:
             WINDOWSUBS = True
             single_sub_layout = gui_windows.subs_window()
             window_download_subs = sg.Window(title='Subbydoo - download subs', layout=single_sub_layout, element_justification='center', icon=icon, finalize=True)
         
+        if not WINDOWSUBS and event == 'SEARCHBYSINGLEFILE' and values['QuickMode'] == True:
+            gui_control.StatusBarMainUpdate(window, 'Searching and downloading your subtitle')
+            window.refresh()
+            try:
+                sub = all_subs[0]
+            except:
+                sg.popup_error('Cant find any subtitles for your language.\nPlease choose another.')
+            else:
+                zip_handler = handle_zip.ZipHandler(sub.SubFileName, sub.ZipDownloadLink, values['SINGLEFILE'])
+                file_download = zip_handler.download_zip()
+                if file_download:
+                    zip_handler.extract_zip()
+                    zip_handler.move_files()
+                    zip_handler.delete_remains()
+                    sg.PopupQuickMessage('Subtitle downloaded', font='Any 18', background_color='white', text_color='black')
+
         if WINDOWSUBS:
             event_subs, values_subs = window_download_subs.read(timeout=400)
             #print(f'Event: {event_subs}')
@@ -90,10 +106,10 @@ def run():
                 selected_sub = handle_zip.ZipHandler(sub_selected_filename, sub_selected_zip_down, values['SINGLEFILE'])
                 downloadIt = selected_sub.download_zip()
                 if downloadIt:
-                    sg.popup_notify('File downloaded succesfully.\nYou can find your subtitle in movie folder', title='Subtitle downloaded', display_duration_in_ms=3000, fade_in_duration=100)
                     selected_sub.extract_zip()
                     selected_sub.move_files()
                     selected_sub.delete_remains()
+                    sg.popup_notify('File downloaded succesfully.\nYou can find your subtitle in movie folder', title='Subtitle downloaded', display_duration_in_ms=3000, fade_in_duration=100)
                 else:
                     sg.popup_ok('There was an error in dowloading file, please try again')
 
