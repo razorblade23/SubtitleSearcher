@@ -57,7 +57,7 @@ def run():
             WINDOWSUBS = True
             single_sub_layout = gui_windows.subs_window()
             window_download_subs = sg.Window(title='Subbydoo - download subs', layout=single_sub_layout, element_justification='center', icon=icon, finalize=True)
-        
+            
 
         ####### SINGLE FILE & QUICKMODE ON #########
         if not WINDOWSUBS and event == 'SEARCHBYSINGLEFILE' and values['QuickMode'] == True:
