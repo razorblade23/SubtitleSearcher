@@ -3,6 +3,9 @@ from SubtitleSearcher.data import imdb_metadata
 from SubtitleSearcher.main import sg
 from SubtitleSearcher.data import openSubtitles, movies
 import urllib
+import threading
+import queue
+
 
 opensubs = openSubtitles.searchOpenSubtitles()
 
@@ -73,11 +76,12 @@ def language_selector(values):
         language_selected.append('eng')
     return language_selected
 
-def movie_setup(file_size, file_hash, values):
-    movie = movies.Movie(file_size, file_hash, values['SINGLEFILE'], ntpath.basename(values['SINGLEFILE']))
+def movie_setup(file_size, file_hash, values, file_path):
+    movie = movies.Movie(file_size, file_hash, file_path, ntpath.basename(file_path))
     movie.set_from_filename()
     #print(f'\nMetadata extracted from filename:\n{movie.movie_info}')
     metadata = imdb_metadata.search_imdb_by_title(movie.title)
+    #print(metadata)
     type_of_video = metadata[0]['kind']
     movie.set_movie_kind(type_of_video)
     movie_imdb_id = metadata[0].movieID
@@ -120,7 +124,22 @@ def search_by_single_file(values, language, window):
     except FileNotFoundError:
         sg.popup_ok('File not found, please try again', title='File not found')
     else:
-        movie = movie_setup(fileSize, hashed_file, values)
+        movie = movie_setup(fileSize, hashed_file, values, values['SINGLEFILE'])
+        window['STATUSBAR'].update(f'Movie name: {movie.title} - IMDB ID: {movie.imdb_id}')
+        subtitles, all_subs = subtitle_search(movie, language, hash=True)
+        #subtitles=[] # Comment / Uncomment this to simulate finding hash failed
+        if len(subtitles) == 0:
+            subtitles, all_subs = subtitle_search(movie, language, hash=False)
+    return movie, all_subs
+
+def search_by_multy_file(values, file_path, language, window):
+    try:
+        hashed_file = opensubs.hashFile(file_path)
+        fileSize = opensubs.sizeOfFile(file_path)
+    except FileNotFoundError:
+        sg.popup_ok('File not found, please try again', title='File not found')
+    else:
+        movie = movie_setup(fileSize, hashed_file, values, file_path)
         window['STATUSBAR'].update(f'Movie name: {movie.title} - IMDB ID: {movie.imdb_id}')
         subtitles, all_subs = subtitle_search(movie, language, hash=True)
         #subtitles=[] # Comment / Uncomment this to simulate finding hash failed
