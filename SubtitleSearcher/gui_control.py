@@ -106,7 +106,7 @@ def subtitle_search(movie, language, hash):
         if movie.title != None:
             movie.title.lower() # Make all letters of movie name lowercase
             query = openSubtitles.searchOpenSubtitles.make_search_string(title=movie.title, year=movie.year, quality=movie.quality, resolution=movie.resolution, encoder=movie.encoder, excess=movie.excess)
-            link2 = opensubs.create_link(query=query, language=language) # Create a link to search for movie by its name and language
+            link2 = opensubs.create_link(imdb=movie.imdb_id, query=query, language=language) # Create a link to search for movie by its name and language
             link2 = urllib.parse.quote(link2, safe=':/')
             print(f'Link for step 2:\n{link2}')
         try:
