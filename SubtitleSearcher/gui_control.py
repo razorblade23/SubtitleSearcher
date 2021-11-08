@@ -91,20 +91,24 @@ def movie_setup(file_size, file_hash, values, file_path):
 def subtitle_search(movie, language, hash):
     all_subs = []
     if hash == True:
+        print('Step 1 - Searching by movie hash')
         link = opensubs.create_link(imdb=movie.imdb_id, bytesize=movie.byte_size, hash=movie.file_hash, language=language)
-        #print(f'Link1:\n{link}')
+        print(f'Link for step 1:\n{link}')
         subtitles = opensubs.request_subtitles(link)
         for number, subtitle in enumerate(subtitles):
             #print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
             number = movies.Subtitle(subtitle)
             all_subs.append(number)
+        if len(all_subs) == 0:
+            print('Step 1 failed\n')
     else:
+        print('Step 2 - Searching by filename')
         if movie.title != None:
             movie.title.lower() # Make all letters of movie name lowercase
             query = openSubtitles.searchOpenSubtitles.make_search_string(title=movie.title, year=movie.year, quality=movie.quality, resolution=movie.resolution, encoder=movie.encoder, excess=movie.excess)
             link = opensubs.create_link(query=query, language=language) # Create a link to search for movie by its name and language
             link = urllib.parse.quote(link, safe=':/')
-            #print(f'link2:\n{link}')
+            print(f'Link for step 2:\n{link}')
         try:
             subtitles = opensubs.request_subtitles(link)
         except:
@@ -116,9 +120,11 @@ def subtitle_search(movie, language, hash):
                 number = movies.Subtitle(subtitle)
                 all_subs.append(number)
                 if len(all_subs) == 0:
-                    link = opensubs.create_link(imdb==movie.imdb_id, language=language) # Create a link to search for movie by its name and language
+                    print('Step 2 failed\n')
+                    print('Step 3 - Searching by imdb')
+                    link = opensubs.create_link(imdb=movie.imdb_id, language=language) # Create a link to search for movie by its name and language
                     link = urllib.parse.quote(link, safe=':/')
-                    #print(f'link2:\n{link}')
+                    print(f'Link for step 3:\n{link}')
                     try:
                         subtitles = opensubs.request_subtitles(link)
                     except:
@@ -126,6 +132,8 @@ def subtitle_search(movie, language, hash):
                                     title='Error')
                     for number2, subtitle2 in enumerate(subtitles):
                         all_subs.append(number2)
+                    if len(all_subs) == 0:
+                        'Step 3 failed\nWe have no more steps to take\nPlease upload a screenshot of your search query'
 
     return subtitles, all_subs
 

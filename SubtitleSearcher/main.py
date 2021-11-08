@@ -53,6 +53,7 @@ def run():
 
         ####### SINGLE FILE & QUICKMODE OFF #########
         if not WINDOWSUBS and event == 'SEARCHBYSINGLEFILE' and values['QuickMode'] == False:
+            print('Searching single file with QuickMode off')
             WINDOWSUBS = True
             single_sub_layout = gui_windows.subs_window()
             window_download_subs = sg.Window(title='Subbydoo - download subs', layout=single_sub_layout, element_justification='center', icon=icon, finalize=True)
@@ -100,6 +101,7 @@ def run():
         if WINDOWSUBS:
             event_subs, values_subs = window_download_subs.read(timeout=400)
             window_download_subs['STATUSBAR'].update(value='Subtitles found: {} | Language selected: {}'.format(len(all_subs), language_selected[0]))
+            
             
             if event_subs == sg.WIN_CLOSED:
                 WINDOWSUBS = False
