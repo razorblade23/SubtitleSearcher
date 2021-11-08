@@ -1,9 +1,10 @@
 # Importing modules
 import os
+import threading
 import PySimpleGUI as sg
 from tkinter.constants import FALSE
 from SubtitleSearcher.data import handle_zip
-from SubtitleSearcher import gui_control, gui_windows
+from SubtitleSearcher import gui_control, gui_windows, threads
 from contextlib import suppress
 import platform
 
@@ -26,7 +27,6 @@ def run():
     window = sg.Window(title='Subbydoo', layout=main_layout, element_justification='center', icon=icon, finalize=True)
     while True:
         event, values = window.read(timeout=300)
-
         if event == sg.WIN_CLOSED:
             break
         
@@ -50,11 +50,15 @@ def run():
         if event == 'SEARCHBYSINGLEFILE':
             movie, all_subs = gui_control.search_by_single_file(values, lang, window)
 
+
+        ####### SINGLE FILE & QUICKMODE OFF #########
         if not WINDOWSUBS and event == 'SEARCHBYSINGLEFILE' and values['QuickMode'] == False:
             WINDOWSUBS = True
             single_sub_layout = gui_windows.subs_window()
             window_download_subs = sg.Window(title='Subbydoo - download subs', layout=single_sub_layout, element_justification='center', icon=icon, finalize=True)
         
+
+        ####### SINGLE FILE & QUICKMODE ON #########
         if not WINDOWSUBS and event == 'SEARCHBYSINGLEFILE' and values['QuickMode'] == True:
             gui_control.StatusBarMainUpdate(window, 'Searching and downloading your subtitle')
             window.refresh()
@@ -70,6 +74,28 @@ def run():
                     zip_handler.move_files()
                     zip_handler.delete_remains()
                     sg.PopupQuickMessage('Subtitle downloaded', font='Any 18', background_color='white', text_color='black')
+        
+
+        ####### MULTIPLE FILES & QUICKMODE ON #########
+        if not WINDOWSUBS and event == 'SEARCHBYMULTIFILE' and values['QuickMode'] == True:
+            files = values['MULTIPLEFILES']
+            files_lst = files.split(';')
+            print(f'*** Ready to download {len(files_lst)} subtitles ***')
+            movies_list = []
+            subs_list = []
+            for file in range(len(files_lst)):
+                _, all_subs = gui_control.search_by_multy_file(values, files_lst[file], lang, window)
+                subs_list.append(all_subs[0])
+            for sub in range(len(subs_list)):
+                print(f'\nDownloading subtitle {sub+1} of {len(subs_list)}')
+                zip_handler = handle_zip.ZipHandler(subs_list[sub].SubFileName, subs_list[sub].ZipDownloadLink, files_lst[sub])
+                file_download = zip_handler.download_zip()
+                if file_download:
+                    zip_handler.extract_zip()
+                    zip_handler.move_files()
+                    zip_handler.delete_remains()
+                print(f'Subtitle downloaded')
+            sg.PopupQuickMessage('All subtitles downloaded', font='Any 18', background_color='white', text_color='black')
 
         if WINDOWSUBS:
             event_subs, values_subs = window_download_subs.read(timeout=400)

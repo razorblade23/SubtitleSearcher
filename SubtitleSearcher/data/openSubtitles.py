@@ -68,7 +68,7 @@ class searchOpenSubtitles:
         if not excess == None:
             string_list.append(str(excess))
         string = ' '.join(string_list)
-        print(string)
+        #print(string)
         return string.lower()
         
     @staticmethod
