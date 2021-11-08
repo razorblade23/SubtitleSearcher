@@ -25,11 +25,9 @@ def run():
     global WINDOWSUBS, language_selected
     window = sg.Window(title='Subbydoo', layout=main_layout, element_justification='center', icon=icon, finalize=True)
     while True:
-        event, values = window.read(timeout=300) # This window.read() is how you get all values and events from your windows
-        #print(f'Event: {event}')
-        #print(f'Values: {values}')
+        event, values = window.read(timeout=300)
 
-        if event == sg.WIN_CLOSED: # If window is closed break from the loop
+        if event == sg.WIN_CLOSED:
             break
         
         language_selected = gui_control.language_selector(values)
@@ -75,8 +73,6 @@ def run():
 
         if WINDOWSUBS:
             event_subs, values_subs = window_download_subs.read(timeout=400)
-            #print(f'Event: {event_subs}')
-            #print(f'Values: {values_subs}')
             window_download_subs['STATUSBAR'].update(value='Subtitles found: {} | Language selected: {}'.format(len(all_subs), language_selected[0]))
             
             if event_subs == sg.WIN_CLOSED:
@@ -122,7 +118,5 @@ def run():
                 sub_name.append(all_subs[q].SubFileName)
             window_download_subs['SUBSTABLE'].update(values=sub_name)
             
-
-    #os.system('clear') # Clears terminal window
     window.close() # Closes main window
     return
