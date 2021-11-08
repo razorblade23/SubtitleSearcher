@@ -1,4 +1,5 @@
 from SubtitleSearcher.main import sg
+from psgtray import SystemTray
 
 sg.theme('DarkBrown4')
 
@@ -40,6 +41,7 @@ def main_window():
                     [sg.Checkbox('Use podnapisi.net ?', disabled=True)],
                     [sg.Checkbox('Use openSubtitles ?', disabled=True)],
                     [sg.Frame(title='Additional settings', layout=[
+                        [sg.Checkbox('Quick mode ?', key='QuickMode')],
                         [sg.Checkbox('Keep on top ?', key='KeepOnTop')]
                     ])],
                     [sg.Button('Save', key='Save')]

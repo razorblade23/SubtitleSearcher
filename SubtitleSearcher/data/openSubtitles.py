@@ -69,7 +69,7 @@ class searchOpenSubtitles:
             string_list.append(str(excess))
         string = ' '.join(string_list)
         print(string)
-        return string
+        return string.lower()
         
     @staticmethod
     def sizeOfFile(name):
