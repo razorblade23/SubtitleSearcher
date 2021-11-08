@@ -120,7 +120,7 @@ def subtitle_search(movie, language, hash):
             for number, subtitle in enumerate(subtitles):
                 number = movies.Subtitle(subtitle)
                 all_subs.append(number)
-                if len(all_subs) == 0:
+                if len(subtitles) == 0:
                     print('Step 2 failed\n')
                     print('Step 3 - Searching by imdb')
                     link3 = opensubs.create_link(imdb=movie.imdb_id, language=language) # Create a link to search for movie by its name and language
