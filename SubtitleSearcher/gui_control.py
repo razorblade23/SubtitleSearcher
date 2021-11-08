@@ -120,7 +120,7 @@ def subtitle_search(movie, language, hash):
             if len(subtitles) == 0:
                     print('Step 2 failed\n')
                     print('Step 3 - Searching by imdb')
-                    link3 = opensubs.create_link(imdb=movie.imdb_id, language=language) # Create a link to search for movie by its name and language
+                    link3 = opensubs.create_link(imdb=movie.imdb_id, query=query, language=language) # Create a link to search for movie by its name and language
                     link3 = urllib.parse.quote(link3, safe=':/')
                     print(f'Link for step 3:\n{link3}')
                     try:

@@ -85,7 +85,7 @@ def run():
             movies_list = []
             subs_list = []
             for file in range(len(files_lst)):
-                _, all_subs = gui_control.search_by_multy_file(values, files_lst[file], lang, window)
+                movie, all_subs = gui_control.search_by_multy_file(values, files_lst[file], lang, window)
                 subs_list.append(all_subs[0])
             for sub in range(len(subs_list)):
                 print(f'\nDownloading subtitle {sub+1} of {len(subs_list)}')
