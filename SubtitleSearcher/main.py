@@ -143,7 +143,7 @@ def run():
             window_download_subs['KIND'].update(movie.kind)
             sub_name = []
             for q in range(len(all_subs)):
-                sub_name.append(all_subs[q].SubFileName)
+                sub_name.append(all_subs[q].MovieReleaseName)
             window_download_subs['SUBSTABLE'].update(values=sub_name)
             
     window.close() # Closes main window
