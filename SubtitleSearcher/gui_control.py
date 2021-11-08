@@ -116,23 +116,13 @@ def subtitle_search(movie, language, hash):
                         title='Error')
         else:
             print(f'Subtitles found: {len(subtitles)}')
-            print(subtitles)
-            if len(subtitles) == 0:
-                    print('Step 2 failed\n')
-                    print('Step 3 - Searching by imdb')
-                    link3 = opensubs.create_link(imdb=movie.imdb_id, query=query, language=language) # Create a link to search for movie by its name and language
-                    link3 = urllib.parse.quote(link3, safe=':/')
-                    print(f'Link for step 3:\n{link3}')
-                    try:
-                        subtitles = opensubs.request_subtitles(link3)
-                    except:
-                        sg.popup_ok('We got error 503.\nThat usually means there is maintanance\n under way on open subtitles servers.\nPlease try another method for serching or try again later',
-                                    title='Error')
-                    for number2, subtitle2 in enumerate(subtitles):
-                        all_subs.append(number2)
-                    if len(all_subs) == 0:
-                        'Step 3 failed\nWe have no more steps to take\nPlease upload a screenshot of your search query'
+            for number, subtitle in enumerate(subtitles):
+                #print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
+                number = movies.Subtitle(subtitle)
+                all_subs.append(number)
 
+        if len(subtitles) == 0:
+                print('Step 2 failed\n')
     return subtitles, all_subs
 
 def search_by_single_file(values, language, window):
