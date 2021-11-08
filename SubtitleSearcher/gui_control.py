@@ -106,27 +106,28 @@ def subtitle_search(movie, language, hash):
         if movie.title != None:
             movie.title.lower() # Make all letters of movie name lowercase
             query = openSubtitles.searchOpenSubtitles.make_search_string(title=movie.title, year=movie.year, quality=movie.quality, resolution=movie.resolution, encoder=movie.encoder, excess=movie.excess)
-            link = opensubs.create_link(query=query, language=language) # Create a link to search for movie by its name and language
-            link = urllib.parse.quote(link, safe=':/')
-            print(f'Link for step 2:\n{link}')
+            link2 = opensubs.create_link(query=query, language=language) # Create a link to search for movie by its name and language
+            link2 = urllib.parse.quote(link2, safe=':/')
+            print(f'Link for step 2:\n{link2}')
         try:
-            subtitles = opensubs.request_subtitles(link)
+            subtitles = opensubs.request_subtitles(link2)
         except:
             sg.popup_ok('We got error 503.\nThat usually means there is maintanance\n under way on open subtitles servers.\nPlease try another method for serching or try again later',
                         title='Error')
         else:
+            print(f'Subtitles found: {len(subtitles)}')
+            print(subtitles)
             for number, subtitle in enumerate(subtitles):
-                #print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
                 number = movies.Subtitle(subtitle)
                 all_subs.append(number)
                 if len(all_subs) == 0:
                     print('Step 2 failed\n')
                     print('Step 3 - Searching by imdb')
-                    link = opensubs.create_link(imdb=movie.imdb_id, language=language) # Create a link to search for movie by its name and language
-                    link = urllib.parse.quote(link, safe=':/')
-                    print(f'Link for step 3:\n{link}')
+                    link3 = opensubs.create_link(imdb=movie.imdb_id, language=language) # Create a link to search for movie by its name and language
+                    link3 = urllib.parse.quote(link3, safe=':/')
+                    print(f'Link for step 3:\n{link3}')
                     try:
-                        subtitles = opensubs.request_subtitles(link)
+                        subtitles = opensubs.request_subtitles(link3)
                     except:
                         sg.popup_ok('We got error 503.\nThat usually means there is maintanance\n under way on open subtitles servers.\nPlease try another method for serching or try again later',
                                     title='Error')
