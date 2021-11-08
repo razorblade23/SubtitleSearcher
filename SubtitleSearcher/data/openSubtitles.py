@@ -63,8 +63,10 @@ class searchOpenSubtitles:
             string_list.append(str(quality))
         if not resolution == None:
             string_list.append(str(resolution))
-        if not encoder == None or not encoder == 1 or not encoder == '1':
-            string_list.append(str(encoder))
+        if not encoder == None:
+            if not encoder == 1:
+                if not encoder == '1':
+                    string_list.append(str(encoder))
         if not excess == None:
             string_list.append(str(excess))
         string = ' '.join(string_list)
