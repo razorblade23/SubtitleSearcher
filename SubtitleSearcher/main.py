@@ -119,7 +119,7 @@ def run():
                 continue
             
             if movie.kind == 'tv series' or movie.kind == 'episode':
-                window_download_subs['TVSERIESINFO'].update(disabled=False)
+                window_download_subs['TVSERIESINFO'].update(visible=False)
                 window_download_subs['SEASON'].update(value=movie.season)
                 window_download_subs['EPISODE'].update(value=movie.episode)
 
