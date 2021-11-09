@@ -1,7 +1,7 @@
 from SubtitleSearcher.main import threading
 import time
 
-def ZipDownloaderThreaded(zip_handler, thread_nmb):
+def ZipDownloaderThreaded(zip_handler, thread_nmb='1'):
     file_download = zip_handler.download_zip()
     if file_download:
         print(f'Thread {thread_nmb} working with\n{zip_handler.filename}')
