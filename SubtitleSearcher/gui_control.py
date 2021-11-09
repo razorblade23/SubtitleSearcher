@@ -19,17 +19,14 @@ def intro_dialog():
     Currently working:
         * Searching using single video file
 
+        * Searching using multiple video files
+            (Quick mode only !)
+
         * Language chooser
 
         * Quick mode - selects first subtitle in list 
             automaticly and downloads it next to file 
             with matching filename.
-
-        * Searching by file hash first.
-            If that fails, then it searches by filename.
-
-        * First result is probably the best 
-            for your specific movie
 
     Features to work on:
         -> Implementing TV series search
