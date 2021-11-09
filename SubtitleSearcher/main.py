@@ -117,6 +117,11 @@ def run():
                 WINDOWSUBS = False
                 window_download_subs.close()
                 continue
+            
+            if movie.kind == 'tv series' or movie.kind == 'episode':
+                window_download_subs['TVSERIESINFO'].update(disabled=False)
+                window_download_subs['SEASON'].update(value=movie.season)
+                window_download_subs['EPISODE'].update(value=movie.episode)
 
             if event_subs == 'SUBSTABLE':
                 for sub in all_subs:

@@ -84,6 +84,12 @@ def subs_window():
                 [sg.T('Kind:')],
                 [sg.T(key='KIND', text_color='white', size=(12,1))]
             ]),
+            sg.Column(key='TVSERIESINFO', visible=False, layout=[
+                [sg.T('Season:'),
+                sg.T(key='SEASON', text_color='white', size=(15,1))],
+                [sg.T('Episode:'),
+                sg.T(key='EPISODE', text_color='white', size=(15,1))]
+            ]),
             sg.Column(layout=[
                 [sg.T('Wrong movie/tv show?')],
                 [sg.B('Change movie/tv show', key='CHANGEMOVIE')]
