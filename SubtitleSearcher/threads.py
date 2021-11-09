@@ -26,8 +26,6 @@ def ZipDownloaderThreaded(zip_handler, thread_nmb='1'):
             except FileNotFoundError:
                 print(f'Cant move file - thread {thread_nmb}')
             else:
-                print(f'Deleting remains from memory - thread {thread_nmb}')
-                zip_handler.delete_remains()
                 print(f'Job done, continuing - thread {thread_nmb}\n')
 
 def ImdbSearchByTitle(movie):

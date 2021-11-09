@@ -104,6 +104,7 @@ def run():
             print('\n---------- WAITING FOR FILE DOWNLOAD TO COMPLETE ----------\n')
             for thread in treads:
                 thread.join()
+            zip_handler.delete_remains()
             TIME_END = time.perf_counter()
             time_took = round(TIME_END-TIME_START, 2)
             print(f'\n*** Took {time_took} to download subtitles ***\n')
