@@ -7,6 +7,7 @@ from SubtitleSearcher.data import handle_zip
 from SubtitleSearcher import gui_control, gui_windows, threads
 from contextlib import suppress
 import platform
+import time
 
 system = platform.system()
 if system == 'Windows':
@@ -21,12 +22,15 @@ main_layout = gui_windows.main_window()
 
 gui_control.intro_dialog()
 
+
+
 # Start infinite loop for your GUI windows and reading from them
 def run():
     global WINDOWSUBS, language_selected
     window = sg.Window(title='Subbydoo', layout=main_layout, element_justification='center', icon=icon, finalize=True)
     while True:
         event, values = window.read(timeout=300)
+        #print(f'Currently active threads: {threading.active_count()}\n')
         if event == sg.WIN_CLOSED:
             break
         
@@ -61,6 +65,7 @@ def run():
 
         ####### SINGLE FILE & QUICKMODE ON #########
         if not WINDOWSUBS and event == 'SEARCHBYSINGLEFILE' and values['QuickMode'] == True:
+            TIME_START = time.perf_counter()
             print('Searching single file with QuickMode on')
             print('Searching and downloading your subtitle')
             window.refresh()
@@ -70,34 +75,38 @@ def run():
                 sg.popup_error('Cant find any subtitles for your language.\nPlease choose another.')
             else:
                 zip_handler = handle_zip.ZipHandler(sub.SubFileName, sub.ZipDownloadLink, values['SINGLEFILE'])
-                file_download = zip_handler.download_zip()
-                if file_download:
-                    zip_handler.extract_zip()
-                    zip_handler.move_files()
-                    zip_handler.delete_remains()
-                    print('Subtitle downloaded\n')
-                    sg.PopupQuickMessage('Subtitle downloaded', font='Any 18', background_color='white', text_color='black')
+                zipThread = threading.Thread(target=threads.ZipDownloaderThreaded, args=[zip_handler])
+                zipThread.start()
+                zipThread.join()
+                sg.PopupQuickMessage('Subtitle downloaded', font='Any 18', background_color='white', text_color='black')
+            TIME_END = time.perf_counter()
+            time_took = round(TIME_END-TIME_START, 2)
+            print(f'\n***Download took {time_took} seconds ***\n')
         
 
         ####### MULTIPLE FILES & QUICKMODE ON #########
         if not WINDOWSUBS and event == 'SEARCHBYMULTIFILE' and values['QuickMode'] == True:
+            TIME_START = time.perf_counter()
             files = values['MULTIPLEFILES']
             files_lst = files.split(';')
             print(f'*** Ready to download {len(files_lst)} subtitles ***')
-            movies_list = []
+            treads = []
             subs_list = []
             for file in range(len(files_lst)):
                 movie, all_subs = gui_control.search_by_multy_file(values, files_lst[file], lang, window)
                 subs_list.append(all_subs[0])
             for sub in range(len(subs_list)):
-                print(f'\nDownloading subtitle {sub+1} of {len(subs_list)}')
+                print(f'Threading download of subtitle {sub+1} of {len(subs_list)}')
                 zip_handler = handle_zip.ZipHandler(subs_list[sub].SubFileName, subs_list[sub].ZipDownloadLink, files_lst[sub])
-                file_download = zip_handler.download_zip()
-                if file_download:
-                    zip_handler.extract_zip()
-                    zip_handler.move_files()
-                    zip_handler.delete_remains()
-                print(f'Subtitle downloaded')
+                zipThread = threading.Thread(target=threads.ZipDownloaderThreaded, args=[zip_handler, sub+1])
+                zipThread.start()
+                treads.append(zipThread)
+            print('\n---------- WAITING FOR FILE DOWNLOAD TO COMPLETE ----------\n')
+            for thread in treads:
+                thread.join()
+            TIME_END = time.perf_counter()
+            time_took = round(TIME_END-TIME_START, 2)
+            print(f'\n*** Took {time_took} to download subtitles ***\n')
             sg.PopupQuickMessage('All subtitles downloaded', font='Any 18', background_color='white', text_color='black')
 
         if WINDOWSUBS:
@@ -128,16 +137,15 @@ def run():
 
             if event_subs == 'DOWNLOADSUB':
                 sg.popup_notify('Started download of selected subtitle', title='Downloading subtitles', display_duration_in_ms=800, fade_in_duration=100)
-                selected_sub = handle_zip.ZipHandler(sub_selected_filename, sub_selected_zip_down, values['SINGLEFILE'])
-                downloadIt = selected_sub.download_zip()
-                if downloadIt:
-                    selected_sub.extract_zip()
-                    selected_sub.move_files()
-                    selected_sub.delete_remains()
-                    sg.popup_notify('File downloaded succesfully.\nYou can find your subtitle in movie folder', title='Subtitle downloaded', display_duration_in_ms=3000, fade_in_duration=100)
-                else:
-                    sg.popup_ok('There was an error in dowloading file, please try again')
-
+                TIME_START = time.perf_counter()
+                zip_handler = handle_zip.ZipHandler(sub_selected_filename, sub_selected_zip_down, values['SINGLEFILE'])
+                zipThread = threading.Thread(target=threads.ZipDownloaderThreaded, args=[zip_handler])
+                zipThread.start()
+                zipThread.join()
+                TIME_END = time.perf_counter()
+                time_took = round(TIME_END-TIME_START, 2)
+                print(f'\n*** Took {time_took} to download subtitles ***\n')
+                sg.popup_notify('File downloaded succesfully.\nYou can find your subtitle in movie folder', title='Subtitle downloaded', display_duration_in_ms=3000, fade_in_duration=100)
             window_download_subs['MOVIENAME'].update(movie.title)
             window_download_subs['MOVIEYEAR'].update(movie.year)
             window_download_subs['IMDBID'].update(movie.imdb_id)
