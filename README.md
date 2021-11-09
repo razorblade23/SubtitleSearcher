@@ -29,7 +29,7 @@ This will install all the modules needed for this to work
 
 ## Changelog v0.0.2
 - Subtitle search with single or multiple files work (multiple files only with QuickMode on)
-- Adedd QuickMode - no user input, automaticly download first subtitle
+- Adedd QuickMode - no user input, automatically download first subtitle
 - SubbyDoo now supports threading - automatic thread creation on download of subtitles
 
 ## Changelog v.0.0.1
