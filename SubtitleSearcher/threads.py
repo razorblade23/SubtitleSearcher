@@ -5,11 +5,13 @@ import queue
 import time
 
 opensubs = openSubtitles.searchOpenSubtitles()
-
+threadLock = threading.Lock()
 movieQueve = queue.Queue()
 subsQueve = queue.Queue()
 
 def ZipDownloaderThreaded(zip_handler, thread_nmb='1'):
+    print(f'Locking thread {thread_nmb}')
+    threadLock.acquire()
     file_download = zip_handler.download_zip()
     if file_download:
         print(f'Thread {thread_nmb} working with\n{zip_handler.filename}')
@@ -26,7 +28,8 @@ def ZipDownloaderThreaded(zip_handler, thread_nmb='1'):
             except FileNotFoundError:
                 print(f'Cant move file - thread {thread_nmb}')
             else:
-                print(f'Job done, continuing - thread {thread_nmb}\n')
+                print(f'Job done, releasing lock - thread {thread_nmb}\n')
+    threadLock.release()
 
 def ImdbSearchByTitle(movie):
     print('\nThread movie search started')
