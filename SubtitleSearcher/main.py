@@ -61,7 +61,8 @@ def run():
 
         ####### SINGLE FILE & QUICKMODE ON #########
         if not WINDOWSUBS and event == 'SEARCHBYSINGLEFILE' and values['QuickMode'] == True:
-            gui_control.StatusBarMainUpdate(window, 'Searching and downloading your subtitle')
+            print('Searching single file with QuickMode on')
+            print('Searching and downloading your subtitle')
             window.refresh()
             try:
                 sub = all_subs[0]
@@ -74,6 +75,7 @@ def run():
                     zip_handler.extract_zip()
                     zip_handler.move_files()
                     zip_handler.delete_remains()
+                    print('Subtitle downloaded\n')
                     sg.PopupQuickMessage('Subtitle downloaded', font='Any 18', background_color='white', text_color='black')
         
 
@@ -99,9 +101,8 @@ def run():
             sg.PopupQuickMessage('All subtitles downloaded', font='Any 18', background_color='white', text_color='black')
 
         if WINDOWSUBS:
-            event_subs, values_subs = window_download_subs.read(timeout=400)
+            event_subs, values_subs = window_download_subs.read(timeout=600)
             window_download_subs['STATUSBAR'].update(value='Subtitles found: {} | Language selected: {}'.format(len(all_subs), language_selected[0]))
-            
             
             if event_subs == sg.WIN_CLOSED:
                 WINDOWSUBS = False
@@ -110,7 +111,7 @@ def run():
 
             if event_subs == 'SUBSTABLE':
                 for sub in all_subs:
-                    if sub.SubFileName == values_subs['SUBSTABLE'][0]:
+                    if sub.MovieReleaseName == values_subs['SUBSTABLE'][0]:
                         sub_selected_filename = sub.SubFileName
                         sub_selected_zip_down = sub.ZipDownloadLink
                         window_download_subs['SUBNAME'].update(sub.SubFileName)

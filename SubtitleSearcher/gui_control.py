@@ -111,7 +111,7 @@ def subtitle_search(movie, language, hash):
             print(f'Link for step 2:\n{link2}')
         try:
             subtitles = opensubs.request_subtitles(link2)
-            print(f'\n{subtitles}\n')
+            #print(f'\n{subtitles}\n')
         except:
             sg.popup_ok('We got error 503.\nThat usually means there is maintanance\n under way on open subtitles servers.\nPlease try another method for serching or try again later',
                         title='Error')
