@@ -65,6 +65,7 @@ def run():
 
         ####### SINGLE FILE & QUICKMODE ON #########
         if not WINDOWSUBS and event == 'SEARCHBYSINGLEFILE' and values['QuickMode'] == True:
+            TIME_START = time.perf_counter()
             print('Searching single file with QuickMode on')
             print('Searching and downloading your subtitle')
             window.refresh()
@@ -78,7 +79,9 @@ def run():
                 zipThread.start()
                 zipThread.join()
                 sg.PopupQuickMessage('Subtitle downloaded', font='Any 18', background_color='white', text_color='black')
-                
+            TIME_END = time.perf_counter()
+            time_took = round(TIME_END-TIME_START, 2)
+            print(f'\n***Download took {time_took} seconds ***\n')
         
 
         ####### MULTIPLE FILES & QUICKMODE ON #########
@@ -103,7 +106,7 @@ def run():
                 thread.join()
             TIME_END = time.perf_counter()
             time_took = round(TIME_END-TIME_START, 2)
-            print(f'*** I took {time_took} to download subtitles ***')
+            print(f'\n*** Took {time_took} to download subtitles ***\n')
             sg.PopupQuickMessage('All subtitles downloaded', font='Any 18', background_color='white', text_color='black')
 
         if WINDOWSUBS:
@@ -134,10 +137,14 @@ def run():
 
             if event_subs == 'DOWNLOADSUB':
                 sg.popup_notify('Started download of selected subtitle', title='Downloading subtitles', display_duration_in_ms=800, fade_in_duration=100)
+                TIME_START = time.perf_counter()
                 zip_handler = handle_zip.ZipHandler(sub_selected_filename, sub_selected_zip_down, values['SINGLEFILE'])
                 zipThread = threading.Thread(target=threads.ZipDownloaderThreaded, args=[zip_handler])
                 zipThread.start()
                 zipThread.join()
+                TIME_END = time.perf_counter()
+                time_took = round(TIME_END-TIME_START, 2)
+                print(f'\n*** Took {time_took} to download subtitles ***\n')
                 sg.popup_notify('File downloaded succesfully.\nYou can find your subtitle in movie folder', title='Subtitle downloaded', display_duration_in_ms=3000, fade_in_duration=100)
             window_download_subs['MOVIENAME'].update(movie.title)
             window_download_subs['MOVIEYEAR'].update(movie.year)

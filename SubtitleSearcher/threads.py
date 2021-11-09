@@ -1,5 +1,13 @@
 from SubtitleSearcher.main import threading
+from SubtitleSearcher.data.imdb_metadata import search_imdb_by_title
+from SubtitleSearcher.data import openSubtitles
+import queue
 import time
+
+opensubs = openSubtitles.searchOpenSubtitles()
+
+movieQueve = queue.Queue()
+subsQueve = queue.Queue()
 
 def ZipDownloaderThreaded(zip_handler, thread_nmb='1'):
     file_download = zip_handler.download_zip()
@@ -21,3 +29,13 @@ def ZipDownloaderThreaded(zip_handler, thread_nmb='1'):
                 print(f'Deleting remains from memory - thread {thread_nmb}')
                 zip_handler.delete_remains()
                 print(f'Job done, continuing - thread {thread_nmb}\n')
+
+def ImdbSearchByTitle(movie):
+    print('\nThread movie search started')
+    metadata = search_imdb_by_title(movie.title)
+    movieQueve.put(metadata)
+
+def SearchForSubtitles(link):
+    print('\nThread subtitle search started')
+    subtitles = opensubs.request_subtitles(link)
+    subsQueve.put(subtitles)
