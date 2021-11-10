@@ -3,10 +3,13 @@ from SubtitleSearcher import threads
 from SubtitleSearcher.data import imdb_metadata
 from SubtitleSearcher.main import sg
 from SubtitleSearcher.data import openSubtitles, movies
-from SubtitleSearcher.threads import ImdbSearchByTitle, SearchForSubtitles, movieQueve, subsQueve
+from SubtitleSearcher.threads import SearchForSubtitles, movieQueve, subsQueve
+
 import urllib
 import threading
 import queue
+
+
 
 movieQueve = queue.Queue()
 allSubsQueve = queue.Queue()
@@ -26,6 +29,9 @@ def intro_dialog():
         * Searching using multiple video files
             (Quick mode only !)
 
+        * Implementing multi-threaded operations 
+            for smooth experience
+
         * Language chooser
 
         * Quick mode - selects first subtitle in list 
@@ -34,11 +40,8 @@ def intro_dialog():
 
     Features to work on:
         -> Implementing TV series search
-
-        -> Implementing multi-threaded operations 
-            for smooth experience
         
-        -> Implementing of system tray 
+        -> Implementing of system tray or widget
             option for quick access
 
         -> Download and make local copy of IMDB database 
@@ -60,12 +63,12 @@ class OpenSubtitlesSearchAlg:
         self.movie = movie
         self.all_subs = []
         self.language = language
-        print(f'Video title: {movie.title}')
+        #print(f'Video title: {movie.title}')
 
     def subtitleSearchStep1(self):
         print('Step 1 - search by file hash')
         link = opensubs.create_link(imdb=self.movie.imdb_id, bytesize=self.movie.byte_size, hash=self.movie.file_hash, language=self.language)
-        print(f'Link for step 1:\n{link}')
+        #print(f'Link for step 1:\n{link}')
         subtitles = SearchForSubtitles(link)
         #subtitles = opensubs.request_subtitles(link)
         for number, subtitle in enumerate(subtitles):
@@ -85,7 +88,7 @@ class OpenSubtitlesSearchAlg:
             query = openSubtitles.searchOpenSubtitles.make_search_string(title=self.movie.title, episode=self.movie.episode, season=self.movie.season, year=self.movie.year, quality=self.movie.quality, resolution=self.movie.resolution, encoder=self.movie.encoder, excess=self.movie.excess)
             link = opensubs.create_link(query=query, language=self.language) # Create a link to search for movie by its name and language
             link = urllib.parse.quote(link, safe=':/')
-            print(f'Link for step 2:\n{link}')
+            #print(f'Link for step 2:\n{link}')
         try:
             subtitles = SearchForSubtitles(link)
             #subtitles = opensubs.request_subtitles(link2)
@@ -112,7 +115,7 @@ class OpenSubtitlesSearchAlg:
             query = openSubtitles.searchOpenSubtitles.make_search_string(title=self.movie.title, episode=self.movie.episode, season=self.movie.season, year=self.movie.year, quality=self.movie.quality, resolution=self.movie.resolution, encoder=self.movie.encoder, excess=self.movie.excess)
             link = opensubs.create_link(imdb=self.movie.imdb_id, query=query, language=self.language) # Create a link to search for movie by its name and language
             link = urllib.parse.quote(link, safe=':/')
-            print(f'Link for step 3:\n{link}')
+            #print(f'Link for step 3:\n{link}')
         try:
             subtitles = SearchForSubtitles(link)
             #subtitles = opensubs.request_subtitles(link2)

@@ -22,8 +22,6 @@ main_layout = gui_windows.main_window()
 
 gui_control.intro_dialog()
 
-
-
 # Start infinite loop for your GUI windows and reading from them
 def run():
     global WINDOWSUBS, language_selected
@@ -94,8 +92,13 @@ def run():
             treads2 = []
             subs_list = []
             for file in range(len(files_lst)):
-                movie, all_subs = gui_control.search_by_multy_file(values, files_lst[file], lang, window)
-                subs_list.append(all_subs[0])
+                print(f'Threading search of subtitle {file+1} of {len(files_lst)}')
+                movieThread = threading.Thread(target=threads.search_by_multy_file, args=[gui_control.OpenSubtitlesSearchAlg, files_lst[file], lang, file+1])
+                movieThread.start()
+                treads1.append(movieThread)
+            for sub in range(len(treads1)):
+                subtitle = threads.subsQueve.get()
+                subs_list.append(subtitle)
             for sub in range(len(subs_list)):
                 print(f'Threading download of subtitle {sub+1} of {len(subs_list)}')
                 zip_handler = handle_zip.ZipHandler(subs_list[sub].SubFileName, subs_list[sub].ZipDownloadLink, files_lst[sub])
@@ -103,8 +106,12 @@ def run():
                 zipThread.start()
                 treads2.append(zipThread)
             print('\n---------- WAITING FOR FILE DOWNLOAD TO COMPLETE ----------\n')
-            for thread in treads2:
+            for number, thread in enumerate(treads1):
                 thread.join()
+            for number, thread in enumerate(treads2):
+                thread.join()
+                sg.one_line_progress_meter('Moving subtitles', number+1, len(treads2), key='MOVINGSTATUS', orientation='h')
+            sg.one_line_progress_meter_cancel('MOVINGSTATUS')
             zip_handler.delete_remains()
             TIME_END = time.perf_counter()
             time_took = round(TIME_END-TIME_START, 2)
