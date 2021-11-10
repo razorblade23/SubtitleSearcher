@@ -53,10 +53,14 @@ class searchOpenSubtitles:
         return json_req
     
     @staticmethod
-    def make_search_string(title, year, quality, resolution, encoder, excess):
+    def make_search_string(title, episode, season, year, quality, resolution, encoder, excess):
         string_list = []
         if not title == None:
             string_list.append(str(title))
+        if not episode == None:
+            string_list.append(str(episode))
+        if not season == None:
+            string_list.append(str(season))
         if not year == None:
             string_list.append(str(year))
         if not quality == None:

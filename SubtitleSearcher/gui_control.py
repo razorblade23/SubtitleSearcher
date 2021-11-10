@@ -6,6 +6,10 @@ from SubtitleSearcher.data import openSubtitles, movies
 from SubtitleSearcher.threads import ImdbSearchByTitle, SearchForSubtitles, movieQueve, subsQueve
 import urllib
 import threading
+import queue
+
+movieQueve = queue.Queue()
+allSubsQueve = queue.Queue()
 
 opensubs = openSubtitles.searchOpenSubtitles()
 
@@ -51,6 +55,85 @@ def intro_dialog():
                 ''', title='SubbyDoo v.0.0.2-alpha INFO', text_color='white', font='Any 12')
     return dialog
 
+class OpenSubtitlesSearchAlg:
+    def __init__(self, movie, language):
+        self.movie = movie
+        self.all_subs = []
+        self.language = language
+        print(f'Video title: {movie.title}')
+
+    def subtitleSearchStep1(self):
+        print('Step 1 - search by file hash')
+        link = opensubs.create_link(imdb=self.movie.imdb_id, bytesize=self.movie.byte_size, hash=self.movie.file_hash, language=self.language)
+        #print(f'Link for step 1:\n{link}')
+        subtitles = SearchForSubtitles(link)
+        #subtitles = opensubs.request_subtitles(link)
+        for number, subtitle in enumerate(subtitles):
+            #print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
+            number = movies.Subtitle(subtitle)
+            self.all_subs.append(number)
+        if len(self.all_subs) == 0:
+            print('Step 1 failed')
+        else:
+            print('Step 1 success\n')
+        return subtitles, self.all_subs
+
+    def subtitleSearchStep2(self):
+        print('Step 2 - Searching by filename')
+        if self.movie.title != None:
+            self.movie.title.lower() # Make all letters of movie name lowercase
+            query = openSubtitles.searchOpenSubtitles.make_search_string(title=self.movie.title, episode=self.movie.episode, season=self.movie.season, year=self.movie.year, quality=self.movie.quality, resolution=self.movie.resolution, encoder=self.movie.encoder, excess=self.movie.excess)
+            link = opensubs.create_link(query=query, language=self.language) # Create a link to search for movie by its name and language
+            link = urllib.parse.quote(link, safe=':/')
+        try:
+            subtitles = SearchForSubtitles(link)
+            #subtitles = opensubs.request_subtitles(link2)
+            #print(f'\n{subtitles}\n')
+        except:
+            sg.popup_ok('We got error 503.\nThat usually means there is maintanance\n under way on open subtitles servers.\nPlease try another method for serching or try again later',
+                        title='Error')
+        else:
+            for number, subtitle in enumerate(subtitles):
+                #print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
+                number = movies.Subtitle(subtitle)
+                self.all_subs.append(number)
+
+        if len(subtitles) == 0:
+            print('Step 2 failed')
+        else:
+            print('Step 2 success\n')
+        return subtitles, self.all_subs
+
+    def subtitleSearchStep3(self):
+        print('Step 3 - Searching by IMDB ID and filename')
+        if self.movie.title != None:
+            self.movie.title.lower() # Make all letters of movie name lowercase
+            query = openSubtitles.searchOpenSubtitles.make_search_string(title=self.movie.title, year=self.movie.year, quality=self.movie.quality, resolution=self.movie.resolution, encoder=self.movie.encoder, excess=self.movie.excess)
+            link = opensubs.create_link(imdb=self.movie.imdb_id, query=query, language=self.language) # Create a link to search for movie by its name and language
+            link = urllib.parse.quote(link, safe=':/')
+            print(f'Link for step 2:\n{link}')
+        try:
+            subtitles = SearchForSubtitles(link)
+            #subtitles = opensubs.request_subtitles(link2)
+            #print(f'\n{subtitles}\n')
+        except:
+            sg.popup_ok('We got error 503.\nThat usually means there is maintanance\n under way on open subtitles servers.\nPlease try another method for serching or try again later',
+                        title='Error')
+        else:
+            for number, subtitle in enumerate(subtitles):
+                #print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
+                number = movies.Subtitle(subtitle)
+                self.all_subs.append(number)
+
+        if len(subtitles) == 0:
+            print('Step 3 failed')
+        else:
+            print('Step 3 success\n')
+        return subtitles, self.all_subs
+
+
+
+
 def StatusBarMainUpdate(window, update):
     return window['STATUSBAR'].update(update)
 def StatusBarVersionUpdate(window, update):
@@ -77,10 +160,7 @@ def movie_setup(file_size, file_hash, values, file_path):
     movie = movies.Movie(file_size, file_hash, file_path, ntpath.basename(file_path))
     movie.set_from_filename()
     #print(f'\nMetadata extracted from filename:\n{movie.movie_info}')
-    MovieMetadataThread = threading.Thread(target=ImdbSearchByTitle, args=[movie])
-    MovieMetadataThread.start()
-    metadata = movieQueve.get()
-    MovieMetadataThread.join()
+    metadata = imdb_metadata.search_imdb_by_title(movie.title)
     #metadata = imdb_metadata.search_imdb_by_title(movie.title)
     #print(metadata)
     type_of_video = metadata[0]['kind']
@@ -88,56 +168,6 @@ def movie_setup(file_size, file_hash, values, file_path):
     movie_imdb_id = metadata[0].movieID
     movie.set_imdb_id(movie_imdb_id)
     return movie
-
-def subtitle_search(movie, language, hash):
-    print(f'\nMovie name: {movie.title}')
-    all_subs = []
-    if hash == True:
-        print('Step 1 - Searching by movie hash')
-        link = opensubs.create_link(imdb=movie.imdb_id, bytesize=movie.byte_size, hash=movie.file_hash, language=language)
-        #print(f'Link for step 1:\n{link}')
-        subThread = threading.Thread(target=SearchForSubtitles, args=[link])
-        subThread.start()
-        subtitles = subsQueve.get()
-        subThread.join()
-        #subtitles = opensubs.request_subtitles(link)
-        for number, subtitle in enumerate(subtitles):
-            #print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
-            number = movies.Subtitle(subtitle)
-            all_subs.append(number)
-        if len(all_subs) == 0:
-            print('Step 1 failed\n')
-        else:
-            print('Step 1 success\n')
-    else:
-        print('Step 2 - Searching by filename')
-        if movie.title != None:
-            movie.title.lower() # Make all letters of movie name lowercase
-            query = openSubtitles.searchOpenSubtitles.make_search_string(title=movie.title, year=movie.year, quality=movie.quality, resolution=movie.resolution, encoder=movie.encoder, excess=movie.excess)
-            link2 = opensubs.create_link(imdb=movie.imdb_id, query=query, language=language) # Create a link to search for movie by its name and language
-            link2 = urllib.parse.quote(link2, safe=':/')
-            print(f'Link for step 2:\n{link2}')
-        try:
-            subThread = threading.Thread(target=SearchForSubtitles, args=[link2])
-            subThread.start()
-            subtitles = subsQueve.get()
-            subThread.join()
-            #subtitles = opensubs.request_subtitles(link2)
-            #print(f'\n{subtitles}\n')
-        except:
-            sg.popup_ok('We got error 503.\nThat usually means there is maintanance\n under way on open subtitles servers.\nPlease try another method for serching or try again later',
-                        title='Error')
-        else:
-            for number, subtitle in enumerate(subtitles):
-                #print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
-                number = movies.Subtitle(subtitle)
-                all_subs.append(number)
-
-        if len(subtitles) == 0:
-            print('Step 2 failed\n')
-        else:
-            print('Step 2 success\n')
-    return subtitles, all_subs
 
 def search_by_single_file(values, language, window):
     try:
@@ -148,10 +178,15 @@ def search_by_single_file(values, language, window):
     else:
         movie = movie_setup(fileSize, hashed_file, values, values['SINGLEFILE'])
         window['STATUSBAR'].update(f'Movie name: {movie.title} - IMDB ID: {movie.imdb_id}')
-        subtitles, all_subs = subtitle_search(movie, language, hash=True)
-        #subtitles=[] # Comment / Uncomment this to simulate finding hash failed
+        all_subs = []
+        search_alg = OpenSubtitlesSearchAlg(movie, language)
+        subtitles, all_subs = search_alg.subtitleSearchStep1()
         if len(subtitles) == 0:
-            subtitles, all_subs = subtitle_search(movie, language, hash=False)
+            subtitles, all_subs = search_alg.subtitleSearchStep2()
+            if len(subtitles) == 0:
+                subtitles, all_subs = search_alg.subtitleSearchStep3()
+        #subtitles, all_subs = subtitle_search(movie, language)
+        #subtitles=[] # Comment / Uncomment this to simulate finding hash failed
     return movie, all_subs
 
 def search_by_multy_file(values, file_path, language, window):
@@ -163,8 +198,11 @@ def search_by_multy_file(values, file_path, language, window):
     else:
         movie = movie_setup(fileSize, hashed_file, values, file_path)
         window['STATUSBAR'].update(f'Movie name: {movie.title} - IMDB ID: {movie.imdb_id}')
-        subtitles, all_subs = subtitle_search(movie, language, hash=True)
-        #subtitles=[] # Comment / Uncomment this to simulate finding hash failed
+        search_alg = OpenSubtitlesSearchAlg(movie, language)
+        subtitles, all_subs = search_alg.subtitleSearchStep1()
         if len(subtitles) == 0:
-            subtitles, all_subs = subtitle_search(movie, language, hash=False)
+            subtitles, all_subs = search_alg.subtitleSearchStep2()
+            if len(subtitles) == 0:
+                subtitles, all_subs = search_alg.subtitleSearchStep3()
+        #subtitles=[] # Comment / Uncomment this to simulate finding hash failed
     return movie, all_subs

@@ -90,7 +90,8 @@ def run():
             files = values['MULTIPLEFILES']
             files_lst = files.split(';')
             print(f'*** Ready to download {len(files_lst)} subtitles ***')
-            treads = []
+            treads1 = []
+            treads2 = []
             subs_list = []
             for file in range(len(files_lst)):
                 movie, all_subs = gui_control.search_by_multy_file(values, files_lst[file], lang, window)
@@ -100,9 +101,9 @@ def run():
                 zip_handler = handle_zip.ZipHandler(subs_list[sub].SubFileName, subs_list[sub].ZipDownloadLink, files_lst[sub])
                 zipThread = threading.Thread(target=threads.ZipDownloaderThreaded, args=[zip_handler, sub+1])
                 zipThread.start()
-                treads.append(zipThread)
+                treads2.append(zipThread)
             print('\n---------- WAITING FOR FILE DOWNLOAD TO COMPLETE ----------\n')
-            for thread in treads:
+            for thread in treads2:
                 thread.join()
             zip_handler.delete_remains()
             TIME_END = time.perf_counter()
