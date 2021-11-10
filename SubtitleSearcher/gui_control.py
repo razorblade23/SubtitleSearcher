@@ -108,7 +108,7 @@ class OpenSubtitlesSearchAlg:
         print('Step 3 - Searching by IMDB ID and filename')
         if self.movie.title != None:
             self.movie.title.lower() # Make all letters of movie name lowercase
-            query = openSubtitles.searchOpenSubtitles.make_search_string(title=self.movie.title, year=self.movie.year, quality=self.movie.quality, resolution=self.movie.resolution, encoder=self.movie.encoder, excess=self.movie.excess)
+            query = openSubtitles.searchOpenSubtitles.make_search_string(title=self.movie.title, episode=self.movie.episode, season=self.movie.season, year=self.movie.year, quality=self.movie.quality, resolution=self.movie.resolution, encoder=self.movie.encoder, excess=self.movie.excess)
             link = opensubs.create_link(imdb=self.movie.imdb_id, query=query, language=self.language) # Create a link to search for movie by its name and language
             link = urllib.parse.quote(link, safe=':/')
             print(f'Link for step 2:\n{link}')
@@ -147,7 +147,7 @@ def language_selector(values):
         elif values['LangCRO']:
             language_selected.append('hrv')
         elif values['LangSRB']:
-            language_selected.append('srp')
+            language_selected.append('scc')
         elif values['LangBOS']:
             language_selected.append('bos')
         elif values['LangSLO']:
