@@ -84,38 +84,49 @@ def run():
 
         ####### MULTIPLE FILES & QUICKMODE ON #########
         if not WINDOWSUBS and event == 'SEARCHBYMULTIFILE' and values['QuickMode'] == True:
+            sg.popup_quick_message('Preparing ...\nPlease wait', font='Any 14', background_color='white', text_color='black')
             TIME_START = time.perf_counter()
             files = values['MULTIPLEFILES']
             files_lst = files.split(';')
             print(f'*** Ready to download {len(files_lst)} subtitles ***')
+            window['WORKINGSTRING'].update(visible=True)
+            window['PROGRESSBAR'].update(current_count=0, max=len(files_lst))
             treads1 = []
             treads2 = []
             subs_list = []
+            window['WORKINGSTRING'].update(value='Step 1 of 4')
             for file in range(len(files_lst)):
                 print(f'Threading search of subtitle {file+1} of {len(files_lst)}')
                 movieThread = threading.Thread(target=threads.search_by_multy_file, args=[gui_control.OpenSubtitlesSearchAlg, files_lst[file], lang, file+1])
                 movieThread.start()
                 treads1.append(movieThread)
+                window['PROGRESSBAR'].update(current_count=file+1)
+            window['WORKINGSTRING'].update(value='Step 2 of 4')
             for sub in range(len(treads1)):
                 subtitle = threads.subsQueve.get()
                 subs_list.append(subtitle)
+                window['PROGRESSBAR'].update(current_count=sub+1)
+            window['WORKINGSTRING'].update(value='Step 3 of 4')
             for sub in range(len(subs_list)):
                 print(f'Threading download of subtitle {sub+1} of {len(subs_list)}')
                 zip_handler = handle_zip.ZipHandler(subs_list[sub].SubFileName, subs_list[sub].ZipDownloadLink, files_lst[sub])
                 zipThread = threading.Thread(target=threads.ZipDownloaderThreaded, args=[zip_handler, sub+1])
                 zipThread.start()
                 treads2.append(zipThread)
+                window['PROGRESSBAR'].update(current_count=sub+1)
             print('\n---------- WAITING FOR FILE DOWNLOAD TO COMPLETE ----------\n')
+            window['WORKINGSTRING'].update(value='Step 4 of 4')
             for number, thread in enumerate(treads1):
                 thread.join()
             for number, thread in enumerate(treads2):
                 thread.join()
-                sg.one_line_progress_meter('Moving subtitles', number+1, len(treads2), key='MOVINGSTATUS', orientation='h')
-            sg.one_line_progress_meter_cancel('MOVINGSTATUS')
+                window['PROGRESSBAR'].update(current_count=number+1)
             zip_handler.delete_remains()
             TIME_END = time.perf_counter()
             time_took = round(TIME_END-TIME_START, 2)
             print(f'\n*** Took {time_took} to download subtitles ***\n')
+            window['WORKINGSTRING'].update(visible=False)
+            window['PROGRESSBAR'].update(current_count=0)
             sg.PopupQuickMessage('All subtitles downloaded', font='Any 18', background_color='white', text_color='black')
 
         if WINDOWSUBS:

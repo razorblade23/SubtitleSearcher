@@ -61,6 +61,7 @@ def main_window():
                 [sg.InputText('Password', key='openPASS')]
             ])]
         ])],
+        [sg.ProgressBar(100, 'h', key='PROGRESSBAR', bar_color=('green', 'black')), sg.Text('Working, please wait', key='WORKINGSTRING', visible=False)],
         [sg.StatusBar('', key='STATUSBAR', size=(90,1)), sg.StatusBar('', key='STATUSBAR1', size=(10,1), justification='right')]
     ]
     return layout
