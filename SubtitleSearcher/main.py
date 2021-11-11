@@ -43,11 +43,21 @@ def run():
             else:
                 window.keep_on_top_set()
 
-        if values['SINGLEFILE'] != 'Browse this to select a single file !':
-            window['SEARCHBYSINGLEFILE'].update(disabled=False)
-        
-        if values['MULTIPLEFILES'] != 'Browse this to select multiple files !':
-            window['SEARCHBYMULTIFILE'].update(disabled=False)
+        if event == 'BROWSE':
+            file_path = sg.popup_get_file('Please select a file or files', 
+                                            title='Browse', 
+                                            multiple_files=True, 
+                                            history=True,
+                                            default_extension='.mkv',
+                                            no_window=False,
+                                            initial_folder='~/Downloads',
+                                            file_types=(('Video files', '.avi'),('Video files', '.mkv'),))
+
+        #if values['SINGLEFILE'] != 'Browse this to select a single file !':
+        #    window['SEARCHBYSINGLEFILE'].update(disabled=False)
+        #
+        #if values['MULTIPLEFILES'] != 'Browse this to select multiple files !':
+        #    window['SEARCHBYMULTIFILE'].update(disabled=False)
 
         if event == 'SEARCHBYSINGLEFILE':
             movie, all_subs = gui_control.search_by_single_file(values, lang, window)

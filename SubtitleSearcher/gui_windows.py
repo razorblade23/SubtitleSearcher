@@ -12,16 +12,8 @@ def main_window():
                 [sg.Frame(title='Search for subtitles', layout=[
                     [sg.TabGroup(layout=[
                         [sg.Tab(title='Search by file', layout=[
-                            [sg.InputText(disabled=True, key='SINGLEFILE', 
-                                            default_text='Browse this to select a single file !', 
-                                            disabled_readonly_text_color='red'), 
-                                sg.FileBrowse('Browse', size=(8,2), initial_folder='~/Downloads', key='ChooseSingle', 
-                                                file_types=(('Video files', '.avi'),('Video files', '.mkv'),))], 
-                            [sg.InputText(disabled=True, key='MULTIPLEFILES', default_text='Browse this to select multiple files !', 
-                                            disabled_readonly_text_color='red'), 
-                            sg.FilesBrowse('Browse', size=(8,2), key='ChooseMultiple', initial_folder='~/Downloads',
-                                            file_types=(('Video files', '.avi'),('Video files', '.mkv'),))],
-                            [sg.Button('Search for single file', key='SEARCHBYSINGLEFILE', disabled=True), sg.Button('Search multiple files', key='SEARCHBYMULTIFILE', disabled=True)]
+                            [sg.Button('Browse', key='BROWSE', size=(20,2), font='Any 30')],
+                            [sg.Button('Search for subtitles')]
                         ])],
                         [sg.Tab(title='Search by IMDB ID', disabled=True, layout=[
                             [sg.Frame(title='ID', layout=[
