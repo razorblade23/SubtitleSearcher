@@ -87,7 +87,8 @@ def subs_window():
                 [sg.T('Wrong movie/tv show?')],
                 [sg.B('Change movie/tv show', key='CHANGEMOVIE')]
             ])],
-        ]),
+        [sg.Text('Filename:')],
+        [sg.T(key='VIDEOFILENAME', text_color='white')]]),
         sg.Frame(title='Options', layout=[
             [sg.Checkbox('Match subtitle filename with movie filename?', default=True)], [sg.Checkbox('Append language code to end of subtitle file?')]
         ])],

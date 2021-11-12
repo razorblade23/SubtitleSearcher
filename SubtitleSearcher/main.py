@@ -113,6 +113,7 @@ def run():
             window_download_subs['MOVIEYEAR'].update(movie.year)
             window_download_subs['IMDBID'].update(movie.imdb_id)
             window_download_subs['KIND'].update(movie.kind)
+            window_download_subs['VIDEOFILENAME'].update(movie.file_name)
             sub_name = []
             for q in range(len(all_subs)):
                 sub_name.append(all_subs[q].MovieReleaseName)
