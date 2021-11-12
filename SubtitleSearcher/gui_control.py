@@ -173,14 +173,14 @@ def movie_setup(file_size, file_hash, values, file_path):
     movie.set_imdb_id(movie_imdb_id)
     return movie
 
-def search_by_single_file(values, language, window):
+def search_by_single_file(values, language, window, file_path):
     try:
-        hashed_file = opensubs.hashFile(values['SINGLEFILE'])
-        fileSize = opensubs.sizeOfFile(values['SINGLEFILE'])
+        hashed_file = opensubs.hashFile(file_path)
+        fileSize = opensubs.sizeOfFile(file_path)
     except FileNotFoundError:
         sg.popup_ok('File not found, please try again', title='File not found')
     else:
-        movie = movie_setup(fileSize, hashed_file, values, values['SINGLEFILE'])
+        movie = movie_setup(fileSize, hashed_file, values, file_path)
         window['STATUSBAR'].update(f'Movie name: {movie.title} - IMDB ID: {movie.imdb_id}')
         all_subs = []
         search_alg = OpenSubtitlesSearchAlg(movie, language)

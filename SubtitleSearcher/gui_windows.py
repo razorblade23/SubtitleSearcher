@@ -12,8 +12,8 @@ def main_window():
                 [sg.Frame(title='Search for subtitles', layout=[
                     [sg.TabGroup(layout=[
                         [sg.Tab(title='Search by file', layout=[
-                            [sg.Button('Browse', key='BROWSE', size=(20,2), font='Any 30')],
-                            [sg.Button('Search for subtitles')]
+                            [sg.Button('Browse', key='BROWSE', size=(5,2), font='Any 30'),
+                            sg.Button('Search for subtitles', key='SEARCHFORSUBS', size=(15,2), font='Any 30')]
                         ])],
                         [sg.Tab(title='Search by IMDB ID', disabled=True, layout=[
                             [sg.Frame(title='ID', layout=[
