@@ -13,7 +13,27 @@ def main_window():
                     [sg.TabGroup(layout=[
                         [sg.Tab(title='Search by file', layout=[
                             [sg.Button('Browse', key='BROWSE', size=(5,2), font='Any 30'),
-                            sg.Button('Search for subtitles', key='SEARCHFORSUBS', size=(15,2), font='Any 30')]
+                            sg.Button('Search for subtitles', key='SEARCHFORSUBS', size=(15,2), font='Any 30')],
+                            [sg.Column(key='FILEINFOFRONT', layout=[
+                                [sg.Frame(title='File information', layout=[
+                                    [sg.Column(layout=[
+                                        [sg.T('Video name:')],
+                                        [sg.T('', key='VIDEONAMEFRONT', size=(20,1))]
+                                    ]),
+                                    sg.Column(layout=[
+                                        [sg.T('Video year:')],
+                                        [sg.T('', key='VIDEOYEARFRONT', size=(6,1))]
+                                    ]),
+                                    sg.Column(layout=[
+                                        [sg.T('Video kind:')],
+                                        [sg.T('', key='VIDEOKINDFRONT', size=(14,1))]
+                                    ]),
+                                    sg.Column(layout=[
+                                        [sg.T('Video resoulution:')],
+                                        [sg.T('', key='VIDEORESFRONT', size=(10,1))]
+                                    ])],
+                                ])]
+                            ])]
                         ])],
                         [sg.Tab(title='Search by IMDB ID', disabled=True, layout=[
                             [sg.Frame(title='ID', layout=[
