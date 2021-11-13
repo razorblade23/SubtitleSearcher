@@ -125,11 +125,13 @@ def run():
                         window_download_subs['SUBLANG'].update(sub.LanguageName)
                         window_download_subs['SUBDOWNCOUNT'].update(str(sub.SubDownloadsCnt) + ' times')
                         window_download_subs['SUBSCORE'].update(str(sub.Score) + ' %')
-                        if sub.Score < 30:
+                        if sub.Score > 0 and sub.Score < 10:
                             window_download_subs['SUBSCORE'].update(text_color='black')
-                        if sub.Score > 30 and sub.Score < 60:
-                            window_download_subs['SUBSCORE'].update(text_color='yellow')
-                        if sub.Score > 60 and sub.Score < 100:
+                        elif sub.Score > 10 and sub.Score < 30:
+                            window_download_subs['SUBSCORE'].update(text_color='red')
+                        elif sub.Score > 30 and sub.Score < 60:
+                            window_download_subs['SUBSCORE'].update(text_color='orange')
+                        elif sub.Score > 60 and sub.Score < 100:
                             window_download_subs['SUBSCORE'].update(text_color='green')
                         #print(sub.SubFileName) # ovdje mjenjaj sto ti ispisuje
                 window_download_subs['DOWNLOADSUB'].update(disabled=False)
