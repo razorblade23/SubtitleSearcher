@@ -33,6 +33,7 @@ def main_window():
                     [sg.Checkbox('Use podnapisi.net ?', disabled=True)],
                     [sg.Checkbox('Use openSubtitles ?', disabled=True)],
                     [sg.Frame(title='Additional settings', layout=[
+                        [sg.Checkbox('Remember last folder', key='RememberLastFolder', default=True)],
                         [sg.Checkbox('Quick mode ?', key='QuickMode')],
                         [sg.Checkbox('Keep on top ?', key='KeepOnTop')]
                     ])],

@@ -54,10 +54,13 @@ def run():
                 window.keep_on_top_set()
 
         if event == 'BROWSE':
-            with open('SubtitleSearcher/data/user_settings/user_settings.json', 'r') as file:
-                user_set = json.load(file)
-                initial_f = user_set['last_user_path']
-                #print(user_set, initial_f)
+            if values['RememberLastFolder']:
+                with open('SubtitleSearcher/data/user_settings/user_settings.json', 'r') as file:
+                    user_set = json.load(file)
+                    initial_f = user_set['last_user_path']
+                    #print(user_set, initial_f)
+            else:
+                initial_f = '~/Downloads'
 
             file_paths = sg.popup_get_file('Please select a file or files', 
                                             title='Browse', 
@@ -70,10 +73,11 @@ def run():
             if file_paths == None:
                 continue
             file_path = file_paths.split(';')
-            file_directory = os.path.dirname(file_path[0])
-            with open('SubtitleSearcher/data/user_settings/user_settings.json', 'w') as file:
-                last_folder_set = {'last_user_path': file_directory}
-                user_set = json.dump(last_folder_set, file)
+            if values['RememberLastFolder']:
+                file_directory = os.path.dirname(file_path[0])
+                with open('SubtitleSearcher/data/user_settings/user_settings.json', 'w') as file:
+                    last_folder_set = {'last_user_path': file_directory}
+                    user_set = json.dump(last_folder_set, file)
             if len(file_path) > 1:
                 SINGLE_FILE_MODE = False
                 MULTI_FILE_MODE = True
