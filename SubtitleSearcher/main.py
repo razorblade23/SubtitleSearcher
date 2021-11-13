@@ -14,6 +14,9 @@ from SubtitleSearcher import uservar
 import platform
 import time
 
+if not os.path.isdir('SubtitleSearcher/data/user_settings'):
+    os.makedirs('SubtitleSearcher/data/user_settings')
+
 if not os.path.isfile('SubtitleSearcher/data/user_settings/user_settings.json'):
     settings_path = 'SubtitleSearcher/data/user_settings/user_settings.json'
     with open(settings_path, 'w') as file:
