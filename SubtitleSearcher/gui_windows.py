@@ -98,7 +98,7 @@ def subs_window():
         ]),
         sg.Frame(title='Selected subtitle metadata', layout=[
             [sg.Column(layout=[
-                [sg.T('Subtitle name:')],
+                [sg.T('Subtitle name:', size=(20,1)), sg.T('TRUSTED UPLOADER', text_color='green', visible=False, key='TRUSTED')],
                 [sg.T(key='SUBNAME', text_color='white', size=(65,1))]
             ])],
             [sg.Column(layout=[

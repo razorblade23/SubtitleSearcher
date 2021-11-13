@@ -8,6 +8,7 @@ from tkinter.constants import FALSE
 from PySimpleGUI.PySimpleGUI import user_settings
 from SubtitleSearcher.data import handle_zip
 from SubtitleSearcher import gui_control, gui_windows, threads
+from SubtitleSearcher.data import starting_settings
 from SubtitleSearcher.data.starting_settings import *
 from SubtitleSearcher import uservar
 import platform
@@ -114,6 +115,10 @@ def run():
                         window_download_subs['SUBNAME'].update(sub.SubFileName)
                         window_download_subs['SUBUSERID'].update(sub.UserID)
                         window_download_subs['SUBUSERNICK'].update(sub.UserNickName)
+                        if sub.UserNickName in starting_settings.trustet_uploaders:
+                            window_download_subs['TRUSTED'].update(visible=True)
+                        else:
+                            window_download_subs['TRUSTED'].update(visible=False)
                         window_download_subs['SUBADDDATE'].update(sub.SubAddDate)
                         window_download_subs['SUBUSERCOMMENT'].update(sub.SubAuthorComment)
                         window_download_subs['SUBEXTENSION'].update(sub.SubFormat)
