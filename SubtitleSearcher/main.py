@@ -6,6 +6,7 @@ from tkinter.constants import FALSE
 from SubtitleSearcher.data import handle_zip
 from SubtitleSearcher import gui_control, gui_windows, threads
 from SubtitleSearcher.data.starting_settings import *
+from SubtitleSearcher import uservar
 import platform
 import time
 
@@ -50,9 +51,13 @@ def run():
                                             history=True,
                                             default_extension='.mkv',
                                             no_window=False,
-                                            initial_folder='~/Downloads',
+                                            initial_folder=uservar.LAST_USER_PATH,
                                             file_types=(('Video files', '.avi'),('Video files', '.mkv'),))
+            if file_paths == None:
+                continue
             file_path = file_paths.split(';')
+            file_directory = os.path.dirname(file_path[0])
+            uservar.LAST_USER_PATH = file_directory
             if len(file_path) > 1:
                 SINGLE_FILE_MODE = False
                 MULTI_FILE_MODE = True
