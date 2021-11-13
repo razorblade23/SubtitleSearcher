@@ -7,3 +7,4 @@ extracted
 build
 dist
 floating_window_demo.py
+**/*.json
