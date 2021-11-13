@@ -13,6 +13,11 @@ from SubtitleSearcher import uservar
 import platform
 import time
 
+if not os.path.isfile('SubtitleSearcher/data/user_settings/user_settings.json'):
+    settings_path = 'SubtitleSearcher/data/user_settings/user_settings.json'
+    with open(settings_path, 'w') as file:
+        last_folder_set = {'last_user_path': '~/Downloads'}
+        user_set = json.dump(last_folder_set, file)
 
 system = platform.system()
 if system == 'Windows':
@@ -49,7 +54,7 @@ def run():
                 window.keep_on_top_set()
 
         if event == 'BROWSE':
-            with open('SubtitleSearcher/user_settings.json', 'r') as file:
+            with open('SubtitleSearcher/data/user_settings/user_settings.json', 'r') as file:
                 user_set = json.load(file)
                 initial_f = user_set['last_user_path']
                 #print(user_set, initial_f)
@@ -66,7 +71,7 @@ def run():
                 continue
             file_path = file_paths.split(';')
             file_directory = os.path.dirname(file_path[0])
-            with open('SubtitleSearcher/user_settings.json', 'w') as file:
+            with open('SubtitleSearcher/data/user_settings/user_settings.json', 'w') as file:
                 last_folder_set = {'last_user_path': file_directory}
                 user_set = json.dump(last_folder_set, file)
             if len(file_path) > 1:

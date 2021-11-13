@@ -7,4 +7,4 @@ extracted
 build
 dist
 floating_window_demo.py
-**/*.json
+SubtitleSearcher/data/user_settings/user_settings.json
