@@ -52,7 +52,7 @@ def run():
             with open('SubtitleSearcher/user_settings.json', 'r') as file:
                 user_set = json.load(file)
                 initial_f = user_set['last_user_path']
-                print(user_set, initial_f)
+                #print(user_set, initial_f)
 
             file_paths = sg.popup_get_file('Please select a file or files', 
                                             title='Browse', 
