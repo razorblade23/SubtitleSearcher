@@ -1,14 +1,18 @@
 # Importing modules
+import json
 import os
 import threading
 import PySimpleGUI as sg
 from tkinter.constants import FALSE
+
+from PySimpleGUI.PySimpleGUI import user_settings
 from SubtitleSearcher.data import handle_zip
 from SubtitleSearcher import gui_control, gui_windows, threads
 from SubtitleSearcher.data.starting_settings import *
 from SubtitleSearcher import uservar
 import platform
 import time
+
 
 system = platform.system()
 if system == 'Windows':
@@ -45,19 +49,26 @@ def run():
                 window.keep_on_top_set()
 
         if event == 'BROWSE':
+            with open('SubtitleSearcher/user_settings.json', 'r') as file:
+                user_set = json.load(file)
+                initial_f = user_set['last_user_path']
+                print(user_set, initial_f)
+
             file_paths = sg.popup_get_file('Please select a file or files', 
                                             title='Browse', 
                                             multiple_files=True, 
                                             history=True,
                                             default_extension='.mkv',
                                             no_window=False,
-                                            initial_folder=uservar.LAST_USER_PATH,
+                                            initial_folder=initial_f,
                                             file_types=(('Video files', '.avi'),('Video files', '.mkv'),))
             if file_paths == None:
                 continue
             file_path = file_paths.split(';')
             file_directory = os.path.dirname(file_path[0])
-            uservar.LAST_USER_PATH = file_directory
+            with open('SubtitleSearcher/user_settings.json', 'w') as file:
+                last_folder_set = {'last_user_path': file_directory}
+                user_set = json.dump(last_folder_set, file)
             if len(file_path) > 1:
                 SINGLE_FILE_MODE = False
                 MULTI_FILE_MODE = True
