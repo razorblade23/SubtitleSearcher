@@ -1,4 +1,5 @@
 # Importing modules
+from contextlib import suppress
 import json
 import os
 import threading
@@ -90,7 +91,9 @@ def run():
                 MULTI_FILE_MODE = False
         
         if event == 'SEARCHFORSUBS' and SINGLE_FILE_MODE and values['QuickMode'] == False:
-            movie, all_subs = gui_control.search_by_single_file(values, lang, window, file_path[0])
+            engines = ['OpenSubtitles', 'Titlovi.com']
+            for engine in engines:
+                movie, all_subs = gui_control.search_by_single_file(values, lang, window, file_path[0], engine)
             print('Searching single file with QuickMode off')
             WINDOWSUBS = True
             single_sub_layout = gui_windows.subs_window()
@@ -112,31 +115,38 @@ def run():
 
             if event_subs == 'SUBSTABLE':
                 for sub in all_subs:
-                    if sub.MovieReleaseName == values_subs['SUBSTABLE'][0]:
-                        sub_selected_filename = sub.SubFileName
-                        sub_selected_zip_down = sub.ZipDownloadLink
-                        window_download_subs['SUBNAME'].update(sub.SubFileName)
-                        window_download_subs['SUBUSERID'].update(sub.UserID)
-                        window_download_subs['SUBUSERNICK'].update(sub.UserNickName)
-                        if sub.UserNickName in starting_settings.trustet_uploaders:
-                            window_download_subs['TRUSTED'].update(visible=True)
-                        else:
-                            window_download_subs['TRUSTED'].update(visible=False)
-                        window_download_subs['SUBADDDATE'].update(sub.SubAddDate)
-                        window_download_subs['SUBUSERCOMMENT'].update(sub.SubAuthorComment)
-                        window_download_subs['SUBEXTENSION'].update(sub.SubFormat)
-                        window_download_subs['SUBLANG'].update(sub.LanguageName)
-                        window_download_subs['SUBDOWNCOUNT'].update(str(sub.SubDownloadsCnt) + ' times')
-                        window_download_subs['SUBSCORE'].update(str(sub.Score) + ' %')
-                        if sub.Score > 0 and sub.Score < 10:
-                            window_download_subs['SUBSCORE'].update(text_color='black')
-                        elif sub.Score > 10 and sub.Score < 30:
-                            window_download_subs['SUBSCORE'].update(text_color='red')
-                        elif sub.Score > 30 and sub.Score < 60:
-                            window_download_subs['SUBSCORE'].update(text_color='orange')
-                        elif sub.Score > 60 and sub.Score < 100:
-                            window_download_subs['SUBSCORE'].update(text_color='green')
-                        #print(sub.SubFileName) # ovdje mjenjaj sto ti ispisuje
+                    with suppress(AttributeError): 
+                        if sub.MovieReleaseName == values_subs['SUBSTABLE'][0]:
+                            sub_selected_filename = sub.SubFileName
+                            sub_selected_zip_down = sub.ZipDownloadLink
+                            window_download_subs['SUBNAME'].update(sub.SubFileName)
+                            window_download_subs['SUBUSERID'].update(sub.UserID)
+                            window_download_subs['SUBUSERNICK'].update(sub.UserNickName)
+                            if sub.UserNickName in starting_settings.trustet_uploaders:
+                                window_download_subs['TRUSTED'].update(visible=True)
+                            else:
+                                window_download_subs['TRUSTED'].update(visible=False)
+                            window_download_subs['SUBADDDATE'].update(sub.SubAddDate)
+                            window_download_subs['SUBUSERCOMMENT'].update(sub.SubAuthorComment)
+                            window_download_subs['SUBEXTENSION'].update(sub.SubFormat)
+                            window_download_subs['SUBLANG'].update(sub.LanguageName)
+                            window_download_subs['SUBDOWNCOUNT'].update(str(sub.SubDownloadsCnt) + ' times')
+                            window_download_subs['SUBSCORE'].update(str(sub.Score) + ' %')
+                            if sub.Score > 0 and sub.Score < 10:
+                                window_download_subs['SUBSCORE'].update(text_color='black')
+                            elif sub.Score > 10 and sub.Score < 30:
+                                window_download_subs['SUBSCORE'].update(text_color='red')
+                            elif sub.Score > 30 and sub.Score < 60:
+                                window_download_subs['SUBSCORE'].update(text_color='orange')
+                            elif sub.Score > 60 and sub.Score < 100:
+                                window_download_subs['SUBSCORE'].update(text_color='green')
+                            #print(sub.SubFileName) # ovdje mjenjaj sto ti ispisuje
+                    with suppress(AttributeError):
+                        if sub.release == values_subs['SUBSTABLE'][0]:
+                            window_download_subs['SUBNAME'].update(sub.title)
+                            window_download_subs['SUBADDDATE'].update(sub.date)
+                            window_download_subs['SUBLANG'].update(sub.lang)
+                            window_download_subs['SUBDOWNCOUNT'].update(str(sub.downloadCount) + ' times')
                 window_download_subs['DOWNLOADSUB'].update(disabled=False)
 
             if event_subs == 'DOWNLOADSUB':
@@ -157,7 +167,8 @@ def run():
             window_download_subs['VIDEOFILENAME'].update(movie.file_name)
             sub_name = []
             for q in range(len(all_subs)):
-                sub_name.append(all_subs[q].MovieReleaseName)
+                with suppress(AttributeError): sub_name.append(all_subs[q].MovieReleaseName)
+                with suppress(AttributeError): sub_name.append(all_subs[q].release)
             window_download_subs['SUBSTABLE'].update(values=sub_name)
 
 

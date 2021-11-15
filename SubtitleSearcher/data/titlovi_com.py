@@ -8,6 +8,14 @@ class TitloviCom:
         self.username = username
         self.password = password
         self.search_param = {}
+        self.LANGUAGE_MAPPING = {
+                                'eng': 'English',
+                                'hrv': 'Hrvatski',
+                                'scc': 'Srpski',
+                                'slv': 'Slovenski',
+                                'Macedonian': 'Makedonski',
+                                'bos': 'Bosanski'
+        }
 
     def handle_login(self):
         """
@@ -46,21 +54,25 @@ class TitloviCom:
         self.set_user_login_details()
         self.search_param['query'] = movie_name
         self.search_param['year'] = year
-        self.search_API()
     
+    def set_language(self, language):
+        lang = self.LANGUAGE_MAPPING[language]
+        self.search_param['lang'] = lang
+
     def search_API(self):
-        self.search_param['lang'] = 'Hrvatski'
         self.search_param['token'] = self.user_token
         self.search_param['userid'] = self.user_id
         self.search_param['json'] = True
         response = requests.get('{0}/search'.format(api_url), params=self.search_param)
         if response.status_code == requests.codes.ok:
                     resp_json = response.json()
-        print(resp_json)
+        self.results_count = resp_json['ResultsFound']
+        self.pages_available = resp_json['PagesAvailable']
+        self.current_page = resp_json['CurrentPage']
+        self.subtitles = resp_json['SubtitleResults']
+        #print(self.subtitles)
 
-    
-
-
-
-titlovi = TitloviCom('razorblade23', 'MojeKarlovacko@23')
-titlovi.search_by_filename('avatar', 2009)
+#titlovi = TitloviCom('razorblade23', 'MojeKarlovacko@23')
+#titlovi.search_by_filename('avatar', 2009)
+#titlovi.set_language('hrv')
+#titlovi.search_API()

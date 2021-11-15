@@ -114,7 +114,7 @@ class Movie:
     def set_movie_kind(self, kind):
         self.kind = kind
 
-class Subtitle():
+class openSubtitlesSub():
     def __init__(self, subtitle):
         self.MatchedBy = subtitle['MatchedBy']
         self.IDSubtitleFile = subtitle['IDSubtitleFile']
@@ -158,3 +158,19 @@ class Subtitle():
         self.ZipDownloadLink = subtitle['ZipDownloadLink']
         self.SubtitlesLink = subtitle['SubtitlesLink']
         self.Score = subtitle['Score']
+    
+class titloviComSub:
+    def __init__(self, subtitle):
+        self.id = subtitle['Id']
+        self.title = subtitle['Title']
+        self.year = subtitle['Year']
+        self.type = subtitle['Type']
+        self.link = subtitle['Link']
+        self.season = subtitle['Season']
+        self.episode = subtitle['Episode']
+        self.special = subtitle['Special']
+        self.lang = subtitle['Lang']
+        self.date = subtitle['Date']
+        self.downloadCount = subtitle['DownloadCount']
+        self.rating = subtitle['Rating']
+        self.release = subtitle['Release']

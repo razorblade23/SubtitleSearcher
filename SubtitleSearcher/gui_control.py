@@ -2,14 +2,15 @@ import ntpath
 from SubtitleSearcher import threads
 from SubtitleSearcher.data import imdb_metadata
 from SubtitleSearcher.main import sg
-from SubtitleSearcher.data import openSubtitles, movies
+from SubtitleSearcher.data import openSubtitles, movies, titlovi_com
 from SubtitleSearcher.threads import SearchForSubtitles, movieQueve, subsQueve
 
 import urllib
 import threading
 import queue
 
-
+all_subs = []
+subtitles = []
 
 movieQueve = queue.Queue()
 allSubsQueve = queue.Queue()
@@ -73,7 +74,7 @@ class OpenSubtitlesSearchAlg:
         #subtitles = opensubs.request_subtitles(link)
         for number, subtitle in enumerate(subtitles):
             #print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
-            number = movies.Subtitle(subtitle)
+            number = movies.openSubtitlesSub(subtitle)
             self.all_subs.append(number)
         if len(self.all_subs) == 0:
             print('Step 1 failed')
@@ -99,7 +100,7 @@ class OpenSubtitlesSearchAlg:
         else:
             for number, subtitle in enumerate(subtitles):
                 #print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
-                number = movies.Subtitle(subtitle)
+                number = movies.openSubtitlesSub(subtitle)
                 self.all_subs.append(number)
 
         if len(subtitles) == 0:
@@ -126,7 +127,7 @@ class OpenSubtitlesSearchAlg:
         else:
             for number, subtitle in enumerate(subtitles):
                 #print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
-                number = movies.Subtitle(subtitle)
+                number = movies.openSubtitlesSub(subtitle)
                 self.all_subs.append(number)
 
         if len(subtitles) == 0:
@@ -173,7 +174,7 @@ def movie_setup(file_size, file_hash, values, file_path):
     movie.set_imdb_id(movie_imdb_id)
     return movie
 
-def search_by_single_file(values, language, window, file_path):
+def search_by_single_file(values, language, window, file_path, engine):
     try:
         hashed_file = opensubs.hashFile(file_path)
         fileSize = opensubs.sizeOfFile(file_path)
@@ -182,13 +183,31 @@ def search_by_single_file(values, language, window, file_path):
     else:
         movie = movie_setup(fileSize, hashed_file, values, file_path)
         window['STATUSBAR'].update(f'Movie name: {movie.title} - IMDB ID: {movie.imdb_id}')
-        all_subs = []
+    if engine == 'OpenSubtitles':
+        print('Running OpenSubtitles search')
         search_alg = OpenSubtitlesSearchAlg(movie, language)
-        subtitles, all_subs = search_alg.subtitleSearchStep1()
+        subtitles, subs_objects = search_alg.subtitleSearchStep1()
         if len(subtitles) == 0:
-            subtitles, all_subs = search_alg.subtitleSearchStep2()
+            subtitles, subs_objects = search_alg.subtitleSearchStep2()
             if len(subtitles) == 0:
-                subtitles, all_subs = search_alg.subtitleSearchStep3()
+                subtitles, subs_objects = search_alg.subtitleSearchStep3()
+        for sub in subs_objects:
+            all_subs.append(sub)
+        #print(f'allsubs list on completed OpenSubtitles search\n{all_subs}')
+        #print(f'Subtitle list on completed OpenSubtitles search\n{subtitles}')
+        #subtitles, all_subs = subtitle_search(movie, language)
+        #subtitles=[] # Comment / Uncomment this to simulate finding hash failed
+    if engine == 'Titlovi.com':
+        print('Running Titlovi.com search')
+        #search_alg = OpenSubtitlesSearchAlg(movie, language)
+        titlovi = titlovi_com.TitloviCom('razorblade23', 'MojeKarlovacko@23')
+        titlovi.search_by_filename(movie.title, movie.year)
+        titlovi.set_language(language)
+        titlovi.search_API()
+        for number, subtitle in enumerate(titlovi.subtitles):
+            number = movies.titloviComSub(subtitle)
+            all_subs.append(number)
+        print(f'Subtitle list on completed Titlovi.com search\n{all_subs}')
         #subtitles, all_subs = subtitle_search(movie, language)
         #subtitles=[] # Comment / Uncomment this to simulate finding hash failed
     return movie, all_subs

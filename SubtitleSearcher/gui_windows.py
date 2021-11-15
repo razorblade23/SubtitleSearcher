@@ -29,7 +29,7 @@ def main_window():
             ]),
                 sg.Frame(title='Select options', layout=[
                     [sg.Checkbox('Use opensubtitles.org ?', key='USEOPEN', default=True)],
-                    [sg.Checkbox('Use titlovi.com ?', disabled=True)],
+                    [sg.Checkbox('Use titlovi.com ?', disabled=False)],
                     [sg.Checkbox('Use podnapisi.net ?', disabled=True)],
                     [sg.Checkbox('Use openSubtitles ?', disabled=True)],
                     [sg.Frame(title='Additional settings', layout=[
@@ -48,10 +48,14 @@ def main_window():
                 sg.Radio('Bosnian', key='LangBOS', group_id=1), 
                 sg.Radio('Slovenian', key='LangSLO', group_id=1)]
             ])],
-            [sg.Tab(title='openSubtitles', layout=[
-                [sg.Text('You must input your opensubtitles account information !')],
+            [sg.Tab(title='Titlovi.com', layout=[
+                [sg.Text('You must enter your username and password to use Titlovi.com')],
+                [sg.Text('After validation, each user gets a token that lasts 7 days')],
+                [sg.Text('Each 7 days you must re-login to continue to use Titlovi.com')],
+                [sg.Text('This are their rules, so we must comply !')],
                 [sg.InputText('Username', key='openUSERNAME')],
-                [sg.InputText('Password', key='openPASS')]
+                [sg.InputText('Password', key='openPASS')],
+                [sg.Button('Validate login')]
             ])]
         ])],
         [sg.ProgressBar(100, 'h', key='PROGRESSBAR', bar_color=('green', 'black')), sg.Text('Working, please wait', key='WORKINGSTRING', visible=False)],
