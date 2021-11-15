@@ -31,6 +31,13 @@ This will install all the modules needed for this to work
 - Subtitle search with single or multiple files work (multiple files only with QuickMode on)
 - Adedd QuickMode - no user input, automatically download first subtitle
 - SubbyDoo now supports threading - automatic thread creation on download of subtitles
+- TV Shows support added with multiple files quick download
+- Added floating notifications - status and successfully downloaded
+
+
+
+![Animation](https://user-images.githubusercontent.com/22005396/141835945-6d930c38-029a-4049-8df1-cdf5827ba5d7.gif)
+
 
 ## Changelog v.0.0.1
 
@@ -40,7 +47,6 @@ This will install all the modules needed for this to work
 - added an option for subtitle search by IMDB ID
 - Always on top option
 
-![SS5](https://user-images.githubusercontent.com/22005396/138742985-161910ca-0d06-4ee4-95e2-d28c6646dc4c.png)
 
 
 
