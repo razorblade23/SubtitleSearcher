@@ -33,10 +33,16 @@ This will install all the modules needed for this to work
 - SubbyDoo now supports threading - automatic thread creation on download of subtitles
 - TV Shows support added with multiple files quick download
 - Added floating notifications - status and successfully downloaded
+- list of trusted uploaders added
+- 
 
+ToDo list:
+- implementing Titlovi.com as source
+- searching more than one language at once
+- and many more
 
+![Animation2](https://user-images.githubusercontent.com/22005396/141836730-b7a05fa5-9a39-4ba6-a68c-03d3ea91660a.gif)
 
-![Animation](https://user-images.githubusercontent.com/22005396/141835945-6d930c38-029a-4049-8df1-cdf5827ba5d7.gif)
 
 
 ## Changelog v.0.0.1
