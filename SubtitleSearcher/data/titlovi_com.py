@@ -16,6 +16,9 @@ class TitloviCom:
                                 'Macedonian': 'Makedonski',
                                 'bos': 'Bosanski'
         }
+        self.user_token = None
+        self.token_expiry_date = None
+        self.user_id = None
 
     def handle_login(self):
         """
@@ -70,9 +73,3 @@ class TitloviCom:
         self.pages_available = resp_json['PagesAvailable']
         self.current_page = resp_json['CurrentPage']
         self.subtitles = resp_json['SubtitleResults']
-        #print(self.subtitles)
-
-#titlovi = TitloviCom('razorblade23', 'MojeKarlovacko@23')
-#titlovi.search_by_filename('avatar', 2009)
-#titlovi.set_language('hrv')
-#titlovi.search_API()
