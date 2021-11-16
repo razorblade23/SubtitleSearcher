@@ -1,16 +1,16 @@
 # Importing modules
+from contextlib import suppress
 import json
+from logging import disable
 import os
 import threading
 import PySimpleGUI as sg
-from tkinter.constants import FALSE
+from tkinter.constants import E, FALSE
 
 from PySimpleGUI.PySimpleGUI import user_settings
-from SubtitleSearcher.data import handle_zip
+from SubtitleSearcher.data.titlovi_com import TitloviCom
+from SubtitleSearcher.data import handle_zip, starting_settings
 from SubtitleSearcher import gui_control, gui_windows, threads
-from SubtitleSearcher.data import starting_settings
-from SubtitleSearcher.data.starting_settings import *
-from SubtitleSearcher import uservar
 import platform
 import time
 
@@ -29,6 +29,9 @@ if system == 'Windows':
 if system == 'Linux':
     icon = 'SubtitleSearcher/static/images/image.png'
 
+
+SINGLE_FILE_MODE = False
+MULTI_FILE_MODE = False
 WINDOWSUBS = False
 language_selected = []
 
@@ -36,9 +39,29 @@ main_layout = gui_windows.main_window()
 
 gui_control.intro_dialog()
 
+def add_to_user_settings(dictionary):
+    try:
+        with open('SubtitleSearcher/data/user_settings/user_settings.json', 'r') as json_obj:
+            USERSETTINGS = json.load(json_obj)
+    except json.decoder.JSONDecodeError:
+        USERSETTINGS = {}
+    USERSETTINGS.update(dictionary)
+    with open('SubtitleSearcher/data/user_settings/user_settings.json', 'w') as file:
+        json.dump(USERSETTINGS ,file)
+
+def first_setup():
+    ask = sg.popup_yes_no('Is this first setup of SubbyDoo?', title='First run?')
+    if ask == 'Yes':
+        FirstSetup = {'last_user_path': '~/Downloads'}
+        add_to_user_settings(FirstSetup)
+    else:
+        sg.popup_quick_message('If you are lying, program will crash', font='Any 20')
+
+#FirstSetup = {'last_user_path': '~/Downloads'}
+
 # Start infinite loop for your GUI windows and reading from them
 def run():
-    global WINDOWSUBS, language_selected
+    global WINDOWSUBS, language_selected, SINGLE_FILE_MODE, MULTI_FILE_MODE
     window = sg.Window(title='Subbydoo', layout=main_layout, element_justification='center', icon=icon, finalize=True)
     while True:
         event, values = window.read(timeout=300)
@@ -50,13 +73,47 @@ def run():
         lang = language_selected[0]
         gui_control.StatusBarMainUpdate(window, f'SubbyDoo is ready. | Language selected: {lang}')
         gui_control.StatusBarVersionUpdate(window, 'v.0.0.2-alpha')
-
+        if event == 'MainTabGroup':
+            tab_active = window['MainTabGroup'].get()
+            if tab_active == 'TitloviTab':
+                with open('SubtitleSearcher/data/user_settings/user_settings.json', 'r') as file:
+                    UserSett = json.load(file)
+                try:
+                    token = UserSett['UserToken']
+                    userID = UserSett['UserID']
+                except KeyError:
+                    token = None
+                    userID = None
+                if token != None:
+                    print(f'Token found - {token}')
+                    window['USETITLOVI'].update(disabled=False)
+                    window['UserValidated'].update(visible=True)
+                    window['titloviUSERNAME'].update(disabled=True)
+                    window['titloviPASS'].update(disabled=True)
+                    window['LoginUserTitlovi'].update(disabled=True)
+                else:
+                    print('Token not found - must validate first')
         if event == 'Save':
             if values['KeepOnTop'] == False:
                 window.keep_on_top_clear()
             else:
                 window.keep_on_top_set()
-
+        if event == 'LoginUserTitlovi':
+            user_name = values['titloviUSERNAME']
+            password = values['titloviPASS']
+            if token == None:
+                titloviUser = TitloviCom(user_name, password)
+                print('Validating user')
+                titloviUser.handle_login()
+                titloviUser.set_user_login_details()
+                new_user = {'UserToken': titloviUser.user_token,
+                            'UserID': titloviUser.user_id}
+                add_to_user_settings(new_user)
+                window['LoginUserTitlovi'].update(text='USER VALIDATED', button_color=('white', 'green'))
+                window['USETITLOVI'].update(disabled=False)
+            else:
+                window['USETITLOVI'].update(disabled=False)
+            window.refresh()
         if event == 'BROWSE':
             if values['RememberLastFolder']:
                 with open('SubtitleSearcher/data/user_settings/user_settings.json', 'r') as file:
@@ -90,53 +147,91 @@ def run():
                 MULTI_FILE_MODE = False
         
         if event == 'SEARCHFORSUBS' and SINGLE_FILE_MODE and values['QuickMode'] == False:
-            movie, all_subs = gui_control.search_by_single_file(values, lang, window, file_path[0])
+            engines = []
+            engines = gui_control.select_engine(values)
+            path = file_path[0]
+            movie = gui_control.define_movie(path)
+            window['STATUSBAR'].update(f'Movie name: {movie.title} - IMDB ID: {movie.imdb_id}')
+            for engine in engines:
+                if engine == 'OpenSubtitles':
+                    open_subs = gui_control.search_opensubs(lang, movie)
+                if engine == 'Titlovi.com':
+                    try:
+                        titlovi_subs = gui_control.search_titlovi(lang, movie, titloviUser)
+                    except UnboundLocalError:
+                        sg.popup_error('User is not validated.\nPlease validate your account to use Titlovi.com')
             print('Searching single file with QuickMode off')
             WINDOWSUBS = True
             single_sub_layout = gui_windows.subs_window()
             window_download_subs = sg.Window(title='Subbydoo - download subs', layout=single_sub_layout, element_justification='center', icon=icon, finalize=True)
+            
 
         if WINDOWSUBS:
-            event_subs, values_subs = window_download_subs.read(timeout=600)
-            window_download_subs['STATUSBAR'].update(value='Subtitles found: {} | Language selected: {}'.format(len(all_subs), language_selected[0]))
-            
-            if event_subs == sg.WIN_CLOSED:
-                WINDOWSUBS = False
-                window_download_subs.close()
-                continue
-            
+            window_download_subs['MOVIENAME'].update(movie.title)
+            window_download_subs['MOVIEYEAR'].update(movie.year)
+            window_download_subs['IMDBID'].update(movie.imdb_id)
+            window_download_subs['KIND'].update(movie.kind)
+            window_download_subs['VIDEOFILENAME'].update(movie.file_name)
+            sub_name = []
+            for engine in engines:
+                if engine == 'OpenSubtitles':
+                    for q in range(len(open_subs)):
+                        with suppress(AttributeError): sub_name.append(open_subs[q].MovieReleaseName)
+                if engine == 'Titlovi.com':
+                    for w in range(len(titlovi_subs)):
+                        with suppress(AttributeError): sub_name.append(titlovi_subs[w].title+titlovi_subs[w].release)
+            window_download_subs['SUBSTABLE'].update(values=sub_name)
+
             if movie.kind == 'tv series' or movie.kind == 'episode':
                 window_download_subs['TVSERIESINFO'].update(visible=False)
                 window_download_subs['SEASON'].update(value=movie.season)
                 window_download_subs['EPISODE'].update(value=movie.episode)
 
+            event_subs, values_subs = window_download_subs.read()
+            window_download_subs['STATUSBAR'].update(value='Language selected: {}'.format(language_selected[0]))
+            
+            if event_subs == sg.WIN_CLOSED:
+                WINDOWSUBS = False
+                window_download_subs.close()
+                continue
+
             if event_subs == 'SUBSTABLE':
-                for sub in all_subs:
-                    if sub.MovieReleaseName == values_subs['SUBSTABLE'][0]:
-                        sub_selected_filename = sub.SubFileName
-                        sub_selected_zip_down = sub.ZipDownloadLink
-                        window_download_subs['SUBNAME'].update(sub.SubFileName)
-                        window_download_subs['SUBUSERID'].update(sub.UserID)
-                        window_download_subs['SUBUSERNICK'].update(sub.UserNickName)
-                        if sub.UserNickName in starting_settings.trustet_uploaders:
-                            window_download_subs['TRUSTED'].update(visible=True)
-                        else:
-                            window_download_subs['TRUSTED'].update(visible=False)
-                        window_download_subs['SUBADDDATE'].update(sub.SubAddDate)
-                        window_download_subs['SUBUSERCOMMENT'].update(sub.SubAuthorComment)
-                        window_download_subs['SUBEXTENSION'].update(sub.SubFormat)
-                        window_download_subs['SUBLANG'].update(sub.LanguageName)
-                        window_download_subs['SUBDOWNCOUNT'].update(str(sub.SubDownloadsCnt) + ' times')
-                        window_download_subs['SUBSCORE'].update(str(sub.Score) + ' %')
-                        if sub.Score > 0 and sub.Score < 10:
-                            window_download_subs['SUBSCORE'].update(text_color='black')
-                        elif sub.Score > 10 and sub.Score < 30:
-                            window_download_subs['SUBSCORE'].update(text_color='red')
-                        elif sub.Score > 30 and sub.Score < 60:
-                            window_download_subs['SUBSCORE'].update(text_color='orange')
-                        elif sub.Score > 60 and sub.Score < 100:
-                            window_download_subs['SUBSCORE'].update(text_color='green')
-                        #print(sub.SubFileName) # ovdje mjenjaj sto ti ispisuje
+                with suppress(UnboundLocalError):
+                    for sub in open_subs:
+                        with suppress(AttributeError): 
+                            if sub.MovieReleaseName == values_subs['SUBSTABLE'][0]:
+                                sub_selected_filename = sub.SubFileName
+                                sub_selected_zip_down = sub.ZipDownloadLink
+                                window_download_subs['SUBNAME'].update(sub.SubFileName)
+                                window_download_subs['SUBUSERID'].update(sub.UserID)
+                                window_download_subs['SUBUSERNICK'].update(sub.UserNickName)
+                                if sub.UserNickName in starting_settings.trustet_uploaders:
+                                    window_download_subs['TRUSTED'].update(visible=True)
+                                else:
+                                    window_download_subs['TRUSTED'].update(visible=False)
+                                window_download_subs['SUBADDDATE'].update(sub.SubAddDate)
+                                window_download_subs['SUBUSERCOMMENT'].update(sub.SubAuthorComment)
+                                window_download_subs['SUBEXTENSION'].update(sub.SubFormat)
+                                window_download_subs['SUBLANG'].update(sub.LanguageName)
+                                window_download_subs['SUBDOWNCOUNT'].update(str(sub.SubDownloadsCnt) + ' times')
+                                window_download_subs['SUBSCORE'].update(str(sub.Score) + ' %')
+                                if sub.Score > 0 and sub.Score < 10:
+                                    window_download_subs['SUBSCORE'].update(text_color='black')
+                                elif sub.Score > 10 and sub.Score < 30:
+                                    window_download_subs['SUBSCORE'].update(text_color='red')
+                                elif sub.Score > 30 and sub.Score < 60:
+                                    window_download_subs['SUBSCORE'].update(text_color='orange')
+                                elif sub.Score > 60 and sub.Score < 100:
+                                    window_download_subs['SUBSCORE'].update(text_color='green')
+                with suppress(UnboundLocalError):
+                    for sub in titlovi_subs:
+                        with suppress(AttributeError):
+                            if sub.release == values_subs['SUBSTABLE'][0]:
+                                window_download_subs['SUBNAME'].update(sub.title)
+                                window_download_subs['SUBADDDATE'].update(sub.date)
+                                window_download_subs['SUBLANG'].update(sub.lang)
+                                window_download_subs['SUBDOWNCOUNT'].update(str(sub.downloadCount) + ' times')
+                                print(sub.link)
                 window_download_subs['DOWNLOADSUB'].update(disabled=False)
 
             if event_subs == 'DOWNLOADSUB':
@@ -150,16 +245,6 @@ def run():
                 time_took = round(TIME_END-TIME_START, 2)
                 print(f'\n*** Took {time_took} to download subtitles ***\n')
                 sg.popup_notify('File downloaded succesfully.\nYou can find your subtitle in movie folder', title='Subtitle downloaded', display_duration_in_ms=3000, fade_in_duration=100)
-            window_download_subs['MOVIENAME'].update(movie.title)
-            window_download_subs['MOVIEYEAR'].update(movie.year)
-            window_download_subs['IMDBID'].update(movie.imdb_id)
-            window_download_subs['KIND'].update(movie.kind)
-            window_download_subs['VIDEOFILENAME'].update(movie.file_name)
-            sub_name = []
-            for q in range(len(all_subs)):
-                sub_name.append(all_subs[q].MovieReleaseName)
-            window_download_subs['SUBSTABLE'].update(values=sub_name)
-
 
         if event == 'SEARCHFORSUBS' and SINGLE_FILE_MODE and values['QuickMode'] == True:
             movie, all_subs = gui_control.search_by_single_file(values, lang, window, file_path[0])

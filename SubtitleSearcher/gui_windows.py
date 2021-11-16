@@ -7,12 +7,12 @@ def main_window():
     layout = [
         [sg.Image(source='SubtitleSearcher/static/images/logo.png')],
         [sg.Text('Project aiming to make finding and downloading subtitles a breeze!', font='Any 16')],
-        [sg.TabGroup(layout=[
-            [sg.Tab(title='Main', layout=[
+        [sg.TabGroup(enable_events=True, key='MainTabGroup', layout=[
+            [sg.Tab(title='Main', key='MainTab', layout=[
                 [sg.Frame(title='Search for subtitles', layout=[
                     [sg.TabGroup(layout=[
                         [sg.Tab(title='Search by file', layout=[
-                            [sg.Button('Browse', key='BROWSE', size=(5,2), font='Any 30'),
+                            [sg.Button('Browse', key='BROWSE', size=(8,2), font='Any 30'),
                             sg.Button('Search for subtitles', key='SEARCHFORSUBS', size=(15,2), font='Any 30')],
                         ])],
                         [sg.Tab(title='Search by IMDB ID', disabled=True, layout=[
@@ -29,7 +29,7 @@ def main_window():
             ]),
                 sg.Frame(title='Select options', layout=[
                     [sg.Checkbox('Use opensubtitles.org ?', key='USEOPEN', default=True)],
-                    [sg.Checkbox('Use titlovi.com ?', disabled=True)],
+                    [sg.Checkbox('Use titlovi.com ?', key='USETITLOVI', disabled=True)],
                     [sg.Checkbox('Use podnapisi.net ?', disabled=True)],
                     [sg.Checkbox('Use openSubtitles ?', disabled=True)],
                     [sg.Frame(title='Additional settings', layout=[
@@ -40,7 +40,7 @@ def main_window():
                     [sg.Button('Save', key='Save')]
         ])]
             ])],
-            [sg.Tab(title='Languages', layout=[
+            [sg.Tab(title='Languages', key='LangTab', layout=[
                 [sg.Text('Choose a language for search', font='Any 14')],
                 [sg.Radio('Croatian', key='LangCRO', default=True, group_id=1), 
                 sg.Radio('English', key='LangENG', group_id=1), 
@@ -48,10 +48,17 @@ def main_window():
                 sg.Radio('Bosnian', key='LangBOS', group_id=1), 
                 sg.Radio('Slovenian', key='LangSLO', group_id=1)]
             ])],
-            [sg.Tab(title='openSubtitles', layout=[
-                [sg.Text('You must input your opensubtitles account information !')],
-                [sg.InputText('Username', key='openUSERNAME')],
-                [sg.InputText('Password', key='openPASS')]
+            [sg.Tab(title='Titlovi.com', key='TitloviTab', layout=[
+                [sg.Text('USER IS VALIDATED', visible=False, key='UserValidated', text_color='green', font='Any 25')],
+                [sg.Text('You must enter your username and password to use Titlovi.com', font='Any 16')],
+                [sg.Text('After validation, each user gets a token that lasts 7 days', font='Any 14')],
+                [sg.Text('Each 7 days you must re-login to continue to use Titlovi.com')],
+                [sg.Text('This are their rules, so we must comply !')],
+                [sg.Text('Username:')],
+                [sg.InputText(key='titloviUSERNAME')],
+                [sg.Text('Password:')],
+                [sg.InputText(key='titloviPASS', password_char='*')],
+                [sg.Button('Validate login', key='LoginUserTitlovi')]
             ])]
         ])],
         [sg.ProgressBar(100, 'h', key='PROGRESSBAR', bar_color=('green', 'black')), sg.Text('Working, please wait', key='WORKINGSTRING', visible=False)],

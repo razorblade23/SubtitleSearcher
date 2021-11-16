@@ -2,7 +2,7 @@ import ntpath
 from SubtitleSearcher import threads
 from SubtitleSearcher.data import imdb_metadata
 from SubtitleSearcher.main import sg
-from SubtitleSearcher.data import openSubtitles, movies
+from SubtitleSearcher.data import openSubtitles, movies, titlovi_com
 from SubtitleSearcher.threads import SearchForSubtitles, movieQueve, subsQueve
 
 import urllib
@@ -73,7 +73,7 @@ class OpenSubtitlesSearchAlg:
         #subtitles = opensubs.request_subtitles(link)
         for number, subtitle in enumerate(subtitles):
             #print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
-            number = movies.Subtitle(subtitle)
+            number = movies.openSubtitlesSub(subtitle)
             self.all_subs.append(number)
         if len(self.all_subs) == 0:
             print('Step 1 failed')
@@ -99,7 +99,7 @@ class OpenSubtitlesSearchAlg:
         else:
             for number, subtitle in enumerate(subtitles):
                 #print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
-                number = movies.Subtitle(subtitle)
+                number = movies.openSubtitlesSub(subtitle)
                 self.all_subs.append(number)
 
         if len(subtitles) == 0:
@@ -126,7 +126,7 @@ class OpenSubtitlesSearchAlg:
         else:
             for number, subtitle in enumerate(subtitles):
                 #print(f'\nSubtitle metadata extracted from subtitle:\n{subtitle}')
-                number = movies.Subtitle(subtitle)
+                number = movies.openSubtitlesSub(subtitle)
                 self.all_subs.append(number)
 
         if len(subtitles) == 0:
@@ -160,7 +160,7 @@ def language_selector(values):
         language_selected.append('eng')
     return language_selected
 
-def movie_setup(file_size, file_hash, values, file_path):
+def movie_setup(file_size, file_hash, file_path):
     movie = movies.Movie(file_size, file_hash, file_path, ntpath.basename(file_path))
     movie.set_from_filename()
     #print(f'\nMetadata extracted from filename:\n{movie.movie_info}')
@@ -173,25 +173,50 @@ def movie_setup(file_size, file_hash, values, file_path):
     movie.set_imdb_id(movie_imdb_id)
     return movie
 
-def search_by_single_file(values, language, window, file_path):
+def select_engine(values):
+    engines = []
+    if values['USEOPEN'] and values['USETITLOVI']:
+        engines = ['OpenSubtitles', 'Titlovi.com']
+    elif values['USEOPEN']:
+        engines = ['OpenSubtitles']
+    elif values['USETITLOVI']:
+        engines = ['Titlovi.com']
+    return engines
+
+
+def define_movie(file_path):
     try:
         hashed_file = opensubs.hashFile(file_path)
         fileSize = opensubs.sizeOfFile(file_path)
     except FileNotFoundError:
         sg.popup_ok('File not found, please try again', title='File not found')
     else:
-        movie = movie_setup(fileSize, hashed_file, values, file_path)
-        window['STATUSBAR'].update(f'Movie name: {movie.title} - IMDB ID: {movie.imdb_id}')
-        all_subs = []
-        search_alg = OpenSubtitlesSearchAlg(movie, language)
-        subtitles, all_subs = search_alg.subtitleSearchStep1()
+        movie = movie_setup(fileSize, hashed_file, file_path)
+    return movie
+
+def search_opensubs(language, movie):
+    open_subs = []
+    print('Running OpenSubtitles search')
+    search_alg = OpenSubtitlesSearchAlg(movie, language)
+    subtitles, subs_objects = search_alg.subtitleSearchStep1()
+    if len(subtitles) == 0:
+        subtitles, subs_objects = search_alg.subtitleSearchStep2()
         if len(subtitles) == 0:
-            subtitles, all_subs = search_alg.subtitleSearchStep2()
-            if len(subtitles) == 0:
-                subtitles, all_subs = search_alg.subtitleSearchStep3()
-        #subtitles, all_subs = subtitle_search(movie, language)
-        #subtitles=[] # Comment / Uncomment this to simulate finding hash failed
-    return movie, all_subs
+            subtitles, subs_objects = search_alg.subtitleSearchStep3()
+    for sub in subs_objects:
+        open_subs.append(sub)
+    return open_subs
+
+def search_titlovi(language, movie, user_object):
+    titlovi_subs = []
+    print('Running Titlovi.com search')
+    user_object.search_by_filename(movie.title, movie.year)
+    user_object.set_language(language)
+    user_object.search_API()
+    for number, subtitle in enumerate(user_object.subtitles):
+        number = movies.titloviComSub(subtitle)
+        titlovi_subs.append(number)
+    return titlovi_subs
 
 def search_by_multy_file(values, file_path, language, window):
     try:
