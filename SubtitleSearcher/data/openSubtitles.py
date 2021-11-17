@@ -12,6 +12,7 @@ def search_by_imdb(imdb_id, language_code='eng'):
 
 class searchOpenSubtitles:
     def __init__(self):
+        self.engine = 'OpenSubtitles'
         self.base_url = 'https://rest.opensubtitles.org/search'
         self.http_header = {'user-agent': 'TemporaryUserAgent'}
         self.episode = 'episode-'

@@ -1,12 +1,13 @@
 import requests
+import json
 
 api_url = 'https://kodi.titlovi.com/api/subtitles'
 
 
 class TitloviCom:
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
+    def __init__(self):
+        self.username = None
+        self.password = None
         self.search_param = {}
         self.LANGUAGE_MAPPING = {
                                 'eng': 'English',
@@ -47,14 +48,17 @@ class TitloviCom:
         except Exception as e:
             return None
     
-    def set_user_login_details(self):
-        login = self.handle_login()
+    def set_user_login_details(self, login):
         self.user_token = login['Token']
         self.token_expiry_date = login['ExpirationDate']
         self.user_id = login['UserId']
     
+    def set_from_json(self, token, userID, expiry_date):
+        self.user_token = token
+        self.token_expiry_date = expiry_date
+        self.user_id = userID
+        
     def search_by_filename(self, movie_name, year):
-        self.set_user_login_details()
         self.search_param['query'] = movie_name
         self.search_param['year'] = year
     

@@ -4,22 +4,29 @@ import os
 from zipfile import ZipFile
 import shutil
 
-class ZipHandler:
-    def __init__(self, filename, url_for_download, movie_folder):
+
+class SubFileHandler:
+    '''
+    Base class of File Handler. Not to be called directly. Instantiate from child classes.
+    Used to handle all common operations with subtitle files like downloading and unzipping.
+
+    Child classes handle diffrent aproaches by diffrent sources
+    '''
+    def __init__(self, url_for_download, movie_folder=None, filename=None):
         self.download_folder = 'downloaded'
         self.extracted_folder = 'extracted'
         self.zip_name = 'sub.zip'
+        self.downloaded_zip = os.path.join(self.extracted_folder, self.zip_name)
         self.filename = filename
         self.url = url_for_download
         self.movie_folder = movie_folder
-
-
+    
     def check_for_folders(self):
         if not os.path.isdir('downloaded'):
             os.makedirs('downloaded')
         if not os.path.isdir('extracted'):
             os.makedirs('extracted')
-
+    
     def download_zip(self):
         self.check_for_folders()
         success = False
@@ -51,7 +58,7 @@ class ZipHandler:
         except zipfile.BadZipFile:
             print('Bad zip, cant continue')
             return
-
+    
     def move_files(self, append_lang_code=None):
         src_path = f'extracted/{self.filename}'
         org_string = self.movie_folder
@@ -76,3 +83,15 @@ class ZipHandler:
                     shutil.rmtree(entry.path)
                 else:
                     os.remove(entry.path)
+
+class OpenSubtitlesHandler(SubFileHandler):
+    pass
+
+
+class ZipHandlerTitlovi(SubFileHandler):
+    def download_subtitle(self):
+        self.download_zip()
+        self.extract_zip()
+
+
+

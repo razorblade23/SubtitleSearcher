@@ -29,6 +29,7 @@ if system == 'Windows':
 if system == 'Linux':
     icon = 'SubtitleSearcher/static/images/image.png'
 
+JSON_USER_SETTINGS_PATH = 'SubtitleSearcher/data/user_settings/user_settings.json'
 
 SINGLE_FILE_MODE = False
 MULTI_FILE_MODE = False
@@ -39,30 +40,66 @@ main_layout = gui_windows.main_window()
 
 gui_control.intro_dialog()
 
+def getUserSettings():
+    with open(JSON_USER_SETTINGS_PATH, 'r') as json_obj:
+        try:
+            USERSETTINGS = json.load(json_obj)
+        except json.decoder.JSONDecodeError:
+            USERSETTINGSdict = {'last_user_path': '~/Downloads'}
+            with open(JSON_USER_SETTINGS_PATH, 'w') as file:
+                USERSETTINGS = json.dump(USERSETTINGSdict, file)
+    return USERSETTINGS
+
 def add_to_user_settings(dictionary):
     try:
-        with open('SubtitleSearcher/data/user_settings/user_settings.json', 'r') as json_obj:
+        with open(JSON_USER_SETTINGS_PATH, 'r') as json_obj:
             USERSETTINGS = json.load(json_obj)
     except json.decoder.JSONDecodeError:
-        USERSETTINGS = {}
+        USERSETTINGS = {'last_user_path': '~/Downloads'}
     USERSETTINGS.update(dictionary)
-    with open('SubtitleSearcher/data/user_settings/user_settings.json', 'w') as file:
+    with open(JSON_USER_SETTINGS_PATH, 'w') as file:
         json.dump(USERSETTINGS ,file)
 
-def first_setup():
-    ask = sg.popup_yes_no('Is this first setup of SubbyDoo?', title='First run?')
-    if ask == 'Yes':
-        FirstSetup = {'last_user_path': '~/Downloads'}
-        add_to_user_settings(FirstSetup)
-    else:
-        sg.popup_quick_message('If you are lying, program will crash', font='Any 20')
+def loadTitloviUserSettings(titlovi_object, json_settings):
+    try:
+        titlovi_object.user_token = json_settings['UserToken']
+        titlovi_object.token_expiry_date = json_settings['ExpiryDate']
+        titlovi_object.user_id = json_settings['UserID']
+    except TypeError:
+        titlovi_object.user_token = None
+        titlovi_object.token_expiry_date = None
+        titlovi_object.user_id = None
 
-#FirstSetup = {'last_user_path': '~/Downloads'}
 
 # Start infinite loop for your GUI windows and reading from them
 def run():
     global WINDOWSUBS, language_selected, SINGLE_FILE_MODE, MULTI_FILE_MODE
     window = sg.Window(title='Subbydoo', layout=main_layout, element_justification='center', icon=icon, finalize=True)
+
+    titlovi = TitloviCom()
+    USER_SETTINGS = getUserSettings()
+    try:
+        loadTitloviUserSettings(titlovi, USER_SETTINGS)
+    except KeyError:
+        token = None
+        expiry_date = None
+        user_id = None
+    else:
+        token = titlovi.user_token
+        expiry_date = titlovi.token_expiry_date
+        user_id = titlovi.user_id
+
+    if token != None:
+        print(f'Token found - {token}')
+        window['USETITLOVI'].update(disabled=False)
+        window['titloviUSERNAME'].update(disabled=True)
+        window['titloviPASS'].update(disabled=True)
+        window['LoginUserTitlovi'].update(disabled=True)
+        window['LoginUserTitlovi'].update(text='USER VALIDATED', button_color=('white', 'green'))
+        
+    else:
+        print('Token not found - must validate first')
+
     while True:
         event, values = window.read(timeout=300)
         #print(f'Currently active threads: {threading.active_count()}\n')
@@ -72,54 +109,35 @@ def run():
         language_selected = gui_control.language_selector(values)
         lang = language_selected[0]
         gui_control.StatusBarMainUpdate(window, f'SubbyDoo is ready. | Language selected: {lang}')
-        gui_control.StatusBarVersionUpdate(window, 'v.0.0.2-alpha')
-        if event == 'MainTabGroup':
-            tab_active = window['MainTabGroup'].get()
-            if tab_active == 'TitloviTab':
-                with open('SubtitleSearcher/data/user_settings/user_settings.json', 'r') as file:
-                    UserSett = json.load(file)
-                try:
-                    token = UserSett['UserToken']
-                    userID = UserSett['UserID']
-                except KeyError:
-                    token = None
-                    userID = None
-                if token != None:
-                    print(f'Token found - {token}')
-                    window['USETITLOVI'].update(disabled=False)
-                    window['UserValidated'].update(visible=True)
-                    window['titloviUSERNAME'].update(disabled=True)
-                    window['titloviPASS'].update(disabled=True)
-                    window['LoginUserTitlovi'].update(disabled=True)
-                else:
-                    print('Token not found - must validate first')
+        gui_control.StatusBarVersionUpdate(window, 'v.0.0.3-alpha')
         if event == 'Save':
             if values['KeepOnTop'] == False:
                 window.keep_on_top_clear()
             else:
                 window.keep_on_top_set()
+
         if event == 'LoginUserTitlovi':
             user_name = values['titloviUSERNAME']
             password = values['titloviPASS']
             if token == None:
-                titloviUser = TitloviCom(user_name, password)
-                print('Validating user')
-                titloviUser.handle_login()
-                titloviUser.set_user_login_details()
-                new_user = {'UserToken': titloviUser.user_token,
-                            'UserID': titloviUser.user_id}
+                titlovi.username = user_name
+                titlovi.password = password
+                login = titlovi.handle_login()
+                titlovi.set_user_login_details(login)
+                new_user = {'UserToken': titlovi.user_token,
+                            'ExpiryDate': titlovi.token_expiry_date,
+                            'UserID': titlovi.user_id}
                 add_to_user_settings(new_user)
                 window['LoginUserTitlovi'].update(text='USER VALIDATED', button_color=('white', 'green'))
                 window['USETITLOVI'].update(disabled=False)
             else:
                 window['USETITLOVI'].update(disabled=False)
             window.refresh()
+
         if event == 'BROWSE':
             if values['RememberLastFolder']:
-                with open('SubtitleSearcher/data/user_settings/user_settings.json', 'r') as file:
-                    user_set = json.load(file)
-                    initial_f = user_set['last_user_path']
-                    #print(user_set, initial_f)
+                USER_SETTINGS = getUserSettings()
+                initial_f = USER_SETTINGS['last_user_path']
             else:
                 initial_f = '~/Downloads'
 
@@ -136,9 +154,8 @@ def run():
             file_path = file_paths.split(';')
             if values['RememberLastFolder']:
                 file_directory = os.path.dirname(file_path[0])
-                with open('SubtitleSearcher/data/user_settings/user_settings.json', 'w') as file:
-                    last_folder_set = {'last_user_path': file_directory}
-                    user_set = json.dump(last_folder_set, file)
+                last_folder_set = {'last_user_path': file_directory}
+                add_to_user_settings(last_folder_set)
             if len(file_path) > 1:
                 SINGLE_FILE_MODE = False
                 MULTI_FILE_MODE = True
@@ -157,7 +174,7 @@ def run():
                     open_subs = gui_control.search_opensubs(lang, movie)
                 if engine == 'Titlovi.com':
                     try:
-                        titlovi_subs = gui_control.search_titlovi(lang, movie, titloviUser)
+                        titlovi_subs = gui_control.search_titlovi(lang, movie, titlovi)
                     except UnboundLocalError:
                         sg.popup_error('User is not validated.\nPlease validate your account to use Titlovi.com')
             print('Searching single file with QuickMode off')
@@ -179,7 +196,7 @@ def run():
                         with suppress(AttributeError): sub_name.append(open_subs[q].MovieReleaseName)
                 if engine == 'Titlovi.com':
                     for w in range(len(titlovi_subs)):
-                        with suppress(AttributeError): sub_name.append(titlovi_subs[w].title+titlovi_subs[w].release)
+                        with suppress(AttributeError): sub_name.append(titlovi_subs[w].title)
             window_download_subs['SUBSTABLE'].update(values=sub_name)
 
             if movie.kind == 'tv series' or movie.kind == 'episode':
@@ -196,9 +213,11 @@ def run():
                 continue
 
             if event_subs == 'SUBSTABLE':
+                print(values_subs)
                 with suppress(UnboundLocalError):
-                    for sub in open_subs:
-                        with suppress(AttributeError): 
+                    for sub in sub_name:
+                        with suppress(AttributeError):
+                            print(sub.title)
                             if sub.MovieReleaseName == values_subs['SUBSTABLE'][0]:
                                 sub_selected_filename = sub.SubFileName
                                 sub_selected_zip_down = sub.ZipDownloadLink
@@ -223,21 +242,19 @@ def run():
                                     window_download_subs['SUBSCORE'].update(text_color='orange')
                                 elif sub.Score > 60 and sub.Score < 100:
                                     window_download_subs['SUBSCORE'].update(text_color='green')
-                with suppress(UnboundLocalError):
-                    for sub in titlovi_subs:
-                        with suppress(AttributeError):
-                            if sub.release == values_subs['SUBSTABLE'][0]:
+                            if sub.title == values_subs['SUBSTABLE'][0]:
                                 window_download_subs['SUBNAME'].update(sub.title)
                                 window_download_subs['SUBADDDATE'].update(sub.date)
                                 window_download_subs['SUBLANG'].update(sub.lang)
                                 window_download_subs['SUBDOWNCOUNT'].update(str(sub.downloadCount) + ' times')
                                 print(sub.link)
                 window_download_subs['DOWNLOADSUB'].update(disabled=False)
+                window_download_subs.refresh()
 
             if event_subs == 'DOWNLOADSUB':
                 sg.popup_notify('Started download of selected subtitle', title='Downloading subtitles', display_duration_in_ms=800, fade_in_duration=100)
                 TIME_START = time.perf_counter()
-                zip_handler = handle_zip.ZipHandler(sub_selected_filename, sub_selected_zip_down, file_path[0])
+                zip_handler = handle_zip.OpenSubtitlesHandler(sub_selected_filename, sub_selected_zip_down, file_path[0])
                 zipThread = threading.Thread(target=threads.ZipDownloaderThreaded, args=[zip_handler])
                 zipThread.start()
                 zipThread.join()
@@ -256,7 +273,7 @@ def run():
             except:
                 sg.popup_error('Cant find any subtitles for your language.\nPlease choose another.')
             else:
-                zip_handler = handle_zip.ZipHandler(sub.SubFileName, sub.ZipDownloadLink, file_path[0])
+                zip_handler = handle_zip.OpenSubtitlesHandler(sub.SubFileName, sub.ZipDownloadLink, file_path[0])
                 zipThread = threading.Thread(target=threads.ZipDownloaderThreaded, args=[zip_handler])
                 zipThread.start()
                 zipThread.join()
@@ -289,7 +306,7 @@ def run():
             window['WORKINGSTRING'].update(value='Step 3 of 4')
             for sub in range(len(subs_list)):
                 print(f'Threading download of subtitle {sub+1} of {len(subs_list)}')
-                zip_handler = handle_zip.ZipHandler(subs_list[sub].SubFileName, subs_list[sub].ZipDownloadLink, file_path[sub])
+                zip_handler = handle_zip.OpenSubtitlesHandler(subs_list[sub].SubFileName, subs_list[sub].ZipDownloadLink, file_path[sub])
                 zipThread = threading.Thread(target=threads.ZipDownloaderThreaded, args=[zip_handler, sub+1])
                 zipThread.start()
                 treads2.append(zipThread)
