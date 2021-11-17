@@ -88,6 +88,7 @@ def run():
         token = titlovi.user_token
         expiry_date = titlovi.token_expiry_date
         user_id = titlovi.user_id
+        titlovi.check_for_expiry_date()
 
     if token != None:
         print(f'Token found - {token}')
@@ -96,7 +97,6 @@ def run():
         window['titloviPASS'].update(disabled=True)
         window['LoginUserTitlovi'].update(disabled=True)
         window['LoginUserTitlovi'].update(text='USER VALIDATED', button_color=('white', 'green'))
-        
     else:
         print('Token not found - must validate first')
 
