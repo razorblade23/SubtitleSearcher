@@ -82,33 +82,28 @@ def run():
         loadTitloviUserSettings(titlovi, USER_SETTINGS)
     except KeyError:
         token = None
-        expiry_date = None
-        user_id = None
     else:
         token = titlovi.user_token
-        expiry_date = titlovi.token_expiry_date
-        user_id = titlovi.user_id
-        titlovi.check_for_expiry_date()
 
     if token != None:
-        print(f'Token found - {token}')
         window['USETITLOVI'].update(disabled=False)
-        window['titloviUSERNAME'].update(disabled=True)
-        window['titloviPASS'].update(disabled=True)
-        window['LoginUserTitlovi'].update(disabled=True)
-        window['LoginUserTitlovi'].update(text='USER VALIDATED', button_color=('white', 'green'))
+        
+        #window['USERID'].update(value=titlovi.user_id)
+        #window['USERTOKEN'].update(value=titlovi.user_token)
+        #window['TOKENLIFE'].update(value=titlovi.time_left)
     else:
-        print('Token not found - must validate first')
+        print('No token detected')
 
     while True:
         event, values = window.read(timeout=300)
         #print(f'Currently active threads: {threading.active_count()}\n')
         if event == sg.WIN_CLOSED:
             break
-        
+        if token != None:
+            expired_token, days_left = titlovi.check_for_expiry_date()
+            gui_control.StatusBarMainUpdate(window, f'SubbyDoo is ready.\nTitlovi.com logged in -->User ID: {titlovi.user_id} -->Token expired: {expired_token}, days left: {days_left}')
         language_selected = gui_control.language_selector(values)
         lang = language_selected[0]
-        gui_control.StatusBarMainUpdate(window, f'SubbyDoo is ready. | Language selected: {lang}')
         gui_control.StatusBarVersionUpdate(window, 'v.0.0.3-alpha')
         if event == 'Save':
             if values['KeepOnTop'] == False:

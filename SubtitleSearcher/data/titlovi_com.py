@@ -62,13 +62,13 @@ class TitloviCom:
     def check_for_expiry_date(self):
         datetime_now = datetime.now()
         token_expiry = datetime.fromisoformat(self.token_expiry_date)
+        self.time_left = token_expiry - datetime_now
+        time_left = self.time_left.total_seconds()
+        days_left = self.time_left.days
         expired = False
-        if datetime_now >= token_expiry:
+        if time_left <= 0:
             expired = True
-            print('Token is expired, please obtain a new one')
-        else:
-            print(f'Token has {(token_expiry - datetime_now)} more life.')
-        return expired
+        return expired, days_left
         
     def search_by_filename(self, movie_name, year):
         self.search_param['query'] = movie_name
