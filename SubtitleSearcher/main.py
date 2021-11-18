@@ -87,10 +87,6 @@ def run():
 
     if token != None:
         window['USETITLOVI'].update(disabled=False)
-        
-        #window['USERID'].update(value=titlovi.user_id)
-        #window['USERTOKEN'].update(value=titlovi.user_token)
-        #window['TOKENLIFE'].update(value=titlovi.time_left)
     else:
         print('No token detected')
 
@@ -102,6 +98,8 @@ def run():
         if token != None:
             expired_token, days_left = titlovi.check_for_expiry_date()
             gui_control.StatusBarMainUpdate(window, f'SubbyDoo is ready.\nTitlovi.com logged in -->User ID: {titlovi.user_id} -->Token expired: {expired_token}, days left: {days_left}')
+        else:
+            gui_control.StatusBarMainUpdate(window, f'SubbyDoo is ready\nUser is not logged in')
         language_selected = gui_control.language_selector(values)
         lang = language_selected[0]
         gui_control.StatusBarVersionUpdate(window, 'v.0.0.3-alpha')
@@ -123,7 +121,12 @@ def run():
                             'ExpiryDate': titlovi.token_expiry_date,
                             'UserID': titlovi.user_id}
                 add_to_user_settings(new_user)
+                expired_token, days_left = titlovi.check_for_expiry_date()
                 window['LoginUserTitlovi'].update(text='USER VALIDATED', button_color=('white', 'green'))
+                window['ROW1'].update(value=f'User ID: {titlovi.user_id}', text_color='green')
+                window['ROW2'].update(value=f'Token: {titlovi.user_token}', text_color='green')
+                window['ROW3'].update(value=f'Token need refresh in {days_left}')
+                window['ROW4'].update(value='')
                 window['USETITLOVI'].update(disabled=False)
             else:
                 window['USETITLOVI'].update(disabled=False)

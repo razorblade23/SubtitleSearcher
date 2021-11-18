@@ -1,7 +1,9 @@
+
+from dateutil import parser
+
 from datetime import datetime
 import requests
 import json
-
 api_url = 'https://kodi.titlovi.com/api/subtitles'
 
 
@@ -61,8 +63,9 @@ class TitloviCom:
     
     def check_for_expiry_date(self):
         datetime_now = datetime.now()
-        token_expiry = datetime.fromisoformat(self.token_expiry_date)
-        self.time_left = token_expiry - datetime_now
+        parsed_date = parser.isoparse(self.token_expiry_date)
+        #token_expiry = datetime.fromisoformat(self.token_expiry_date)
+        self.time_left = parsed_date - datetime_now
         time_left = self.time_left.total_seconds()
         days_left = self.time_left.days
         expired = False
