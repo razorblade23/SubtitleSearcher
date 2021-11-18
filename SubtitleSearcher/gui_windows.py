@@ -52,7 +52,7 @@ def main_window():
                 [sg.Column(key='UNREGISTEREDINFO', layout=[
                     [sg.Text('You must enter your username and password to use Titlovi.com', font='Any 16', key='ROW1')],
                     [sg.Text('After validation, each user gets a token that lasts 7 days', font='Any 14', key='ROW2')],
-                    [sg.Text('Each 7 days you must re-login to continue to use Titlovi.com', key='ROW3')],
+                    [sg.Text('Each 7 days you must re-login to continue to use Titlovi.com', font='Any 13', key='ROW3')],
                     [sg.Text('This are their rules, so we must comply !', key='ROW4')],
                     [sg.Text('Username:')],
                     [sg.InputText(key='titloviUSERNAME')],

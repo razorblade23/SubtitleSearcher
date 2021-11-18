@@ -86,7 +86,8 @@ def run():
         token = titlovi.user_token
 
     if token != None:
-        window['USETITLOVI'].update(disabled=False)
+        expired_token, days_left = titlovi.check_for_expiry_date()
+        UserGuiRegistered(window, titlovi, days_left)
     else:
         print('No token detected')
 
@@ -116,18 +117,18 @@ def run():
                 titlovi.username = user_name
                 titlovi.password = password
                 login = titlovi.handle_login()
-                titlovi.set_user_login_details(login)
-                new_user = {'UserToken': titlovi.user_token,
-                            'ExpiryDate': titlovi.token_expiry_date,
-                            'UserID': titlovi.user_id}
-                add_to_user_settings(new_user)
-                expired_token, days_left = titlovi.check_for_expiry_date()
+                if login != None:
+                    titlovi.set_user_login_details(login)
+                    new_user = {'UserToken': titlovi.user_token,
+                                'ExpiryDate': titlovi.token_expiry_date,
+                                'UserID': titlovi.user_id}
+                    add_to_user_settings(new_user)
+                    expired_token, days_left = titlovi.check_for_expiry_date()
+                else:
+                    sg.popup_ok('Invalid username / password !\nPlease check your login details.', title='Wrong username/password', font='Any 16')
+                    continue
                 window['LoginUserTitlovi'].update(text='USER VALIDATED', button_color=('white', 'green'))
-                window['ROW1'].update(value=f'User ID: {titlovi.user_id}', text_color='green')
-                window['ROW2'].update(value=f'Token: {titlovi.user_token}', text_color='green')
-                window['ROW3'].update(value=f'Token need refresh in {days_left}')
-                window['ROW4'].update(value='')
-                window['USETITLOVI'].update(disabled=False)
+                UserGuiRegistered(window, titlovi, days_left)
             else:
                 window['USETITLOVI'].update(disabled=False)
             window.refresh()
@@ -333,3 +334,10 @@ def run():
             
     window.close() # Closes main window
     return
+
+def UserGuiRegistered(window, titlovi, days_left):
+    window['USETITLOVI'].update(disabled=False)
+    window['ROW1'].update(value=f'User ID: {titlovi.user_id}', text_color='green')
+    window['ROW2'].update(value=f'Token: {titlovi.user_token}', text_color='green')
+    window['ROW3'].update(value=f'Token need refresh in {days_left} days', text_color='green')
+    window['ROW4'].update(value='')
