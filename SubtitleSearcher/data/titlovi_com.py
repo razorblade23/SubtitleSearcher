@@ -9,6 +9,7 @@ api_url = 'https://kodi.titlovi.com/api/subtitles'
 
 class TitloviCom:
     def __init__(self):
+        self.engine = 'Titlovi'
         self.username = None
         self.password = None
         self.search_param = {}
@@ -73,9 +74,12 @@ class TitloviCom:
             expired = True
         return expired, days_left
         
-    def search_by_filename(self, movie_name, year):
+    def search_by_filename(self, movie_name, year, season=None, episode=None, imdb_id=None):
         self.search_param['query'] = movie_name
         self.search_param['year'] = year
+        self.search_param['season'] = season
+        self.search_param['episode'] = episode
+        self.search_param['imdbID'] = imdb_id
     
     def set_language(self, language):
         lang = self.LANGUAGE_MAPPING[language]

@@ -188,15 +188,24 @@ def run():
             window_download_subs['IMDBID'].update(movie.imdb_id)
             window_download_subs['KIND'].update(movie.kind)
             window_download_subs['VIDEOFILENAME'].update(movie.file_name)
-            sub_name = []
+            subs_list = []
             for engine in engines:
                 if engine == 'OpenSubtitles':
                     for q in range(len(open_subs)):
-                        with suppress(AttributeError): sub_name.append(open_subs[q].MovieReleaseName)
+                        with suppress(AttributeError): subs_list.append(open_subs[q])
                 if engine == 'Titlovi.com':
                     for w in range(len(titlovi_subs)):
-                        with suppress(AttributeError): sub_name.append(titlovi_subs[w].title)
-            window_download_subs['SUBSTABLE'].update(values=sub_name)
+                        with suppress(AttributeError): subs_list.append(titlovi_subs[w])
+            subs_names = []
+            for sub in subs_list:
+                if sub.engine == 'OpenSubtitles':
+                    subs_names.append(sub.MovieReleaseName)
+                if sub.engine == 'Titlovi':
+                    if sub.season >= 0 or sub.episode >= 0:
+                        subs_names.append(f'{sub.title} S{str(sub.season)}E{str(sub.episode)}')
+                    else:
+                        subs_names.append(f'{sub.title} {sub.release}')
+            window_download_subs['SUBSTABLE'].update(values=subs_names)
 
             if movie.kind == 'tv series' or movie.kind == 'episode':
                 window_download_subs['TVSERIESINFO'].update(visible=False)
@@ -213,40 +222,40 @@ def run():
 
             if event_subs == 'SUBSTABLE':
                 print(values_subs)
-                with suppress(UnboundLocalError):
-                    for sub in sub_name:
-                        with suppress(AttributeError):
-                            print(sub.title)
-                            if sub.MovieReleaseName == values_subs['SUBSTABLE'][0]:
-                                sub_selected_filename = sub.SubFileName
-                                sub_selected_zip_down = sub.ZipDownloadLink
-                                window_download_subs['SUBNAME'].update(sub.SubFileName)
-                                window_download_subs['SUBUSERID'].update(sub.UserID)
-                                window_download_subs['SUBUSERNICK'].update(sub.UserNickName)
-                                if sub.UserNickName in starting_settings.trustet_uploaders:
-                                    window_download_subs['TRUSTED'].update(visible=True)
-                                else:
-                                    window_download_subs['TRUSTED'].update(visible=False)
-                                window_download_subs['SUBADDDATE'].update(sub.SubAddDate)
-                                window_download_subs['SUBUSERCOMMENT'].update(sub.SubAuthorComment)
-                                window_download_subs['SUBEXTENSION'].update(sub.SubFormat)
-                                window_download_subs['SUBLANG'].update(sub.LanguageName)
-                                window_download_subs['SUBDOWNCOUNT'].update(str(sub.SubDownloadsCnt) + ' times')
-                                window_download_subs['SUBSCORE'].update(str(sub.Score) + ' %')
-                                if sub.Score > 0 and sub.Score < 10:
-                                    window_download_subs['SUBSCORE'].update(text_color='black')
-                                elif sub.Score > 10 and sub.Score < 30:
-                                    window_download_subs['SUBSCORE'].update(text_color='red')
-                                elif sub.Score > 30 and sub.Score < 60:
-                                    window_download_subs['SUBSCORE'].update(text_color='orange')
-                                elif sub.Score > 60 and sub.Score < 100:
-                                    window_download_subs['SUBSCORE'].update(text_color='green')
-                            if sub.title == values_subs['SUBSTABLE'][0]:
-                                window_download_subs['SUBNAME'].update(sub.title)
-                                window_download_subs['SUBADDDATE'].update(sub.date)
-                                window_download_subs['SUBLANG'].update(sub.lang)
-                                window_download_subs['SUBDOWNCOUNT'].update(str(sub.downloadCount) + ' times')
-                                print(sub.link)
+                with suppress(IndexError):
+                    for sub_name in subs_names:
+                        if sub_name == values_subs['SUBSTABLE'][0]:
+                            for sub in subs_list:
+                                if sub.engine == 'OpenSubtitles' and sub.MovieReleaseName == sub_name:
+                                    sub_selected_filename = sub.SubFileName
+                                    sub_selected_zip_down = sub.ZipDownloadLink
+                                    window_download_subs['SUBNAME'].update(sub.SubFileName)
+                                    window_download_subs['SUBUSERID'].update(sub.UserID)
+                                    window_download_subs['SUBUSERNICK'].update(sub.UserNickName)
+                                    if sub.UserNickName in starting_settings.trustet_uploaders:
+                                        window_download_subs['TRUSTED'].update(visible=True)
+                                    else:
+                                        window_download_subs['TRUSTED'].update(visible=False)
+                                    window_download_subs['SUBADDDATE'].update(sub.SubAddDate)
+                                    window_download_subs['SUBUSERCOMMENT'].update(sub.SubAuthorComment)
+                                    window_download_subs['SUBEXTENSION'].update(sub.SubFormat)
+                                    window_download_subs['SUBLANG'].update(sub.LanguageName)
+                                    window_download_subs['SUBDOWNCOUNT'].update(str(sub.SubDownloadsCnt) + ' times')
+                                    window_download_subs['SUBSCORE'].update(str(sub.Score) + ' %')
+                                    if sub.Score > 0 and sub.Score < 10:
+                                        window_download_subs['SUBSCORE'].update(text_color='black')
+                                    elif sub.Score > 10 and sub.Score < 30:
+                                        window_download_subs['SUBSCORE'].update(text_color='red')
+                                    elif sub.Score > 30 and sub.Score < 60:
+                                        window_download_subs['SUBSCORE'].update(text_color='orange')
+                                    elif sub.Score > 60 and sub.Score < 100:
+                                        window_download_subs['SUBSCORE'].update(text_color='green')
+                                if sub.engine == 'Titlovi' and sub.title == sub_name:
+                                    window_download_subs['SUBNAME'].update(sub.title)
+                                    window_download_subs['SUBADDDATE'].update(sub.date)
+                                    window_download_subs['SUBLANG'].update(sub.lang)
+                                    window_download_subs['SUBDOWNCOUNT'].update(str(sub.downloadCount) + ' times')
+                                    print(sub.link)
                 window_download_subs['DOWNLOADSUB'].update(disabled=False)
                 window_download_subs.refresh()
 

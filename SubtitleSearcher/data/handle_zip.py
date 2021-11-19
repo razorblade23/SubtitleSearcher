@@ -39,6 +39,9 @@ class SubFileHandler:
             success = True
         return success
 
+    def list_all_extracted(self):
+        pass
+
     def get_zip(self):
         if os.path.isdir('downloaded'):
             try:

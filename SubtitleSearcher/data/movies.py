@@ -116,6 +116,7 @@ class Movie:
 
 class openSubtitlesSub():
     def __init__(self, subtitle):
+        self.engine = 'OpenSubtitles'
         self.MatchedBy = subtitle['MatchedBy']
         self.IDSubtitleFile = subtitle['IDSubtitleFile']
         self.SubFileName = subtitle['SubFileName']
@@ -161,6 +162,7 @@ class openSubtitlesSub():
     
 class titloviComSub:
     def __init__(self, subtitle):
+        self.engine = 'Titlovi'
         self.id = subtitle['Id']
         self.title = subtitle['Title']
         self.year = subtitle['Year']
