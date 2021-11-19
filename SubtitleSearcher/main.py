@@ -250,11 +250,16 @@ def run():
                                         window_download_subs['SUBSCORE'].update(text_color='orange')
                                     elif sub.Score > 60 and sub.Score < 100:
                                         window_download_subs['SUBSCORE'].update(text_color='green')
-                                if sub.engine == 'Titlovi' and sub.title == sub_name:
+                                if sub.engine == 'Titlovi' and f'{sub.title} {sub.release}' == sub_name:
                                     window_download_subs['SUBNAME'].update(sub.title)
                                     window_download_subs['SUBADDDATE'].update(sub.date)
                                     window_download_subs['SUBLANG'].update(sub.lang)
                                     window_download_subs['SUBDOWNCOUNT'].update(str(sub.downloadCount) + ' times')
+                                    window_download_subs['SUBUSERID'].update('')
+                                    window_download_subs['SUBUSERNICK'].update('')
+                                    window_download_subs['SUBUSERCOMMENT'].update('')
+                                    window_download_subs['SUBEXTENSION'].update('')
+                                    window_download_subs['SUBSCORE'].update('')
                                     print(sub.link)
                 window_download_subs['DOWNLOADSUB'].update(disabled=False)
                 window_download_subs.refresh()
