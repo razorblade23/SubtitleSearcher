@@ -110,6 +110,11 @@ def run():
             else:
                 window.keep_on_top_set()
 
+        if event == 'OpenSubtitles':
+            openSubtitles_layout = gui_windows.openSubtitlesWindow()
+            openSubtitles_window = sg.Window(title='OpenSubtitles.org', layout=openSubtitles_layout)
+            openSubtitles_event, openSubtitles_values = openSubtitles_window.read()
+
         if event == 'LoginUserTitlovi':
             user_name = values['titloviUSERNAME']
             password = values['titloviPASS']

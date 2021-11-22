@@ -3,8 +3,23 @@ from psgtray import SystemTray
 
 sg.theme('DarkBrown4')
 
+main_menu = [['File', ['Select a file']],
+            ['Log in to services', ['OpenSubtitles', 'Titlovi.com']]]
+
+def openSubtitlesWindow():
+    layout = [
+        [sg.Text('''
+        Search and download subtitles for movies and TV-Series from OpenSubtitles.org. 
+        Search in 75 languages, 4.000.000+ subtitles, daily updates.''', font='Any 14')],
+        [sg.Image(source='SubtitleSearcher/static/images/OpenSubtitles_logo.png')],
+        [sg.Text('''You can use OpenSubtitles.org engine for free to find and download subtitles.
+        Log in is needed for upload and rating of subtitles.''')]
+    ]
+    return layout
+
 def main_window():
     layout = [
+        [sg.Menu(main_menu)],
         [sg.Image(source='SubtitleSearcher/static/images/logo.png')],
         [sg.Text('Project aiming to make finding and downloading subtitles a breeze!', font='Any 16')],
         [sg.TabGroup(enable_events=True, key='MainTabGroup', layout=[
