@@ -210,7 +210,13 @@ def search_opensubs(language, movie):
 def search_titlovi(language, movie, user_object):
     titlovi_subs = []
     print('Running Titlovi.com search')
-    user_object.search_by_filename(movie.title, movie.year)
+    if movie.episode != None or movie.season != None:
+        if movie.episode != None:
+            user_object.search_by_filename(movie.title, movie.year, episode=movie.episode)
+        if movie.season != None:
+            user_object.search_by_filename(movie.title, movie.year, season=movie.season)
+    else:
+        user_object.search_by_filename(movie.title, movie.year)
     user_object.set_language(language)
     user_object.search_API()
     for number, subtitle in enumerate(user_object.subtitles):

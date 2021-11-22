@@ -1,12 +1,17 @@
-import requests
 
+from dateutil import parser
+
+from datetime import datetime
+import requests
+import json
 api_url = 'https://kodi.titlovi.com/api/subtitles'
 
 
 class TitloviCom:
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
+    def __init__(self):
+        self.engine = 'Titlovi'
+        self.username = None
+        self.password = None
         self.search_param = {}
         self.LANGUAGE_MAPPING = {
                                 'eng': 'English',
@@ -47,16 +52,34 @@ class TitloviCom:
         except Exception as e:
             return None
     
-    def set_user_login_details(self):
-        login = self.handle_login()
+    def set_user_login_details(self, login):
         self.user_token = login['Token']
         self.token_expiry_date = login['ExpirationDate']
         self.user_id = login['UserId']
     
-    def search_by_filename(self, movie_name, year):
-        self.set_user_login_details()
+    def set_from_json(self, token, userID, expiry_date):
+        self.user_token = token
+        self.token_expiry_date = expiry_date
+        self.user_id = userID
+    
+    def check_for_expiry_date(self):
+        datetime_now = datetime.now()
+        parsed_date = parser.isoparse(self.token_expiry_date)
+        #token_expiry = datetime.fromisoformat(self.token_expiry_date)
+        self.time_left = parsed_date - datetime_now
+        time_left = self.time_left.total_seconds()
+        days_left = self.time_left.days
+        expired = False
+        if time_left <= 0:
+            expired = True
+        return expired, days_left
+        
+    def search_by_filename(self, movie_name, year, season=None, episode=None, imdb_id=None):
         self.search_param['query'] = movie_name
         self.search_param['year'] = year
+        self.search_param['season'] = season
+        self.search_param['episode'] = episode
+        self.search_param['imdbID'] = imdb_id
     
     def set_language(self, language):
         lang = self.LANGUAGE_MAPPING[language]

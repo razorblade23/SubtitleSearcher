@@ -49,20 +49,21 @@ def main_window():
                 sg.Radio('Slovenian', key='LangSLO', group_id=1)]
             ])],
             [sg.Tab(title='Titlovi.com', key='TitloviTab', layout=[
-                [sg.Text('USER IS VALIDATED', visible=False, key='UserValidated', text_color='green', font='Any 25')],
-                [sg.Text('You must enter your username and password to use Titlovi.com', font='Any 16')],
-                [sg.Text('After validation, each user gets a token that lasts 7 days', font='Any 14')],
-                [sg.Text('Each 7 days you must re-login to continue to use Titlovi.com')],
-                [sg.Text('This are their rules, so we must comply !')],
-                [sg.Text('Username:')],
-                [sg.InputText(key='titloviUSERNAME')],
-                [sg.Text('Password:')],
-                [sg.InputText(key='titloviPASS', password_char='*')],
-                [sg.Button('Validate login', key='LoginUserTitlovi')]
+                [sg.Column(key='UNREGISTEREDINFO', layout=[
+                    [sg.Text('You must enter your username and password to use Titlovi.com', font='Any 16', key='ROW1')],
+                    [sg.Text('After validation, each user gets a token that lasts 7 days', font='Any 14', key='ROW2')],
+                    [sg.Text('Each 7 days you must re-login to continue to use Titlovi.com', font='Any 13', key='ROW3')],
+                    [sg.Text('This are their rules, so we must comply !', key='ROW4')],
+                    [sg.Text('Username:')],
+                    [sg.InputText(key='titloviUSERNAME')],
+                    [sg.Text('Password:')],
+                    [sg.InputText(key='titloviPASS', password_char='*')],
+                    [sg.Button('Validate login', key='LoginUserTitlovi')]
+                ])],
             ])]
         ])],
         [sg.ProgressBar(100, 'h', key='PROGRESSBAR', bar_color=('green', 'black')), sg.Text('Working, please wait', key='WORKINGSTRING', visible=False)],
-        [sg.StatusBar('', key='STATUSBAR', size=(90,1)), sg.StatusBar('', key='STATUSBAR1', size=(10,1), justification='right')]
+        [sg.StatusBar('', key='STATUSBAR', size=(90,2)), sg.StatusBar('', key='STATUSBAR1', size=(10,1), justification='right')]
     ]
     return layout
 
