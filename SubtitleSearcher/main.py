@@ -221,14 +221,14 @@ def run():
                 continue
 
             if event_subs == 'SUBSTABLE':
-                print(values_subs)
                 with suppress(IndexError):
                     for sub_name in subs_names:
                         if sub_name == values_subs['SUBSTABLE'][0]:
                             for sub in subs_list:
+                                sub_selected_engine = sub.engine
                                 if sub.engine == 'OpenSubtitles' and sub.MovieReleaseName == sub_name:
                                     sub_selected_filename = sub.SubFileName
-                                    sub_selected_zip_down = sub.ZipDownloadLink
+                                    sub_selected_zip_down_open = sub.ZipDownloadLink
                                     window_download_subs['SUBNAME'].update(sub.SubFileName)
                                     window_download_subs['SUBUSERID'].update(sub.UserID)
                                     window_download_subs['SUBUSERNICK'].update(sub.UserNickName)
@@ -260,17 +260,26 @@ def run():
                                     window_download_subs['SUBUSERCOMMENT'].update('')
                                     window_download_subs['SUBEXTENSION'].update('')
                                     window_download_subs['SUBSCORE'].update('')
-                                    print(sub.link)
+                                    sub_selected_zip_down_titlovi = sub.link
                 window_download_subs['DOWNLOADSUB'].update(disabled=False)
                 window_download_subs.refresh()
 
             if event_subs == 'DOWNLOADSUB':
                 sg.popup_notify('Started download of selected subtitle', title='Downloading subtitles', display_duration_in_ms=800, fade_in_duration=100)
                 TIME_START = time.perf_counter()
-                zip_handler = handle_zip.OpenSubtitlesHandler(sub_selected_filename, sub_selected_zip_down, file_path[0])
-                zipThread = threading.Thread(target=threads.ZipDownloaderThreaded, args=[zip_handler])
-                zipThread.start()
-                zipThread.join()
+                if sub_selected_engine == 'OpenSubtitles':
+                    file_handler = handle_zip.OpenSubtitlesHandler()
+                    file_handler.download_zip(sub_selected_zip_down_open)
+                    file_handler.extract_zip()
+                    file_handler.move_files(file_path[0], sub_selected_filename)
+                    #zip_handler = handle_zip.OpenSubtitlesHandler(sub_selected_zip_down_open)
+                    #zipThread = threading.Thread(target=threads.ZipDownloaderThreaded, args=[zip_handler])
+                    #zipThread.start()
+                    #zipThread.join()
+                elif sub_selected_engine == 'Titlovi':
+                    file_handler = handle_zip.TitloviFileHandler()
+                    file_handler.download(sub_selected_zip_down_titlovi)
+                    file_handler.move_file(file_path[0])
                 TIME_END = time.perf_counter()
                 time_took = round(TIME_END-TIME_START, 2)
                 print(f'\n*** Took {time_took} to download subtitles ***\n')
