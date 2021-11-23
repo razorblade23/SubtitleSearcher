@@ -5,4 +5,3 @@ trustet_uploaders = ['explosiveskull', 'Rasan', 'Trestras', 'Bambula_', 'oakisla
 
 SINGLE_FILE_MODE = False
 MULTI_FILE_MODE = False
-

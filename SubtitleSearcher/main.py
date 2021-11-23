@@ -9,6 +9,7 @@ from tkinter.constants import E, FALSE
 
 from PySimpleGUI.PySimpleGUI import user_settings
 from SubtitleSearcher.data.titlovi_com import TitloviCom
+from SubtitleSearcher.data.db_models import session, OpenSubtitlesUsersDB, TitloviUsersDB
 from SubtitleSearcher.data import handle_zip, starting_settings
 from SubtitleSearcher import gui_control, gui_windows, threads
 import platform
@@ -34,6 +35,8 @@ JSON_USER_SETTINGS_PATH = 'SubtitleSearcher/data/user_settings/user_settings.jso
 SINGLE_FILE_MODE = False
 MULTI_FILE_MODE = False
 WINDOWSUBS = False
+OPENSUBSWINDOW = False
+TITLOVIWINDOW = False
 language_selected = []
 
 main_layout = gui_windows.main_window()
@@ -73,7 +76,7 @@ def loadTitloviUserSettings(titlovi_object, json_settings):
 
 # Start infinite loop for your GUI windows and reading from them
 def run():
-    global WINDOWSUBS, language_selected, SINGLE_FILE_MODE, MULTI_FILE_MODE
+    global WINDOWSUBS, language_selected, SINGLE_FILE_MODE, MULTI_FILE_MODE, OPENSUBSWINDOW, TITLOVIWINDOW
     window = sg.Window(title='Subbydoo', layout=main_layout, element_justification='center', icon=icon, finalize=True)
 
     titlovi = TitloviCom()
@@ -111,9 +114,39 @@ def run():
                 window.keep_on_top_set()
 
         if event == 'OpenSubtitles':
+            OPENSUBSWINDOW = True
             openSubtitles_layout = gui_windows.openSubtitlesWindow()
-            openSubtitles_window = sg.Window(title='OpenSubtitles.org', layout=openSubtitles_layout)
-            openSubtitles_event, openSubtitles_values = openSubtitles_window.read()
+            openSubtitles_window = sg.Window(title='OpenSubtitles.org', layout=openSubtitles_layout, element_justification='center')
+            
+        if OPENSUBSWINDOW:
+            openSubtitles_event, openSubtitles_values = openSubtitles_window.read(timeout=200)
+
+            if openSubtitles_event == sg.WIN_CLOSED:
+                OPENSUBSWINDOW = False
+                openSubtitles_window.close()
+                continue
+
+            if openSubtitles_event == 'OpenSubtitlesSUBMIT':
+                userName = openSubtitles_values['OpenSubtitlesUSERNAME']
+                passWord = openSubtitles_values['OpenSubtitlesPASSWORD']
+        
+        if event == 'Titlovi.com':
+            TITLOVIWINDOW = True
+            titloviLogin_layout = gui_windows.TitloviLoginWindow()
+            titloviLogin_window = sg.Window(title='Titlovi.com', layout=titloviLogin_layout, element_justification='center')
+            
+        if TITLOVIWINDOW:
+            titloviLogin_event, titloviLogin_values = titloviLogin_window.read(timeout=200)
+            #print(titloviLogin_event)
+            if titloviLogin_event == 'TitloviSUBMIT':
+                userName = titloviLogin_values['TitloviUSERNAME']
+                passWord = titloviLogin_values['TitloviPASSWORD']
+                TITLOVI_OBJ = TitloviUsersDB(userName, passWord)
+                session.add(TITLOVI_OBJ)
+                print('Adding user to database')
+                session.commit()
+                session.close()
+                print('User added')
 
         if event == 'LoginUserTitlovi':
             user_name = values['titloviUSERNAME']

@@ -10,10 +10,47 @@ def openSubtitlesWindow():
     layout = [
         [sg.Text('''
         Search and download subtitles for movies and TV-Series from OpenSubtitles.org. 
-        Search in 75 languages, 4.000.000+ subtitles, daily updates.''', font='Any 14')],
-        [sg.Image(source='SubtitleSearcher/static/images/OpenSubtitles_logo.png')],
+        Search in 75 languages, 4.000.000+ subtitles, daily updates.''', font='Any 14', pad=(200,0))],
+        [sg.Column(layout=[
+            [sg.Image(source='SubtitleSearcher/static/images/OpenSubtitles_logo.png')]
+        ]),
+        sg.Column(pad=(100,0), layout=[
+            [sg.Text()]
+        ]),
+        sg.Column(pad=((100,0),(0,0)), layout=[
+            [sg.Text('Username:')],
+            [sg.Input(key='OpenSubtitlesUSERNAME')],
+            [sg.Text('Password:')],
+            [sg.Input(key='OpenSubtitlesPASSWORD', password_char='*')],
+            [sg.Button('Submit', key='OpenSubtitlesSUBMIT')]
+        ])],
+        
         [sg.Text('''You can use OpenSubtitles.org engine for free to find and download subtitles.
-        Log in is needed for upload and rating of subtitles.''')]
+            Log in is needed for upload and rating of subtitles.''', pad=(200,0), font='Any 12')]
+    ]
+    return layout
+
+def TitloviLoginWindow():
+    layout = [
+        [sg.Text('Najveća baza titlova za filmove, TV serije i dokumentarce.', font='Any 14', justification='center')],
+        [sg.Text('''
+                You must log in to Titlovi.com to use their engine for search and download.
+                        You will get a token that lasts for 7 days (1 week).
+                After that you need to re-activate by entering your username and password again.    
+                ''', justification='center', font='Any 12')],
+        [sg.Column(layout=[
+            [sg.Image(source='SubtitleSearcher/static/images/titlovi_logo.png')]
+        ]),
+        sg.Column(pad=(100,0), layout=[
+            [sg.Text()]
+        ]),
+        sg.Column(pad=((100,0),(0,0)), layout=[
+            [sg.Text('Username:')],
+            [sg.Input(key='TitloviUSERNAME')],
+            [sg.Text('Password:')],
+            [sg.Input(key='TitloviPASSWORD', password_char='*')],
+            [sg.Button('Submit', key='TitloviSUBMIT')]
+        ])]
     ]
     return layout
 
