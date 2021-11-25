@@ -43,6 +43,9 @@ main_layout = gui_windows.main_window()
 
 gui_control.intro_dialog()
 
+def load_from_database():
+    pass
+
 def getUserSettings():
     with open(JSON_USER_SETTINGS_PATH, 'r') as json_obj:
         try:
@@ -119,7 +122,7 @@ def run():
             openSubtitles_window = sg.Window(title='OpenSubtitles.org', layout=openSubtitles_layout, element_justification='center')
             
         if OPENSUBSWINDOW:
-            openSubtitles_event, openSubtitles_values = openSubtitles_window.read(timeout=200)
+            openSubtitles_event, openSubtitles_values = openSubtitles_window.read()
 
             if openSubtitles_event == sg.WIN_CLOSED:
                 OPENSUBSWINDOW = False
@@ -136,7 +139,7 @@ def run():
             titloviLogin_window = sg.Window(title='Titlovi.com', layout=titloviLogin_layout, element_justification='center')
             
         if TITLOVIWINDOW:
-            titloviLogin_event, titloviLogin_values = titloviLogin_window.read(timeout=200)
+            titloviLogin_event, titloviLogin_values = titloviLogin_window.read()
             #print(titloviLogin_event)
             if titloviLogin_event == 'TitloviSUBMIT':
                 userName = titloviLogin_values['TitloviUSERNAME']
@@ -147,13 +150,9 @@ def run():
                 session.commit()
                 session.close()
                 print('User added')
-
-        if event == 'LoginUserTitlovi':
-            user_name = values['titloviUSERNAME']
-            password = values['titloviPASS']
-            if token == None:
-                titlovi.username = user_name
-                titlovi.password = password
+                titlovi.username = userName
+                titlovi.password = passWord
+                print('Logging user in')
                 login = titlovi.handle_login()
                 if login != None:
                     titlovi.set_user_login_details(login)
@@ -161,15 +160,36 @@ def run():
                                 'ExpiryDate': titlovi.token_expiry_date,
                                 'UserID': titlovi.user_id}
                     add_to_user_settings(new_user)
-                    expired_token, days_left = titlovi.check_for_expiry_date()
-                else:
-                    sg.popup_ok('Invalid username / password !\nPlease check your login details.', title='Wrong username/password', font='Any 16')
-                    continue
-                window['LoginUserTitlovi'].update(text='USER VALIDATED', button_color=('white', 'green'))
-                UserGuiRegistered(window, titlovi, days_left)
-            else:
-                window['USETITLOVI'].update(disabled=False)
-            window.refresh()
+                    print('User logged in')
+                    titloviLogin_window['USERLOGGEDIN'].update(visible=True)
+                    titloviLogin_window['TitloviUSERID'].update(value=titlovi.user_id)
+                    titloviLogin_window['TitloviTOKEN'].update(value=titlovi.user_token)
+                    titloviLogin_window['TitloviEXPIRY'].update(value=titlovi.token_expiry_date)
+                    titloviLogin_window['LOGINUSER'].update(visible=False)
+                    window['USETITLOVI'].update(disabled=False)
+
+        #if event == 'LoginUserTitlovi':
+        #    user_name = values['titloviUSERNAME']
+        #    password = values['titloviPASS']
+        #    if token == None:
+        #        titlovi.username = user_name
+        #        titlovi.password = password
+        #        login = titlovi.handle_login()
+        #        if login != None:
+        #            titlovi.set_user_login_details(login)
+        #            new_user = {'UserToken': titlovi.user_token,
+        #                        'ExpiryDate': titlovi.token_expiry_date,
+        #                        'UserID': titlovi.user_id}
+        #            add_to_user_settings(new_user)
+        #            expired_token, days_left = titlovi.check_for_expiry_date()
+        #        else:
+        #            sg.popup_ok('Invalid username / password !\nPlease check your login details.', title='Wrong username/password', font='Any 16')
+        #            continue
+        #        window['LoginUserTitlovi'].update(text='USER VALIDATED', button_color=('white', 'green'))
+        #        UserGuiRegistered(window, titlovi, days_left)
+        #    else:
+        #        window['USETITLOVI'].update(disabled=False)
+        #    window.refresh()
 
         if event == 'BROWSE':
             if values['RememberLastFolder']:

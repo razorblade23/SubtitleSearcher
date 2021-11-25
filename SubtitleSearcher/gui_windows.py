@@ -38,17 +38,22 @@ def TitloviLoginWindow():
                         You will get a token that lasts for 7 days (1 week).
                 After that you need to re-activate by entering your username and password again.    
                 ''', justification='center', font='Any 12')],
-        [sg.Column(layout=[
+        [sg.Column(pad=((0,20), (0,0)), layout=[
             [sg.Image(source='SubtitleSearcher/static/images/titlovi_logo.png')]
         ]),
-        sg.Column(pad=(100,0), layout=[
-            [sg.Text()]
-        ]),
-        sg.Column(pad=((100,0),(0,0)), layout=[
+        sg.pin(sg.Column(key='USERLOGGEDIN', visible=False, layout=[
+            [sg.Text('User ID', text_color='green')],
+            [sg.Text(key='TitloviUSERID', text_color='white')],
+            [sg.Text('User token', text_color='green')],
+            [sg.Text(key='TitloviTOKEN', text_color='white')],
+            [sg.Text('Expiry date', text_color='green')],
+            [sg.Text(key='TitloviEXPIRY', text_color='white')]
+        ])),
+        sg.Column(pad=((100,0),(0,0)), key='LOGINUSER', layout=[
             [sg.Text('Username:')],
-            [sg.Input(key='TitloviUSERNAME')],
+            [sg.Input(key='TitloviUSERNAME', size=(16,0))],
             [sg.Text('Password:')],
-            [sg.Input(key='TitloviPASSWORD', password_char='*')],
+            [sg.Input(key='TitloviPASSWORD', password_char='*', size=(16,0))],
             [sg.Button('Submit', key='TitloviSUBMIT')]
         ])]
     ]
