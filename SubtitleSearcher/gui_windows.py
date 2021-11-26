@@ -47,7 +47,7 @@ def TitloviLoginWindow():
             [sg.Text(key='TitloviUSERID', text_color='white')],
             [sg.Text('User token', text_color='green')],
             [sg.Text(key='TitloviTOKEN', text_color='white')],
-            [sg.Text('Expiry date', text_color='green')],
+            [sg.Text('Token is active for this number of days', text_color='green')],
             [sg.Text(key='TitloviEXPIRY', text_color='white')]
         ])),
         sg.Column(pad=((100,0),(0,0)), key='LOGINUSER', layout=[
@@ -65,17 +65,16 @@ def AboutWindow():
         [sg.Image(source='SubtitleSearcher/static/images/logo.png')],
         [sg.Text('We were just two guys with an idea.', font='Any 13')],
         [sg.Text('Well one had idea, other had a year\nof programming experience in Python', font='Any 13')],
-        [sg.Text('We are now proudly in beta testing stage', font='Any 16')],
-        [sg.Text('We are licenced under MIT licence', font='Any 12')],
+        [sg.Text('We are now proudly in beta testing stage', font='Any 16', text_color='white')],
+        [sg.Text('We are licenced under MIT licence', font='Any 12', text_color='white')],
         [sg.Text('')],
         [sg.Text('We want to thank to our sources.', font='Any 14')],
         [sg.Text('For now there are 2 sources to work with', font='Any 12')],
+        [sg.Text('We are powered by (for now):', font='Any 14', text_color='green')],
         [sg.Column(pad=(20,50), layout=[
-            [sg.Text('Proudly powered by OpenSubtitles.org', font='Any 14')],
             [sg.Image(source='SubtitleSearcher/static/images/OpenSubtitles_logo.png')]
         ]),
         sg.Column(pad=(20,50), layout=[
-            [sg.Text('Proudly powered by Titlovi.com', font='Any 14')],
             [sg.Image(source='SubtitleSearcher/static/images/titlovi_logo.png')]
         ])]
     ]
@@ -126,19 +125,6 @@ def main_window():
                 sg.Radio('Serbian', key='LangSRB', group_id=1), 
                 sg.Radio('Bosnian', key='LangBOS', group_id=1), 
                 sg.Radio('Slovenian', key='LangSLO', group_id=1)]
-            ])],
-            [sg.Tab(title='Titlovi.com', key='TitloviTab', disabled=True, layout=[
-                [sg.Column(key='UNREGISTEREDINFO', layout=[
-                    [sg.Text('You must enter your username and password to use Titlovi.com', font='Any 16', key='ROW1')],
-                    [sg.Text('After validation, each user gets a token that lasts 7 days', font='Any 14', key='ROW2')],
-                    [sg.Text('Each 7 days you must re-login to continue to use Titlovi.com', font='Any 13', key='ROW3')],
-                    [sg.Text('This are their rules, so we must comply !', key='ROW4')],
-                    [sg.Text('Username:')],
-                    [sg.InputText(key='titloviUSERNAME')],
-                    [sg.Text('Password:')],
-                    [sg.InputText(key='titloviPASS', password_char='*')],
-                    [sg.Button('Validate login', key='LoginUserTitlovi')]
-                ])],
             ])]
         ])],
         [sg.ProgressBar(100, 'h', key='PROGRESSBAR', bar_color=('green', 'black')), sg.Text('Working, please wait', key='WORKINGSTRING', visible=False)],

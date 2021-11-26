@@ -84,22 +84,21 @@ def run():
     window = sg.Window(title='Subbydoo', layout=main_layout, element_justification='center', icon=icon, finalize=True)
 
     titlovi = TitloviCom()
-    USER_SETTINGS = getUserSettings()
-    try:
-        loadTitloviUserSettings(titlovi, USER_SETTINGS)
-    except KeyError:
-        token = None
-    else:
-        token = titlovi.user_token
-
-    if token != None:
-        expired_token, days_left = titlovi.check_for_expiry_date()
-        UserGuiRegistered(window, titlovi, days_left)
-    else:
-        print('No token detected')
 
     while True:
         event, values = window.read(timeout=300)
+        USER_SETTINGS = getUserSettings()
+        try:
+            loadTitloviUserSettings(titlovi, USER_SETTINGS)
+        except KeyError:
+            token = None
+        else:
+            token = titlovi.user_token
+
+        if token != None:
+            expired_token, days_left = titlovi.check_for_expiry_date()
+        else:
+            pass
         #print(f'Currently active threads: {threading.active_count()}\n')
         if event == sg.WIN_CLOSED:
             break
@@ -137,24 +136,27 @@ def run():
         if event == 'Titlovi.com':
             TITLOVIWINDOW = True
             titloviLogin_layout = gui_windows.TitloviLoginWindow()
-            titloviLogin_window = sg.Window(title='Titlovi.com', layout=titloviLogin_layout, element_justification='center')
-            
+            titloviLogin_window = sg.Window(title='Titlovi.com', layout=titloviLogin_layout, element_justification='center', finalize=True)
+            try:
+                TokExp, DYSleft = titlovi.check_for_expiry_date()
+            except TypeError:
+                pass
+        
         if TITLOVIWINDOW:
+            if token != None:
+                titloviLogin_window['USERLOGGEDIN'].update(visible=True)
+                titloviLogin_window['TitloviUSERID'].update(value=titlovi.user_id)
+                titloviLogin_window['TitloviTOKEN'].update(value=titlovi.user_token)
+                titloviLogin_window['TitloviEXPIRY'].update(value=DYSleft)
+                titloviLogin_window['LOGINUSER'].update(visible=False)
+                window['USETITLOVI'].update(disabled=False)
+                titloviLogin_window.refresh()
             titloviLogin_event, titloviLogin_values = titloviLogin_window.read()
             #print(titloviLogin_event)
             if titloviLogin_event == sg.WIN_CLOSED:
                 TITLOVIWINDOW = False
                 titloviLogin_window.close()
                 continue
-
-            if token != None:
-                titloviLogin_window['USERLOGGEDIN'].update(visible=True)
-                titloviLogin_window['TitloviUSERID'].update(value=titlovi.user_id)
-                titloviLogin_window['TitloviTOKEN'].update(value=titlovi.user_token)
-                titloviLogin_window['TitloviEXPIRY'].update(value=titlovi.token_expiry_date)
-                titloviLogin_window['LOGINUSER'].update(visible=False)
-                window['USETITLOVI'].update(disabled=False)
-                titloviLogin_window.refresh()
 
             if titloviLogin_event == 'TitloviSUBMIT':
                 userName = titloviLogin_values['TitloviUSERNAME']
@@ -172,13 +174,11 @@ def run():
                 else:
                     sg.popup_ok('Invalid username / password !\nPlease check your login details.', title='Wrong username/password', font='Any 16')
                     continue
-                print('User logged in')
-                titloviLogin_window['USERLOGGEDIN'].update(visible=True)
-                titloviLogin_window['TitloviUSERID'].update(value=titlovi.user_id)
-                titloviLogin_window['TitloviTOKEN'].update(value=titlovi.user_token)
-                titloviLogin_window['TitloviEXPIRY'].update(value=titlovi.token_expiry_date)
-                titloviLogin_window['LOGINUSER'].update(visible=False)
+                TITLOVIWINDOW = False
+                titloviLogin_window.close()
                 window['USETITLOVI'].update(disabled=False)
+                sg.popup_quick_message('Log in success!', font='Any 20', text_color='white')
+                continue
         
         if event == 'About':
             about_layout = gui_windows.AboutWindow()
@@ -440,10 +440,3 @@ def run():
             
     window.close() # Closes main window
     return
-
-def UserGuiRegistered(window, titlovi, days_left):
-    window['USETITLOVI'].update(disabled=False)
-    window['ROW1'].update(value=f'User ID: {titlovi.user_id}', text_color='green')
-    window['ROW2'].update(value=f'Token: {titlovi.user_token}', text_color='green')
-    window['ROW3'].update(value=f'Token need refresh in {days_left} days', text_color='green')
-    window['ROW4'].update(value='')
