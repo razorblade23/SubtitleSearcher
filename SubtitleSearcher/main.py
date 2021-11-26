@@ -97,6 +97,7 @@ def run():
 
         if token != None:
             expired_token, days_left = titlovi.check_for_expiry_date()
+            window['USETITLOVI'].update(disabled=False)
         else:
             pass
         #print(f'Currently active threads: {threading.active_count()}\n')
