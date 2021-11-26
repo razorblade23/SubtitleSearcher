@@ -9,6 +9,7 @@ from tkinter.constants import E, FALSE
 
 from PySimpleGUI.PySimpleGUI import user_settings
 from SubtitleSearcher.data.titlovi_com import TitloviCom
+from SubtitleSearcher.data.db_models import session, OpenSubtitlesUsersDB, TitloviUsersDB
 from SubtitleSearcher.data import handle_zip, starting_settings
 from SubtitleSearcher import gui_control, gui_windows, threads
 import platform
@@ -34,11 +35,17 @@ JSON_USER_SETTINGS_PATH = 'SubtitleSearcher/data/user_settings/user_settings.jso
 SINGLE_FILE_MODE = False
 MULTI_FILE_MODE = False
 WINDOWSUBS = False
+OPENSUBSWINDOW = False
+TITLOVIWINDOW = False
+ABOUTWINDOW = False
 language_selected = []
 
 main_layout = gui_windows.main_window()
 
 gui_control.intro_dialog()
+
+def load_from_database():
+    pass
 
 def getUserSettings():
     with open(JSON_USER_SETTINGS_PATH, 'r') as json_obj:
@@ -73,29 +80,29 @@ def loadTitloviUserSettings(titlovi_object, json_settings):
 
 # Start infinite loop for your GUI windows and reading from them
 def run():
-    global WINDOWSUBS, language_selected, SINGLE_FILE_MODE, MULTI_FILE_MODE
+    global WINDOWSUBS, language_selected, SINGLE_FILE_MODE, MULTI_FILE_MODE, OPENSUBSWINDOW, TITLOVIWINDOW, ABOUTWINDOW
     window = sg.Window(title='Subbydoo', layout=main_layout, element_justification='center', icon=icon, finalize=True)
 
     titlovi = TitloviCom()
-    USER_SETTINGS = getUserSettings()
-    try:
-        loadTitloviUserSettings(titlovi, USER_SETTINGS)
-    except KeyError:
-        token = None
-    else:
-        token = titlovi.user_token
-
-    if token != None:
-        expired_token, days_left = titlovi.check_for_expiry_date()
-        UserGuiRegistered(window, titlovi, days_left)
-    else:
-        print('No token detected')
 
     while True:
         event, values = window.read(timeout=300)
-        #print(f'Currently active threads: {threading.active_count()}\n')
+        USER_SETTINGS = getUserSettings()
         if event == sg.WIN_CLOSED:
             break
+        try:
+            loadTitloviUserSettings(titlovi, USER_SETTINGS)
+        except KeyError:
+            token = None
+        else:
+            token = titlovi.user_token
+
+        if token != None:
+            expired_token, days_left = titlovi.check_for_expiry_date()
+            window['USETITLOVI'].update(disabled=False)
+        else:
+            pass
+        #print(f'Currently active threads: {threading.active_count()}\n')
         if token != None:
             expired_token, days_left = titlovi.check_for_expiry_date()
             gui_control.StatusBarMainUpdate(window, f'SubbyDoo is ready.\nTitlovi.com logged in -->User ID: {titlovi.user_id} -->Token expired: {expired_token}, days left: {days_left}')
@@ -110,12 +117,53 @@ def run():
             else:
                 window.keep_on_top_set()
 
-        if event == 'LoginUserTitlovi':
-            user_name = values['titloviUSERNAME']
-            password = values['titloviPASS']
-            if token == None:
-                titlovi.username = user_name
-                titlovi.password = password
+        if event == 'OpenSubtitles':
+            OPENSUBSWINDOW = True
+            openSubtitles_layout = gui_windows.openSubtitlesWindow()
+            openSubtitles_window = sg.Window(title='OpenSubtitles.org', layout=openSubtitles_layout, element_justification='center')
+            
+        if OPENSUBSWINDOW:
+            openSubtitles_event, openSubtitles_values = openSubtitles_window.read()
+
+            if openSubtitles_event == sg.WIN_CLOSED:
+                OPENSUBSWINDOW = False
+                openSubtitles_window.close()
+                continue
+
+            if openSubtitles_event == 'OpenSubtitlesSUBMIT':
+                userName = openSubtitles_values['OpenSubtitlesUSERNAME']
+                passWord = openSubtitles_values['OpenSubtitlesPASSWORD']
+        
+        if event == 'Titlovi.com':
+            TITLOVIWINDOW = True
+            titloviLogin_layout = gui_windows.TitloviLoginWindow()
+            titloviLogin_window = sg.Window(title='Titlovi.com', layout=titloviLogin_layout, element_justification='center', finalize=True)
+            try:
+                TokExp, DYSleft = titlovi.check_for_expiry_date()
+            except TypeError:
+                pass
+        
+        if TITLOVIWINDOW:
+            if token != None:
+                titloviLogin_window['USERLOGGEDIN'].update(visible=True)
+                titloviLogin_window['TitloviUSERID'].update(value=titlovi.user_id)
+                titloviLogin_window['TitloviTOKEN'].update(value=titlovi.user_token)
+                titloviLogin_window['TitloviEXPIRY'].update(value=DYSleft)
+                titloviLogin_window['LOGINUSER'].update(visible=False)
+                window['USETITLOVI'].update(disabled=False)
+                titloviLogin_window.refresh()
+            titloviLogin_event, titloviLogin_values = titloviLogin_window.read()
+            #print(titloviLogin_event)
+            if titloviLogin_event == sg.WIN_CLOSED:
+                TITLOVIWINDOW = False
+                titloviLogin_window.close()
+                continue
+
+            if titloviLogin_event == 'TitloviSUBMIT':
+                userName = titloviLogin_values['TitloviUSERNAME']
+                passWord = titloviLogin_values['TitloviPASSWORD']
+                titlovi.username = userName
+                titlovi.password = passWord
                 login = titlovi.handle_login()
                 if login != None:
                     titlovi.set_user_login_details(login)
@@ -127,11 +175,24 @@ def run():
                 else:
                     sg.popup_ok('Invalid username / password !\nPlease check your login details.', title='Wrong username/password', font='Any 16')
                     continue
-                window['LoginUserTitlovi'].update(text='USER VALIDATED', button_color=('white', 'green'))
-                UserGuiRegistered(window, titlovi, days_left)
-            else:
+                TITLOVIWINDOW = False
+                titloviLogin_window.close()
                 window['USETITLOVI'].update(disabled=False)
-            window.refresh()
+                sg.popup_quick_message('Log in success!', font='Any 20', text_color='white')
+                continue
+        
+        if event == 'About':
+            about_layout = gui_windows.AboutWindow()
+            about_window = sg.Window(title='About', layout=about_layout, element_justification='center')
+            ABOUTWINDOW = True
+        
+        if ABOUTWINDOW:
+            about_event, about_values = about_window.read()
+
+            if about_event == sg.WIN_CLOSED:
+                ABOUTWINDOW = False
+                about_window.close()
+                continue
 
         if event == 'BROWSE':
             if values['RememberLastFolder']:
@@ -205,21 +266,22 @@ def run():
                         subs_names.append(f'{sub.title} S{str(sub.season)}E{str(sub.episode)}')
                     else:
                         subs_names.append(f'{sub.title} {sub.release}')
-            window_download_subs['SUBSTABLE'].update(values=subs_names)
+            #window_download_subs['SUBSTABLE'].update(values=subs_names)
 
             if movie.kind == 'tv series' or movie.kind == 'episode':
                 window_download_subs['TVSERIESINFO'].update(visible=False)
                 window_download_subs['SEASON'].update(value=movie.season)
                 window_download_subs['EPISODE'].update(value=movie.episode)
 
-            event_subs, values_subs = window_download_subs.read()
+            event_subs, values_subs = window_download_subs.read(timeout=200)
             window_download_subs['STATUSBAR'].update(value='Language selected: {}'.format(language_selected[0]))
-            
+
             if event_subs == sg.WIN_CLOSED:
                 WINDOWSUBS = False
                 window_download_subs.close()
                 continue
-
+            
+            window_download_subs['SUBSTABLE'].update(values=subs_names)
             if event_subs == 'SUBSTABLE':
                 with suppress(IndexError):
                     for sub_name in subs_names:
@@ -271,7 +333,10 @@ def run():
                     file_handler = handle_zip.OpenSubtitlesHandler()
                     file_handler.download_zip(sub_selected_zip_down_open)
                     file_handler.extract_zip()
-                    file_handler.move_files(file_path[0], sub_selected_filename)
+                    if values_subs['AppendLangCode'] == True:
+                        file_handler.move_files(file_path[0], sub_selected_filename, append_lang_code=lang)
+                    else:
+                        file_handler.move_files(file_path[0], sub_selected_filename)
                     #zip_handler = handle_zip.OpenSubtitlesHandler(sub_selected_zip_down_open)
                     #zipThread = threading.Thread(target=threads.ZipDownloaderThreaded, args=[zip_handler])
                     #zipThread.start()
@@ -279,7 +344,10 @@ def run():
                 elif sub_selected_engine == 'Titlovi':
                     file_handler = handle_zip.TitloviFileHandler()
                     file_handler.download(sub_selected_zip_down_titlovi)
-                    file_handler.move_file(file_path[0])
+                    if values_subs['AppendLangCode'] == True:
+                        file_handler.move_file(file_path[0], append_lang_code=lang)
+                    else:
+                        file_handler.move_file(file_path[0])
                 TIME_END = time.perf_counter()
                 time_took = round(TIME_END-TIME_START, 2)
                 print(f'\n*** Took {time_took} to download subtitles ***\n')
@@ -357,10 +425,3 @@ def run():
             
     window.close() # Closes main window
     return
-
-def UserGuiRegistered(window, titlovi, days_left):
-    window['USETITLOVI'].update(disabled=False)
-    window['ROW1'].update(value=f'User ID: {titlovi.user_id}', text_color='green')
-    window['ROW2'].update(value=f'Token: {titlovi.user_token}', text_color='green')
-    window['ROW3'].update(value=f'Token need refresh in {days_left} days', text_color='green')
-    window['ROW4'].update(value='')

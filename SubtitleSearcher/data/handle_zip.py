@@ -100,13 +100,13 @@ class TitloviFileHandler(SubFileHandler):
     def download(self, url):
         self.download_zip(url)
     
-    def move_file(self, dst_folder):
+    def move_file(self, dst_folder, append_lang_code=None):
         src_path = os.path.join(self.download_folder, self.zip_name)
         org_string = dst_folder
         size = len(org_string)
         mod_string = org_string[:size - 4]
-        #if append_lang_code != None:
-        #    mod_string = f'{mod_string}-{append_lang_code}'
+        if append_lang_code != None:
+            mod_string = f'{mod_string}-{append_lang_code}'
         final_path = os.path.join(dst_folder, f'{mod_string}.zip')
         shutil.move(src_path, final_path)
 

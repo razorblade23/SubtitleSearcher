@@ -3,8 +3,86 @@ from psgtray import SystemTray
 
 sg.theme('DarkBrown4')
 
+main_menu = [['File', ['Select a file']],
+            ['Log in to services', ['OpenSubtitles', 'Titlovi.com']],
+            ['More info', ['About']]]
+
+def openSubtitlesWindow():
+    layout = [
+        [sg.Text('''
+        Search and download subtitles for movies and TV-Series from OpenSubtitles.org. 
+        Search in 75 languages, 4.000.000+ subtitles, daily updates.''', font='Any 14', pad=(200,0))],
+        [sg.Column(layout=[
+            [sg.Image(source='SubtitleSearcher/static/images/OpenSubtitles_logo.png')]
+        ]),
+        sg.Column(pad=(100,0), layout=[
+            [sg.Text()]
+        ]),
+        sg.Column(pad=((100,0),(0,0)), layout=[
+            [sg.Text('Username:')],
+            [sg.Input(key='OpenSubtitlesUSERNAME')],
+            [sg.Text('Password:')],
+            [sg.Input(key='OpenSubtitlesPASSWORD', password_char='*')],
+            [sg.Button('Submit', key='OpenSubtitlesSUBMIT')]
+        ])],
+        
+        [sg.Text('''You can use OpenSubtitles.org engine for free to find and download subtitles.
+            Log in is needed for upload and rating of subtitles.''', pad=(200,0), font='Any 12')]
+    ]
+    return layout
+
+def TitloviLoginWindow():
+    layout = [
+        [sg.Text('Najveća baza titlova za filmove, TV serije i dokumentarce.', font='Any 14', justification='center')],
+        [sg.Text('''
+                You must log in to Titlovi.com to use their engine for search and download.
+                        You will get a token that lasts for 7 days (1 week).
+                After that you need to re-activate by entering your username and password again.    
+                ''', justification='center', font='Any 12')],
+        [sg.Column(pad=((0,20), (0,0)), layout=[
+            [sg.Image(source='SubtitleSearcher/static/images/titlovi_logo.png')]
+        ]),
+        sg.pin(sg.Column(key='USERLOGGEDIN', visible=False, layout=[
+            [sg.Text('User ID', text_color='green')],
+            [sg.Text(key='TitloviUSERID', text_color='white')],
+            [sg.Text('User token', text_color='green')],
+            [sg.Text(key='TitloviTOKEN', text_color='white')],
+            [sg.Text('Token is active for this number of days', text_color='green')],
+            [sg.Text(key='TitloviEXPIRY', text_color='white')]
+        ])),
+        sg.Column(pad=((100,0),(0,0)), key='LOGINUSER', layout=[
+            [sg.Text('Username:')],
+            [sg.Input(key='TitloviUSERNAME', size=(16,0))],
+            [sg.Text('Password:')],
+            [sg.Input(key='TitloviPASSWORD', password_char='*', size=(16,0))],
+            [sg.Button('Submit', key='TitloviSUBMIT')]
+        ])]
+    ]
+    return layout
+
+def AboutWindow():
+    layout = [
+        [sg.Image(source='SubtitleSearcher/static/images/logo.png')],
+        [sg.Text('We were just two guys with an idea.', font='Any 13')],
+        [sg.Text('Well one had idea, other had a year\nof programming experience in Python', font='Any 13')],
+        [sg.Text('We are now proudly in beta testing stage', font='Any 16', text_color='white')],
+        [sg.Text('We are licenced under MIT licence', font='Any 12', text_color='white')],
+        [sg.Text('')],
+        [sg.Text('We want to thank to our sources.', font='Any 14')],
+        [sg.Text('For now there are 2 sources to work with', font='Any 12')],
+        [sg.Text('We are powered by (for now):', font='Any 14', text_color='green')],
+        [sg.Column(pad=(20,50), layout=[
+            [sg.Image(source='SubtitleSearcher/static/images/OpenSubtitles_logo.png')]
+        ]),
+        sg.Column(pad=(20,50), layout=[
+            [sg.Image(source='SubtitleSearcher/static/images/titlovi_logo.png')]
+        ])]
+    ]
+    return layout
+
 def main_window():
     layout = [
+        [sg.Menu(main_menu)],
         [sg.Image(source='SubtitleSearcher/static/images/logo.png')],
         [sg.Text('Project aiming to make finding and downloading subtitles a breeze!', font='Any 16')],
         [sg.TabGroup(enable_events=True, key='MainTabGroup', layout=[
@@ -47,19 +125,6 @@ def main_window():
                 sg.Radio('Serbian', key='LangSRB', group_id=1), 
                 sg.Radio('Bosnian', key='LangBOS', group_id=1), 
                 sg.Radio('Slovenian', key='LangSLO', group_id=1)]
-            ])],
-            [sg.Tab(title='Titlovi.com', key='TitloviTab', layout=[
-                [sg.Column(key='UNREGISTEREDINFO', layout=[
-                    [sg.Text('You must enter your username and password to use Titlovi.com', font='Any 16', key='ROW1')],
-                    [sg.Text('After validation, each user gets a token that lasts 7 days', font='Any 14', key='ROW2')],
-                    [sg.Text('Each 7 days you must re-login to continue to use Titlovi.com', font='Any 13', key='ROW3')],
-                    [sg.Text('This are their rules, so we must comply !', key='ROW4')],
-                    [sg.Text('Username:')],
-                    [sg.InputText(key='titloviUSERNAME')],
-                    [sg.Text('Password:')],
-                    [sg.InputText(key='titloviPASS', password_char='*')],
-                    [sg.Button('Validate login', key='LoginUserTitlovi')]
-                ])],
             ])]
         ])],
         [sg.ProgressBar(100, 'h', key='PROGRESSBAR', bar_color=('green', 'black')), sg.Text('Working, please wait', key='WORKINGSTRING', visible=False)],
@@ -99,10 +164,10 @@ def subs_window():
         [sg.Text('Filename:')],
         [sg.T(key='VIDEOFILENAME', text_color='white')]]),
         sg.Frame(title='Options', layout=[
-            [sg.Checkbox('Match subtitle filename with movie filename?', default=True)], [sg.Checkbox('Append language code to end of subtitle file?')]
+            [sg.Checkbox('Match subtitle filename with movie filename?', default=True)], [sg.Checkbox('Append language code to end of subtitle file?', key='AppendLangCode')]
         ])],
         [sg.Frame(title='Select subtitle', layout=[
-            [sg.Listbox(values=[''], key='SUBSTABLE', size=(80,20), select_mode='LISTBOX_SELECT_MODE_SINGLE', enable_events=True)]
+            [sg.Listbox(values=[''], key='SUBSTABLE', size=(80,20), select_mode='LISTBOX_SELECT_MODE_SINGLE', enable_events=True, horizontal_scroll = True)]
         ]),
         sg.Frame(title='Selected subtitle metadata', layout=[
             [sg.Column(layout=[
