@@ -88,6 +88,8 @@ def run():
     while True:
         event, values = window.read(timeout=300)
         USER_SETTINGS = getUserSettings()
+        if event == sg.WIN_CLOSED:
+            break
         try:
             loadTitloviUserSettings(titlovi, USER_SETTINGS)
         except KeyError:
@@ -101,8 +103,6 @@ def run():
         else:
             pass
         #print(f'Currently active threads: {threading.active_count()}\n')
-        if event == sg.WIN_CLOSED:
-            break
         if token != None:
             expired_token, days_left = titlovi.check_for_expiry_date()
             gui_control.StatusBarMainUpdate(window, f'SubbyDoo is ready.\nTitlovi.com logged in -->User ID: {titlovi.user_id} -->Token expired: {expired_token}, days left: {days_left}')
@@ -266,21 +266,22 @@ def run():
                         subs_names.append(f'{sub.title} S{str(sub.season)}E{str(sub.episode)}')
                     else:
                         subs_names.append(f'{sub.title} {sub.release}')
-            window_download_subs['SUBSTABLE'].update(values=subs_names)
+            #window_download_subs['SUBSTABLE'].update(values=subs_names)
 
             if movie.kind == 'tv series' or movie.kind == 'episode':
                 window_download_subs['TVSERIESINFO'].update(visible=False)
                 window_download_subs['SEASON'].update(value=movie.season)
                 window_download_subs['EPISODE'].update(value=movie.episode)
 
-            event_subs, values_subs = window_download_subs.read()
+            event_subs, values_subs = window_download_subs.read(timeout=200)
             window_download_subs['STATUSBAR'].update(value='Language selected: {}'.format(language_selected[0]))
-            
+
             if event_subs == sg.WIN_CLOSED:
                 WINDOWSUBS = False
                 window_download_subs.close()
                 continue
-
+            
+            window_download_subs['SUBSTABLE'].update(values=subs_names)
             if event_subs == 'SUBSTABLE':
                 with suppress(IndexError):
                     for sub_name in subs_names:
@@ -344,9 +345,9 @@ def run():
                     file_handler = handle_zip.TitloviFileHandler()
                     file_handler.download(sub_selected_zip_down_titlovi)
                     if values_subs['AppendLangCode'] == True:
-                        file_handler.move_files(file_path[0], append_lang_code=lang)
+                        file_handler.move_file(file_path[0], append_lang_code=lang)
                     else:
-                        file_handler.move_files(file_path[0])
+                        file_handler.move_file(file_path[0])
                 TIME_END = time.perf_counter()
                 time_took = round(TIME_END-TIME_START, 2)
                 print(f'\n*** Took {time_took} to download subtitles ***\n')
