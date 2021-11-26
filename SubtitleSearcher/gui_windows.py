@@ -4,7 +4,8 @@ from psgtray import SystemTray
 sg.theme('DarkBrown4')
 
 main_menu = [['File', ['Select a file']],
-            ['Log in to services', ['OpenSubtitles', 'Titlovi.com']]]
+            ['Log in to services', ['OpenSubtitles', 'Titlovi.com']],
+            ['More info', ['About']]]
 
 def openSubtitlesWindow():
     layout = [
@@ -55,6 +56,27 @@ def TitloviLoginWindow():
             [sg.Text('Password:')],
             [sg.Input(key='TitloviPASSWORD', password_char='*', size=(16,0))],
             [sg.Button('Submit', key='TitloviSUBMIT')]
+        ])]
+    ]
+    return layout
+
+def AboutWindow():
+    layout = [
+        [sg.Image(source='SubtitleSearcher/static/images/logo.png')],
+        [sg.Text('We were just two guys with an idea.', font='Any 13')],
+        [sg.Text('Well one had idea, other had a year\nof programming experience in Python', font='Any 13')],
+        [sg.Text('We are now proudly in beta testing stage', font='Any 16')],
+        [sg.Text('We are licenced under MIT licence', font='Any 12')],
+        [sg.Text('')],
+        [sg.Text('We want to thank to our sources.', font='Any 14')],
+        [sg.Text('For now there are 2 sources to work with', font='Any 12')],
+        [sg.Column(pad=(20,50), layout=[
+            [sg.Text('Proudly powered by OpenSubtitles.org', font='Any 14')],
+            [sg.Image(source='SubtitleSearcher/static/images/OpenSubtitles_logo.png')]
+        ]),
+        sg.Column(pad=(20,50), layout=[
+            [sg.Text('Proudly powered by Titlovi.com', font='Any 14')],
+            [sg.Image(source='SubtitleSearcher/static/images/titlovi_logo.png')]
         ])]
     ]
     return layout

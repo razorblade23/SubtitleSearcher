@@ -37,6 +37,7 @@ MULTI_FILE_MODE = False
 WINDOWSUBS = False
 OPENSUBSWINDOW = False
 TITLOVIWINDOW = False
+ABOUTWINDOW = False
 language_selected = []
 
 main_layout = gui_windows.main_window()
@@ -79,7 +80,7 @@ def loadTitloviUserSettings(titlovi_object, json_settings):
 
 # Start infinite loop for your GUI windows and reading from them
 def run():
-    global WINDOWSUBS, language_selected, SINGLE_FILE_MODE, MULTI_FILE_MODE, OPENSUBSWINDOW, TITLOVIWINDOW
+    global WINDOWSUBS, language_selected, SINGLE_FILE_MODE, MULTI_FILE_MODE, OPENSUBSWINDOW, TITLOVIWINDOW, ABOUTWINDOW
     window = sg.Window(title='Subbydoo', layout=main_layout, element_justification='center', icon=icon, finalize=True)
 
     titlovi = TitloviCom()
@@ -178,6 +179,19 @@ def run():
                 titloviLogin_window['TitloviEXPIRY'].update(value=titlovi.token_expiry_date)
                 titloviLogin_window['LOGINUSER'].update(visible=False)
                 window['USETITLOVI'].update(disabled=False)
+        
+        if event == 'About':
+            about_layout = gui_windows.AboutWindow()
+            about_window = sg.Window(title='About', layout=about_layout, element_justification='center')
+            ABOUTWINDOW = True
+        
+        if ABOUTWINDOW:
+            about_event, about_values = about_window.read()
+
+            if about_event == sg.WIN_CLOSED:
+                ABOUTWINDOW = False
+                about_window.close()
+                continue
 
         #if event == 'LoginUserTitlovi':
         #    user_name = values['titloviUSERNAME']
