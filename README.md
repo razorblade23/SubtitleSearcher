@@ -27,6 +27,11 @@ Enter in cloned folder and type
 
 This will install all the modules needed for this to work
 
+
+## Changelog v0.0.3 - Building towards v.1.0.0-beta
+- Added Titlovi.com search (requires login to their site - works thru the app)
+- Download from Titlovi.com but no zip extraction due to specifics of this engine
+
 ## Changelog v0.0.2
 - Subtitle search with single or multiple files work (multiple files only with QuickMode on)
 - Adedd QuickMode - no user input, automatically download first subtitle
@@ -34,12 +39,6 @@ This will install all the modules needed for this to work
 - TV Shows support added with multiple files quick download
 - Added floating notifications - status and successfully downloaded
 - list of trusted uploaders added
-- 
-
-ToDo list:
-- implementing Titlovi.com as source
-- searching more than one language at once
-- and many more
 
 ![Animation2](https://user-images.githubusercontent.com/22005396/141836730-b7a05fa5-9a39-4ba6-a68c-03d3ea91660a.gif)
 
