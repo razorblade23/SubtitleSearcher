@@ -193,29 +193,6 @@ def run():
                 about_window.close()
                 continue
 
-        #if event == 'LoginUserTitlovi':
-        #    user_name = values['titloviUSERNAME']
-        #    password = values['titloviPASS']
-        #    if token == None:
-        #        titlovi.username = user_name
-        #        titlovi.password = password
-        #        login = titlovi.handle_login()
-        #        if login != None:
-        #            titlovi.set_user_login_details(login)
-        #            new_user = {'UserToken': titlovi.user_token,
-        #                        'ExpiryDate': titlovi.token_expiry_date,
-        #                        'UserID': titlovi.user_id}
-        #            add_to_user_settings(new_user)
-        #            expired_token, days_left = titlovi.check_for_expiry_date()
-        #        else:
-        #            sg.popup_ok('Invalid username / password !\nPlease check your login details.', title='Wrong username/password', font='Any 16')
-        #            continue
-        #        window['LoginUserTitlovi'].update(text='USER VALIDATED', button_color=('white', 'green'))
-        #        UserGuiRegistered(window, titlovi, days_left)
-        #    else:
-        #        window['USETITLOVI'].update(disabled=False)
-        #    window.refresh()
-
         if event == 'BROWSE':
             if values['RememberLastFolder']:
                 USER_SETTINGS = getUserSettings()
@@ -354,7 +331,10 @@ def run():
                     file_handler = handle_zip.OpenSubtitlesHandler()
                     file_handler.download_zip(sub_selected_zip_down_open)
                     file_handler.extract_zip()
-                    file_handler.move_files(file_path[0], sub_selected_filename)
+                    if values_subs['AppendLangCode'] == True:
+                        file_handler.move_files(file_path[0], sub_selected_filename, append_lang_code=lang)
+                    else:
+                        file_handler.move_files(file_path[0], sub_selected_filename)
                     #zip_handler = handle_zip.OpenSubtitlesHandler(sub_selected_zip_down_open)
                     #zipThread = threading.Thread(target=threads.ZipDownloaderThreaded, args=[zip_handler])
                     #zipThread.start()
@@ -362,7 +342,10 @@ def run():
                 elif sub_selected_engine == 'Titlovi':
                     file_handler = handle_zip.TitloviFileHandler()
                     file_handler.download(sub_selected_zip_down_titlovi)
-                    file_handler.move_file(file_path[0])
+                    if values_subs['AppendLangCode'] == True:
+                        file_handler.move_files(file_path[0], append_lang_code=lang)
+                    else:
+                        file_handler.move_files(file_path[0])
                 TIME_END = time.perf_counter()
                 time_took = round(TIME_END-TIME_START, 2)
                 print(f'\n*** Took {time_took} to download subtitles ***\n')

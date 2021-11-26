@@ -164,7 +164,7 @@ def subs_window():
         [sg.Text('Filename:')],
         [sg.T(key='VIDEOFILENAME', text_color='white')]]),
         sg.Frame(title='Options', layout=[
-            [sg.Checkbox('Match subtitle filename with movie filename?', default=True)], [sg.Checkbox('Append language code to end of subtitle file?')]
+            [sg.Checkbox('Match subtitle filename with movie filename?', default=True)], [sg.Checkbox('Append language code to end of subtitle file?', key='AppendLangCode')]
         ])],
         [sg.Frame(title='Select subtitle', layout=[
             [sg.Listbox(values=[''], key='SUBSTABLE', size=(80,20), select_mode='LISTBOX_SELECT_MODE_SINGLE', enable_events=True, horizontal_scroll = True)]
