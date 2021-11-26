@@ -141,18 +141,25 @@ def run():
         if TITLOVIWINDOW:
             titloviLogin_event, titloviLogin_values = titloviLogin_window.read()
             #print(titloviLogin_event)
+            if titloviLogin_event == sg.WIN_CLOSED:
+                TITLOVIWINDOW = False
+                titloviLogin_window.close()
+                continue
+
+            if token != None:
+                titloviLogin_window['USERLOGGEDIN'].update(visible=True)
+                titloviLogin_window['TitloviUSERID'].update(value=titlovi.user_id)
+                titloviLogin_window['TitloviTOKEN'].update(value=titlovi.user_token)
+                titloviLogin_window['TitloviEXPIRY'].update(value=titlovi.token_expiry_date)
+                titloviLogin_window['LOGINUSER'].update(visible=False)
+                window['USETITLOVI'].update(disabled=False)
+                titloviLogin_window.refresh()
+
             if titloviLogin_event == 'TitloviSUBMIT':
                 userName = titloviLogin_values['TitloviUSERNAME']
                 passWord = titloviLogin_values['TitloviPASSWORD']
-                TITLOVI_OBJ = TitloviUsersDB(userName, passWord)
-                session.add(TITLOVI_OBJ)
-                print('Adding user to database')
-                session.commit()
-                session.close()
-                print('User added')
                 titlovi.username = userName
                 titlovi.password = passWord
-                print('Logging user in')
                 login = titlovi.handle_login()
                 if login != None:
                     titlovi.set_user_login_details(login)
@@ -160,13 +167,17 @@ def run():
                                 'ExpiryDate': titlovi.token_expiry_date,
                                 'UserID': titlovi.user_id}
                     add_to_user_settings(new_user)
-                    print('User logged in')
-                    titloviLogin_window['USERLOGGEDIN'].update(visible=True)
-                    titloviLogin_window['TitloviUSERID'].update(value=titlovi.user_id)
-                    titloviLogin_window['TitloviTOKEN'].update(value=titlovi.user_token)
-                    titloviLogin_window['TitloviEXPIRY'].update(value=titlovi.token_expiry_date)
-                    titloviLogin_window['LOGINUSER'].update(visible=False)
-                    window['USETITLOVI'].update(disabled=False)
+                    expired_token, days_left = titlovi.check_for_expiry_date()
+                else:
+                    sg.popup_ok('Invalid username / password !\nPlease check your login details.', title='Wrong username/password', font='Any 16')
+                    continue
+                print('User logged in')
+                titloviLogin_window['USERLOGGEDIN'].update(visible=True)
+                titloviLogin_window['TitloviUSERID'].update(value=titlovi.user_id)
+                titloviLogin_window['TitloviTOKEN'].update(value=titlovi.user_token)
+                titloviLogin_window['TitloviEXPIRY'].update(value=titlovi.token_expiry_date)
+                titloviLogin_window['LOGINUSER'].update(visible=False)
+                window['USETITLOVI'].update(disabled=False)
 
         #if event == 'LoginUserTitlovi':
         #    user_name = values['titloviUSERNAME']

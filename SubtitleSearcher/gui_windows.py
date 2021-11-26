@@ -105,7 +105,7 @@ def main_window():
                 sg.Radio('Bosnian', key='LangBOS', group_id=1), 
                 sg.Radio('Slovenian', key='LangSLO', group_id=1)]
             ])],
-            [sg.Tab(title='Titlovi.com', key='TitloviTab', layout=[
+            [sg.Tab(title='Titlovi.com', key='TitloviTab', disabled=True, layout=[
                 [sg.Column(key='UNREGISTEREDINFO', layout=[
                     [sg.Text('You must enter your username and password to use Titlovi.com', font='Any 16', key='ROW1')],
                     [sg.Text('After validation, each user gets a token that lasts 7 days', font='Any 14', key='ROW2')],
