@@ -147,15 +147,15 @@ def language_selector(values):
     language_selected = []
     try:
         if values['LangENG']:
-            language_selected.append('eng')
+            language_selected.append('en')
         elif values['LangCRO']:
-            language_selected.append('hrv')
+            language_selected.append('hr')
         elif values['LangSRB']:
-            language_selected.append('scc')
+            language_selected.append('sr')
         elif values['LangBOS']:
-            language_selected.append('bos')
+            language_selected.append('bs')
         elif values['LangSLO']:
-            language_selected.append('slv')
+            language_selected.append('sl')
     except TypeError:
         language_selected.append('eng')
     return language_selected

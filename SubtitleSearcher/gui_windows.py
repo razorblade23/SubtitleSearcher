@@ -15,19 +15,25 @@ def openSubtitlesWindow():
         [sg.Column(layout=[
             [sg.Image(source='SubtitleSearcher/static/images/OpenSubtitles_logo.png')]
         ]),
-        sg.Column(pad=(100,0), layout=[
-            [sg.Text()]
-        ]),
-        sg.Column(pad=((100,0),(0,0)), layout=[
+        sg.pin(sg.Column(pad=(100,0), visible=False, key='USERLOGGEDIN', layout=[
+            [sg.Text('User ID')],
+            [sg.Text(key='OpenSubtitlesUserID', font='Any 12', text_color='green')],
+            [sg.Text('User level')],
+            [sg.Text(key='OpenSubtitlesUserLevel', font='Any 12', text_color='green')],
+            [sg.Text('Allowed download per 24 hours')],
+            [sg.Text(key='OpenSubtitlesUserAllDownloads', font='Any 12', text_color='green')],
+            [sg.Text('VIP status?')],
+            [sg.Text(key='OpenSubtitlesUserVIP', font='Any 12', text_color='green')],
+            [sg.Button('Log out', key='OpenSubtitlesLOGOUT')]
+        ])),
+        sg.Column(pad=((100,0),(0,0)), key='LOGINUSER', layout=[
             [sg.Text('Username:')],
-            [sg.Input(key='OpenSubtitlesUSERNAME')],
+            [sg.Input(key='OpenSubtitlesUSERNAME', size=(16,0))],
             [sg.Text('Password:')],
-            [sg.Input(key='OpenSubtitlesPASSWORD', password_char='*')],
-            [sg.Button('Submit', key='OpenSubtitlesSUBMIT')]
-        ])],
-        
-        [sg.Text('''You can use OpenSubtitles.org engine for free to find and download subtitles.
-            Log in is needed for upload and rating of subtitles.''', pad=(200,0), font='Any 12')]
+            [sg.Input(key='OpenSubtitlesPASSWORD', password_char='*', size=(16,0))],
+            [sg.Checkbox('Remember me?', enable_events=True, tooltip='Plain JSON save, no security', key='RememberMe')],
+            [sg.Button('Log in', key='OpenSubtitlesSUBMIT')]
+        ])]
     ]
     return layout
 

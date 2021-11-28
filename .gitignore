@@ -8,3 +8,6 @@ build
 dist
 floating_window_demo.py
 main.db
+SubtitleSearcher/data/user_settings/User_settings.json
+SubtitleSearcher/data/user_settings/Titlovi_settings.json
+SubtitleSearcher/data/user_settings/OpenSubtitles_settings.json
