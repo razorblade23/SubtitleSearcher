@@ -31,6 +31,28 @@ def User_starting_settings():
     f = open(SETTINGS_USER_PATH, 'x')
     f.close()
 
+def OpenSubsAutologin():
+    f = open(SETTINGS_OSUBTITLES_PATH, 'r')
+    openSubs = OpenS.OpenSubtitlesAPI()
+    username = ''
+    password = ''
+    try:
+        settings = json.load(f)
+    except:
+        print('No valid settings found')
+    else:
+        print('Settings found')
+        username = settings['username']
+        password = settings['password']
+    finally:
+        f.close()
+        print('AutoLogin - logging user in')
+        if openSubs.user_login(username, password):
+            print('User logged in')
+        else:
+            print('User not logged in')
+    return openSubs
+
 def StartUp():
     os.makedirs('SubtitleSearcher/data/user_settings', exist_ok=True)
     if not os.path.isfile(SETTINGS_OSUBTITLES_PATH):
@@ -101,9 +123,11 @@ def loadTitloviUserSettings(titlovi_object, json_settings):
 def run():
     global WINDOWSUBS, language_selected, SINGLE_FILE_MODE, MULTI_FILE_MODE, OPENSUBSWINDOW, TITLOVIWINDOW, ABOUTWINDOW, openS_api
     window = sg.Window(title='Subbydoo', layout=main_layout, element_justification='center', icon=icon, finalize=True)
-
+    sg.popup_quick_message('Looking for settings ...\nPlease wait, it should only take a sec ...', 
+                            font='Any 18', 
+                            text_color='white')
     titlovi = TitloviCom()
-
+    openSubs = OpenSubsAutologin()
     while True:
         event, values = window.read(timeout=300)
         USER_SETTINGS = getUserSettings()
@@ -143,12 +167,12 @@ def run():
             
         if OPENSUBSWINDOW:
             try:
-                if openS_api.user_token != None:
+                if openSubs.user_token != None:
                         openSubtitles_window['LOGINUSER'].update(visible=False)
-                        openSubtitles_window['OpenSubtitlesUserID'].update(value=openS_api.user_id)
-                        openSubtitles_window['OpenSubtitlesUserLevel'].update(value=openS_api.user_level)
-                        openSubtitles_window['OpenSubtitlesUserAllDownloads'].update(value=openS_api.user_allowed_downloads)
-                        openSubtitles_window['OpenSubtitlesUserVIP'].update(value=openS_api.user_vip)
+                        openSubtitles_window['OpenSubtitlesUserID'].update(value=openSubs.user_id)
+                        openSubtitles_window['OpenSubtitlesUserLevel'].update(value=openSubs.user_level)
+                        openSubtitles_window['OpenSubtitlesUserAllDownloads'].update(value=openSubs.user_allowed_downloads)
+                        openSubtitles_window['OpenSubtitlesUserVIP'].update(value=openSubs.user_vip)
                         openSubtitles_window['USERLOGGEDIN'].update(visible=True)
             except AttributeError:
                 pass
@@ -169,7 +193,7 @@ def run():
                     f = open('SubtitleSearcher/data/user_settings/OpenSubtitles_settings.json', 'w')
                     json.dump(new_setting, f)
                     f.close()
-                if openS_api.user_login(userName, passWord):
+                if openSubs.user_login(userName, passWord):
                     openSubtitles_window['OpenSubtitlesSUBMIT'].update(text='Logged in', button_color=('green', 'white'))
                     window.refresh()
                 else:
@@ -373,8 +397,8 @@ def run():
                 TIME_START = time.perf_counter()
                 if sub_selected_engine == 'OpenSubtitles':
                     download = OpenS.DownloadSubtitle()
-                    print(download.download_info(sub_selected_file_id))
-                    #print(download.download_link)
+                    download.download_info(sub_selected_file_id, user_token=openS_api.user_token)
+                    print(download.response_text.message)
                 elif sub_selected_engine == 'Titlovi':
                     file_handler = handle_zip.TitloviFileHandler()
                     file_handler.download(sub_selected_zip_down_titlovi)

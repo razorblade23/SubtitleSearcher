@@ -101,10 +101,11 @@ class DownloadSubtitle:
         headers = {
             'Content-Type': "application/json",
             'Api-Key': API_KEY,
-            'authorization': user_token,
+            'Authorization': f'Bearer {user_token}',
             }
+        print(f'Downloading sub with payload\n{payload}\nHeaders:\n{headers}')
         response = requests.post(url, data=payload, headers=headers)
-        return response.text
+        self.response_text = response
         #json_data = json.loads(response.text)
         #self.download_link = json_data['link']
         #self.download_fname = json_data['fname']
