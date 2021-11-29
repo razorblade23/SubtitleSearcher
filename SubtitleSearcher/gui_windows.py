@@ -5,7 +5,7 @@ sg.theme('DarkBrown4')
 
 main_menu = [['File', ['Select a file']],
             ['Log in to services', ['OpenSubtitles', 'Titlovi.com']],
-            ['More info', ['About']]]
+            ['More info', ['Set API key', 'About']]]
 
 def openSubtitlesWindow():
     layout = [

@@ -72,15 +72,8 @@ if system == 'Linux':
 
 JSON_USER_SETTINGS_PATH = 'SubtitleSearcher/data/user_settings/user_settings.json'
 
-SINGLE_FILE_MODE = False
-MULTI_FILE_MODE = False
-WINDOWSUBS = False
-OPENSUBSWINDOW = False
-TITLOVIWINDOW = False
-ABOUTWINDOW = False
-language_selected = []
 
-openS_api = OpenS.OpenSubtitlesAPI()
+
 main_layout = gui_windows.main_window()
 
 gui_control.intro_dialog()
@@ -121,7 +114,14 @@ def loadTitloviUserSettings(titlovi_object, json_settings):
 
 # Start infinite loop for your GUI windows and reading from them
 def run():
-    global WINDOWSUBS, language_selected, SINGLE_FILE_MODE, MULTI_FILE_MODE, OPENSUBSWINDOW, TITLOVIWINDOW, ABOUTWINDOW, openS_api
+    SINGLE_FILE_MODE = False
+    MULTI_FILE_MODE = False
+    WINDOWSUBS = False
+    OPENSUBSWINDOW = False
+    TITLOVIWINDOW = False
+    ABOUTWINDOW = False
+    language_selected = []
+
     window = sg.Window(title='Subbydoo', layout=main_layout, element_justification='center', icon=icon, finalize=True)
     sg.popup_quick_message('Looking for settings ...\nPlease wait, it should only take a sec ...', 
                             font='Any 18', 
@@ -159,6 +159,9 @@ def run():
                 window.keep_on_top_clear()
             else:
                 window.keep_on_top_set()
+
+        if event == 'Set API key':
+            pass
 
         if event == 'OpenSubtitles':
             OPENSUBSWINDOW = True
