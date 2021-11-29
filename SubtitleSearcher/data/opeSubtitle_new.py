@@ -92,7 +92,7 @@ class SearchForSubs(OpenSubtitlesAPI):
         self.data = json_dict['data']
 
 class DownloadSubtitle:
-    def download_info(self, file_id):
+    def download_info(self, file_id, user_token=''):
         url = "https://api.opensubtitles.com/api/v1/download"
 
         payload = {
@@ -100,7 +100,8 @@ class DownloadSubtitle:
         }
         headers = {
             'Content-Type': "application/json",
-            'Api-Key': API_KEY
+            'Api-Key': API_KEY,
+            'authorization': user_token,
             }
         response = requests.post(url, data=payload, headers=headers)
         return response.text

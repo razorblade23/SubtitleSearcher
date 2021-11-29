@@ -20,21 +20,15 @@ SETTINGS_TITLOVI_PATH = 'SubtitleSearcher/data/user_settings/Titlovi_settings.js
 SETTINGS_USER_PATH = 'SubtitleSearcher/data/user_settings/User_settings.json'
 
 def OpenSubtitles_starting_settings():
-    f = open(SETTINGS_OSUBTITLES_PATH, 'w')
-    default_setting = {'username': 'username', 'password': 'password'}
-    json.dump(default_setting, f)
+    f = open(SETTINGS_OSUBTITLES_PATH, 'x')
     f.close()
 
 def Titlovi_starting_settings():
-    f = open(SETTINGS_TITLOVI_PATH, 'w')
-    default_setting = {'username': 'username', 'password': 'password'}
-    json.dump(default_setting, f)
+    f = open(SETTINGS_TITLOVI_PATH, 'x')
     f.close()
 
 def User_starting_settings():
-    f = open(SETTINGS_USER_PATH, 'w')
-    default_setting = {'last_user_path': '~/Downloads'}
-    json.dump(default_setting, f)
+    f = open(SETTINGS_USER_PATH, 'x')
     f.close()
 
 def StartUp():
