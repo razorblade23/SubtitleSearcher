@@ -32,6 +32,7 @@ def User_starting_settings():
     f.close()
 
 def StartUp():
+    os.makedirs('SubtitleSearcher/data/user_settings', exist_ok=True)
     if not os.path.isfile(SETTINGS_OSUBTITLES_PATH):
         OpenSubtitles_starting_settings()
     if not os.path.isfile(SETTINGS_TITLOVI_PATH):
