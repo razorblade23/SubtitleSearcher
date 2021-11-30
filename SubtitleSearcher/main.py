@@ -247,6 +247,9 @@ def run():
                     sg.popup_quick_message('There was a problem logging you in! Please try again.', font='Any 20', text_color='white')
                     openSubtitles_window['OpenSubtitlesSUBMIT'].update(text='Log in', button_color=('white', 'red'))
                     window.refresh()
+            
+            if openSubtitles_event == 'OpenSubtitlesLOGOUT':
+                openSubs.user_logout()
 
         
         if event == 'Titlovi.com':
