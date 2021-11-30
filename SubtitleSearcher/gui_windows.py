@@ -28,7 +28,7 @@ def openSubtitlesWindow():
         ])),
         sg.Column(pad=((100,0),(0,0)), key='LOGINUSER', layout=[
             [sg.Text('Username:')],
-            [sg.Input(key='OpenSubtitlesUSERNAME', size=(16,0))],
+            [sg.Input(key='OpenSubtitlesUSERNAME', size=(16,0), focus=True)],
             [sg.Text('Password:')],
             [sg.Input(key='OpenSubtitlesPASSWORD', password_char='*', size=(16,0))],
             [sg.Checkbox('Remember me?', enable_events=True, tooltip='Plain JSON save, no security', key='RememberMe')],
@@ -58,7 +58,7 @@ def TitloviLoginWindow():
         ])),
         sg.Column(pad=((100,0),(0,0)), key='LOGINUSER', layout=[
             [sg.Text('Username:')],
-            [sg.Input(key='TitloviUSERNAME', size=(16,0))],
+            [sg.Input(key='TitloviUSERNAME', size=(16,0), focus=True)],
             [sg.Text('Password:')],
             [sg.Input(key='TitloviPASSWORD', password_char='*', size=(16,0))],
             [sg.Checkbox('Remember me?', enable_events=True, tooltip='Plain JSON save, no security', key='RememberMe')],

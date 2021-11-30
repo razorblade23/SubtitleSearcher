@@ -1,7 +1,6 @@
 # Importing modules
 from contextlib import suppress
 import json
-from logging import disable
 import os
 import threading
 import PySimpleGUI as sg
@@ -19,12 +18,19 @@ SETTINGS_OSUBTITLES_PATH = 'SubtitleSearcher/data/user_settings/OpenSubtitles_se
 SETTINGS_TITLOVI_PATH = 'SubtitleSearcher/data/user_settings/Titlovi_settings.json'
 SETTINGS_USER_PATH = 'SubtitleSearcher/data/user_settings/User_settings.json'
 
+openSubs = OpenS.OpenSubtitlesAPI()
+titlovi = TitloviCom()
+
 def OpenSubtitles_starting_settings():
-    f = open(SETTINGS_OSUBTITLES_PATH, 'x')
+    f = open(SETTINGS_OSUBTITLES_PATH, 'w')
+    start_setting = {'username': '', 'password': ''}
+    json.dump(start_setting, f)
     f.close()
 
 def Titlovi_starting_settings():
-    f = open(SETTINGS_TITLOVI_PATH, 'x')
+    f = open(SETTINGS_TITLOVI_PATH, 'w')
+    start_setting = {'username': '', 'password': ''}
+    json.dump(start_setting, f)
     f.close()
 
 def User_starting_settings():
@@ -35,7 +41,7 @@ def User_starting_settings():
 
 def AutoLogin_Titlovi():
     f = open(SETTINGS_TITLOVI_PATH, 'r')
-    titlovi = TitloviCom()
+    
     username = ''
     password = ''
     try:
@@ -55,11 +61,10 @@ def AutoLogin_Titlovi():
         print('AutoLogin - User logged in - Titlovi')
     else:
         print('AutoLogin - User not logged in - Titlovi')
-    return titlovi
 
 def AutoLogin_OpenSubtitles():
     f = open(SETTINGS_OSUBTITLES_PATH, 'r')
-    openSubs = OpenS.OpenSubtitlesAPI()
+    
     username = ''
     password = ''
     try:
@@ -76,9 +81,7 @@ def AutoLogin_OpenSubtitles():
     if openSubs.user_login(username, password):
         print('AutoLogin - User logged in - OpenSubtitles')
     else:
-        print('AutoLogin - User not logged in, trying again - OpenSubtitles')
-        openSubs.user_login(username, password)
-    return openSubs
+        print('AutoLogin - User not logged in - OpenSubtitles')
 
 def StartUp():
     os.makedirs('SubtitleSearcher/data/user_settings', exist_ok=True)
@@ -90,6 +93,11 @@ def StartUp():
         User_starting_settings()
 
 StartUp()
+
+AutoLoginOpenS_thread = threading.Thread(target=AutoLogin_OpenSubtitles)
+AutoLoginOpenS_thread.start()
+AutoLoginTitlovi_thread = threading.Thread(target=AutoLogin_Titlovi)
+AutoLoginTitlovi_thread.start()
 
 system = platform.system()
 if system == 'Windows':
@@ -106,7 +114,7 @@ def get_from_titlovi_settings():
         try:
             USERSETTINGS = json.load(json_obj)
         except json.decoder.JSONDecodeError:
-            USERSETTINGSdict = {'last_user_path': '~/Downloads'}
+            USERSETTINGSdict = {'username': '', 'password': ''}
             with open(SETTINGS_TITLOVI_PATH, 'w') as file:
                 USERSETTINGS = json.dump(USERSETTINGSdict, file)
     return USERSETTINGS
@@ -126,7 +134,7 @@ def add_to_titlovi_settings(dictionary):
         with open(SETTINGS_TITLOVI_PATH, 'r') as json_obj:
             USERSETTINGS = json.load(json_obj)
     except json.decoder.JSONDecodeError:
-        USERSETTINGS = {'last_user_path': '~/Downloads'}
+        USERSETTINGS = {'username': '', 'password': ''}
     USERSETTINGS.update(dictionary)
     with open(SETTINGS_TITLOVI_PATH, 'w') as file:
         json.dump(USERSETTINGS ,file)
@@ -152,6 +160,10 @@ def loadTitloviUserSettings(titlovi_object, json_settings):
         titlovi_object.user_id = None
 
 
+
+
+#AutoLogin_OpenSubtitles()
+#AutoLogin_Titlovi()
 # Start infinite loop for your GUI windows and reading from them
 def run():
     SINGLE_FILE_MODE = False
@@ -163,38 +175,30 @@ def run():
     language_selected = []
 
     window = sg.Window(title='Subbydoo', layout=main_layout, element_justification='center', icon=icon, finalize=True)
-    sg.popup_quick_message('Logging user in ...', 
-                            font='Any 18', 
-                            text_color='white')
-    #titlovi = TitloviCom()
-    openSubs = AutoLogin_OpenSubtitles()
-    titlovi = AutoLogin_Titlovi()
-    #titlovi.set_user_login_details()
-    if openSubs.user_token != None:
-        gui_control.StatusBarUpdate(window, 'STATUSBAR2', text_color='green')
-    else:
-        gui_control.StatusBarUpdate(window, 'STATUSBAR2', text_color='red')
-    if titlovi.user_token != None:
-        gui_control.StatusBarUpdate(window, 'STATUSBAR3', text_color='green')
-    else:
-        gui_control.StatusBarUpdate(window, 'STATUSBAR3', text_color='red')
-    while True:
-        event, values = window.read(timeout=300)
-        USER_SETTINGS = get_from_titlovi_settings()
-        if event == sg.WIN_CLOSED:
-            break
 
-        if titlovi.user_token != None:
-            expired_token, days_left = titlovi.check_for_expiry_date()
-            window['USETITLOVI'].update(disabled=False)
+    AutoLoginOpenS_thread.join()
+    AutoLoginTitlovi_thread.join()
+
+    try:
+        if openSubs.user_token != None:
+            gui_control.StatusBarUpdate(window, 'STATUSBAR2', text_color='green')
         else:
-            pass
-        #print(f'Currently active threads: {threading.active_count()}\n')
+            gui_control.StatusBarUpdate(window, 'STATUSBAR2', text_color='red')
         if titlovi.user_token != None:
-            expired_token, days_left = titlovi.check_for_expiry_date()
             gui_control.StatusBarUpdate(window, 'STATUSBAR3', text_color='green')
         else:
             gui_control.StatusBarUpdate(window, 'STATUSBAR3', text_color='red')
+    except:
+        pass
+    AutoLoginOpenS_thread.join()
+    AutoLoginTitlovi_thread.join()
+    while True:
+        event, values = window.read(timeout=300)
+        TITLOVI_SETTINGS = get_from_titlovi_settings()
+
+        if event == sg.WIN_CLOSED:
+            break
+
         language_selected = gui_control.language_selector(values)
         lang = language_selected[0]
         gui_control.StatusBarUpdate(window, 'STATUSBAR4', value='v.0.0.3-alpha')
@@ -242,6 +246,7 @@ def run():
                     f.close()
                 if openSubs.user_login(userName, passWord):
                     openSubtitles_window['OpenSubtitlesSUBMIT'].update(text='Logged in', button_color=('green', 'white'))
+                    gui_control.StatusBarUpdate(window, 'STATUSBAR2', text_color='green')
                     window.refresh()
                 else:
                     sg.popup_quick_message('There was a problem logging you in! Please try again.', font='Any 20', text_color='white')

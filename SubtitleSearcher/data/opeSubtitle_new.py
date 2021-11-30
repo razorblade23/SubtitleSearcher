@@ -6,7 +6,14 @@ API_KEY = 'GJ0Qg0rcBepMq9vUB0NYnbLD9xHAVjpM'
 BASE_URL = 'https://api.opensubtitles.com/api/v1/'
 
 class OpenSubtitlesAPI:
-
+    def __init__(self):
+        self.user_allowed_translations = None
+        self.user_allowed_downloads = None
+        self.user_level = None
+        self.user_id = None
+        self.user_ext_installed = None
+        self.user_vip = None
+        self.user_token = None
     def user_login(self, username, password):
         url = f'{BASE_URL}login'
         payload = {
@@ -32,7 +39,7 @@ class OpenSubtitlesAPI:
             respond = True
             return respond
         else:
-            print(f'There was a problem logging user in, error code: {response.status_code}\n{response}')
+            print(f'There was a problem logging user in, error code: {response.status_code}')
             return response
     
     def user_logout(self):

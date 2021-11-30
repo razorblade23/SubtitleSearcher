@@ -49,7 +49,7 @@ class TitloviCom:
                 self.user_id = resp_json['UserId']
                 return resp_json
             elif response.status_code == requests.codes.unauthorized:
-                print(response.status_code)
+                print(f'There was a problem logging user in, error code: {response.status_code}')
                 return None
             else:
                 print(response.status_code)
