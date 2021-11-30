@@ -14,12 +14,12 @@ class TitloviCom:
         self.password = None
         self.search_param = {}
         self.LANGUAGE_MAPPING = {
-                                'eng': 'English',
-                                'hrv': 'Hrvatski',
-                                'scc': 'Srpski',
-                                'slv': 'Slovenski',
+                                'en': 'English',
+                                'hr': 'Hrvatski',
+                                'sr': 'Srpski',
+                                'sl': 'Slovenski',
                                 'Macedonian': 'Makedonski',
-                                'bos': 'Bosanski'
+                                'bs': 'Bosanski'
         }
         self.user_token = None
         self.token_expiry_date = None
@@ -44,10 +44,15 @@ class TitloviCom:
             response = requests.post('{0}/gettoken'.format(api_url), params=login_params)
             if response.status_code == requests.codes.ok:
                 resp_json = response.json()
+                self.user_token = resp_json['Token']
+                self.token_expiry_date = resp_json['ExpirationDate']
+                self.user_id = resp_json['UserId']
                 return resp_json
             elif response.status_code == requests.codes.unauthorized:
+                print(response.status_code)
                 return None
             else:
+                print(response.status_code)
                 return None
         except Exception as e:
             return None

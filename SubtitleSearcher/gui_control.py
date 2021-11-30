@@ -138,10 +138,9 @@ class OpenSubtitlesSearchAlg:
 
 
 
-def StatusBarMainUpdate(window, update):
-    return window['STATUSBAR'].update(update)
-def StatusBarVersionUpdate(window, update):
-    return window['STATUSBAR1'].update(update)
+def StatusBarUpdate(window, element_name, value=None, text_color=None, font=None, visible=None):
+    return window[element_name].update(value=value, text_color=text_color, font=font, visible=visible)
+
 
 def language_selector(values):
     language_selected = []
@@ -157,7 +156,7 @@ def language_selector(values):
         elif values['LangSLO']:
             language_selected.append('sl')
     except TypeError:
-        language_selected.append('eng')
+        language_selected.append('en')
     return language_selected
 
 def movie_setup(file_size, file_hash, file_path):

@@ -61,7 +61,8 @@ def TitloviLoginWindow():
             [sg.Input(key='TitloviUSERNAME', size=(16,0))],
             [sg.Text('Password:')],
             [sg.Input(key='TitloviPASSWORD', password_char='*', size=(16,0))],
-            [sg.Button('Submit', key='TitloviSUBMIT')]
+            [sg.Checkbox('Remember me?', enable_events=True, tooltip='Plain JSON save, no security', key='RememberMe')],
+            [sg.Button('Log in', key='TitloviSUBMIT')]
         ])]
     ]
     return layout
@@ -134,7 +135,10 @@ def main_window():
             ])]
         ])],
         [sg.ProgressBar(100, 'h', key='PROGRESSBAR', bar_color=('green', 'black')), sg.Text('Working, please wait', key='WORKINGSTRING', visible=False)],
-        [sg.StatusBar('', key='STATUSBAR', size=(90,2)), sg.StatusBar('', key='STATUSBAR1', size=(10,1), justification='right')]
+        [sg.StatusBar('SubbyDoo - alpha', key='STATUSBAR1', size=(30,1), justification='center'), 
+        sg.StatusBar('OpenSubtitles.org', key='STATUSBAR2', size=(30,1), justification='center'),
+        sg.StatusBar('Titlovi.com', key='STATUSBAR3', size=(30,1), justification='center'),
+        sg.StatusBar('', key='STATUSBAR4', size=(30,1), justification='right'),]
     ]
     return layout
 

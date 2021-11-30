@@ -1,5 +1,6 @@
 import requests
 import json
+from contextlib import suppress
 
 API_KEY = 'GJ0Qg0rcBepMq9vUB0NYnbLD9xHAVjpM'
 BASE_URL = 'https://api.opensubtitles.com/api/v1/'
@@ -32,15 +33,15 @@ class OpenSubtitlesAPI:
             return respond
         else:
             print(f'There was a problem logging user in, error code: {response.status_code}\n{response}')
-            respond = False
-            return respond
+            return response
     
     def user_logout(self):
         url = f'{BASE_URL}logout'
 
         headers = {
             'Content-Type': "application/json",
-            'Api-Key': API_KEY
+            'Api-Key': API_KEY,
+            'Authorization':  self.user_token
         }
         response = requests.delete(url, headers=headers)
         if response.ok:
@@ -152,9 +153,9 @@ class OpenSubtitlesSubtitleResults:
         self.tmdb_id = data['attributes']['feature_details']['tmdb_id']
         self.feature_type = data['attributes']['feature_details']['feature_type']
         self.url = data['attributes']['url']
-        self.related_label = data['attributes']['related_links']['label']
-        self.related_url = data['attributes']['related_links']['url']
-        self.related_img_url = data['attributes']['related_links']['img_url']
+        with suppress(TypeError): self.related_label = data['attributes']['related_links']['label']
+        with suppress(TypeError): self.related_url = data['attributes']['related_links']['url']
+        with suppress(TypeError): self.related_img_url = data['attributes']['related_links']['img_url']
         self.file_id = data['attributes']['files'][0]['file_id']
         self.cd_number = data['attributes']['files'][0]['cd_number']
         self.file_name = data['attributes']['files'][0]['file_name']
