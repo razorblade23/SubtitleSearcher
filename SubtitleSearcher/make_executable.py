@@ -6,7 +6,7 @@ import PyInstaller.__main__
 
 PyInstaller.__main__.run([
     'run.py',
-    '-D',
+    '-wD',
     '--add-data=images:images',
     '--clean',
     '-n SubbyDoo',
