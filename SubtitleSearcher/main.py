@@ -95,9 +95,9 @@ def StartUp():
 
 StartUp()
 
-AutoLoginOpenS_thread = threading.Thread(target=AutoLogin_OpenSubtitles)
+AutoLoginOpenS_thread = threading.Thread(target=AutoLogin_OpenSubtitles, daemon=True)
 AutoLoginOpenS_thread.start()
-AutoLoginTitlovi_thread = threading.Thread(target=AutoLogin_Titlovi)
+AutoLoginTitlovi_thread = threading.Thread(target=AutoLogin_Titlovi, daemon=True)
 AutoLoginTitlovi_thread.start()
 
 system = platform.system()
@@ -191,8 +191,6 @@ def run():
             gui_control.StatusBarUpdate(window, 'STATUSBAR3', text_color='red')
     except:
         pass
-    AutoLoginOpenS_thread.join()
-    AutoLoginTitlovi_thread.join()
     while True:
         event, values = window.read(timeout=300)
         TITLOVI_SETTINGS = get_from_titlovi_settings()
