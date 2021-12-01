@@ -90,7 +90,6 @@ class SearchForSubs(OpenSubtitlesAPI):
             'Content-Type': "application/json",
             'Api-Key': API_KEY
         }
-        print(f'sending request using this payload\n{payload}')
         response = requests.get(url, params=payload, headers=headers, allow_redirects=True)
         json_dict = json.loads(response.text)
         json_dict_pretty = json.dumps(json_dict, indent=2)
@@ -100,27 +99,33 @@ class SearchForSubs(OpenSubtitlesAPI):
         self.data = json_dict['data']
 
 class DownloadSubtitle:
-    def download_info(self, file_id, user_token=''):
+    def get_info(self, file_id, user_token=''):
         url = "https://api.opensubtitles.com/api/v1/download"
 
         payload = {
-            'file_id': file_id
+            'file_id': file_id,
+            'sub_format': 'srt'
         }
         headers = {
             'Content-Type': "application/json",
             'Api-Key': API_KEY,
-            'Authorization': f'Bearer {user_token}',
+            'Authorization': user_token
             }
-        print(f'Downloading sub with payload\n{payload}\nHeaders:\n{headers}')
-        response = requests.post(url, data=payload, headers=headers)
+        response = requests.post(url, json=payload, headers=headers)
         self.response_text = response
-        #json_data = json.loads(response.text)
-        #self.download_link = json_data['link']
-        #self.download_fname = json_data['fname']
-        #self.download_requests = json_data['requests']
-        #self.download_allowed = json_data['allowed']
-        #self.download_remaining = json_data['remaining']
-        #self.download_message = json_data['message']
+        with suppress(KeyError): json_data = json.loads(response.text)
+        with suppress(KeyError): self.download_link = json_data['link']
+        with suppress(KeyError): self.download_fname = json_data['fname']
+        with suppress(KeyError): self.download_requests = json_data['requests']
+        with suppress(KeyError): self.download_allowed = json_data['allowed']
+        with suppress(KeyError): self.download_remaining = json_data['remaining']
+        with suppress(KeyError): self.download_message = json_data['message']
+    
+    def download_subtitle(self):
+        r = requests.get(self.download_link, allow_redirects=True, timeout=20)
+        open('downloaded/subtitle.srt', 'wb').write(r.content)
+
+
 
 
 

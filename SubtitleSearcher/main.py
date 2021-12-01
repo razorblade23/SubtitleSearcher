@@ -2,6 +2,7 @@
 from contextlib import suppress
 import json
 import os
+import shutil
 import threading
 import PySimpleGUI as sg
 from tkinter.constants import E, FALSE
@@ -360,7 +361,6 @@ def run():
             for engine in engines:
                 if engine == 'OpenSubtitles':
                     open_search = OpenS.SearchForSubs()
-                    print(movie.kind)
                     #query = make_OpenSubs_query(movie.title, movie.encoder, movie.excess, movie.quality, movie.resolution)
                     if movie.kind == 'movie':
                         payload = open_search.set_payload(moviehash=movie.file_hash, query=movie.title, imdb_id=movie.imdb_id, languages=lang, year=movie.year)
@@ -462,8 +462,13 @@ def run():
                 TIME_START = time.perf_counter()
                 if sub_selected_engine == 'OpenSubtitles':
                     download = OpenS.DownloadSubtitle()
-                    download.download_info(sub_selected_file_id, user_token=openS_api.user_token)
-                    print(download.response_text.message)
+                    download.get_info(sub_selected_file_id, user_token=openSubs.user_token)
+                    download.download_subtitle()
+                    if values_subs['AppendLangCode'] == True:
+                        handle_zip.move_subtitle('downloaded/subtitle.srt', file_path[0], append_lang_code=lang)
+                    else:
+                        handle_zip.move_subtitle('downloaded/subtitle.srt', file_path[0])
+                    
                 elif sub_selected_engine == 'Titlovi':
                     file_handler = handle_zip.TitloviFileHandler()
                     file_handler.download(sub_selected_zip_down_titlovi)
