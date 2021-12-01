@@ -2,7 +2,7 @@ import requests
 import json
 from contextlib import suppress
 
-API_KEY = 'GJ0Qg0rcBepMq9vUB0NYnbLD9xHAVjpM'
+API_KEY = 'CIVqd03XEgIT4ERQX0AGlUjcaFCfRdyI'
 BASE_URL = 'https://api.opensubtitles.com/api/v1/'
 
 class OpenSubtitlesAPI:
