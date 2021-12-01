@@ -13,7 +13,7 @@ def openSubtitlesWindow():
         Search and download subtitles for movies and TV-Series from OpenSubtitles.org. 
         Search in 75 languages, 4.000.000+ subtitles, daily updates.''', font='Any 14', pad=(200,0))],
         [sg.Column(layout=[
-            [sg.Image(source='SubtitleSearcher/static/images/OpenSubtitles_logo.png')]
+            [sg.Image(source='images/OpenSubtitles_logo.png')]
         ]),
         sg.pin(sg.Column(pad=(100,0), visible=False, key='USERLOGGEDIN', layout=[
             [sg.Text('User ID')],
@@ -46,7 +46,7 @@ def TitloviLoginWindow():
                 After that you need to re-activate by entering your username and password again.    
                 ''', justification='center', font='Any 12')],
         [sg.Column(pad=((0,20), (0,0)), layout=[
-            [sg.Image(source='SubtitleSearcher/static/images/titlovi_logo.png')]
+            [sg.Image(source='images/titlovi_logo.png')]
         ]),
         sg.pin(sg.Column(key='USERLOGGEDIN', visible=False, layout=[
             [sg.Text('User ID', text_color='green')],
@@ -79,10 +79,10 @@ def AboutWindow():
         [sg.Text('For now there are 2 sources to work with', font='Any 12')],
         [sg.Text('We are powered by (for now):', font='Any 14', text_color='green')],
         [sg.Column(pad=(20,50), layout=[
-            [sg.Image(source='SubtitleSearcher/static/images/OpenSubtitles_logo.png')]
+            [sg.Image(source='images/OpenSubtitles_logo.png')]
         ]),
         sg.Column(pad=(20,50), layout=[
-            [sg.Image(source='SubtitleSearcher/static/images/titlovi_logo.png')]
+            [sg.Image(source='images/titlovi_logo.png')]
         ])]
     ]
     return layout
@@ -90,7 +90,7 @@ def AboutWindow():
 def main_window():
     layout = [
         [sg.Menu(main_menu)],
-        [sg.Image(source='SubtitleSearcher/static/images/logo.png')],
+        [sg.Image(source='images/logo.png')],
         [sg.Text('Project aiming to make finding and downloading subtitles a breeze!', font='Any 16')],
         [sg.TabGroup(enable_events=True, key='MainTabGroup', layout=[
             [sg.Tab(title='Main', key='MainTab', layout=[

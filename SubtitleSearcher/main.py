@@ -102,10 +102,9 @@ AutoLoginTitlovi_thread.start()
 
 system = platform.system()
 if system == 'Windows':
-    icon = 'SubtitleSearcher/static/images/image.ico'
+    icon = 'images/image.ico'
 if system == 'Linux':
-    icon = 'SubtitleSearcher/static/images/image.png'
-
+    icon = 'images/image.png'
 main_layout = gui_windows.main_window()
 
 #gui_control.intro_dialog()
@@ -187,6 +186,7 @@ def run():
             gui_control.StatusBarUpdate(window, 'STATUSBAR2', text_color='red')
         if titlovi.user_token != None:
             gui_control.StatusBarUpdate(window, 'STATUSBAR3', text_color='green')
+            window['USETITLOVI'].update(disabled=False)
         else:
             gui_control.StatusBarUpdate(window, 'STATUSBAR3', text_color='red')
     except:

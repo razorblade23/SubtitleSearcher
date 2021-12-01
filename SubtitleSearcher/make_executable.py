@@ -6,7 +6,10 @@ import PyInstaller.__main__
 
 PyInstaller.__main__.run([
     'run.py',
-    '--onedir',
-    '--windowed',
-    '--add-data=.:.'
+    '-D',
+    '--add-data=images:images',
+    '--clean',
+    '-n SubbyDoo',
+    '-y',
+    '-i images/image.ico'
 ])
