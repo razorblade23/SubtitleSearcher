@@ -4,6 +4,14 @@ import os
 from zipfile import ZipFile
 import shutil
 
+def move_subtitle(source_path, dst_path, append_lang_code=None):
+    org_string = dst_path
+    size = len(org_string)
+    mod_string = org_string[:size - 4]
+    if append_lang_code != None:
+        mod_string = f'{mod_string}-{append_lang_code}'
+    final_path = os.path.join(dst_path, f'{mod_string}.srt')
+    shutil.move(source_path, final_path)
 
 class SubFileHandler:
     '''

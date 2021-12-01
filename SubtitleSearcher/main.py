@@ -1,70 +1,152 @@
 # Importing modules
 from contextlib import suppress
 import json
-from logging import disable
 import os
+import shutil
 import threading
 import PySimpleGUI as sg
 from tkinter.constants import E, FALSE
-
 from PySimpleGUI.PySimpleGUI import user_settings
 from SubtitleSearcher.data.titlovi_com import TitloviCom
-from SubtitleSearcher.data.db_models import session, OpenSubtitlesUsersDB, TitloviUsersDB
+from SubtitleSearcher.data import opeSubtitle_new as OpenS
 from SubtitleSearcher.data import handle_zip, starting_settings
+from SubtitleSearcher.data import movies
 from SubtitleSearcher import gui_control, gui_windows, threads
 import platform
 import time
 
-if not os.path.isdir('SubtitleSearcher/data/user_settings'):
-    os.makedirs('SubtitleSearcher/data/user_settings')
+SETTINGS_OSUBTITLES_PATH = 'SubtitleSearcher/data/user_settings/OpenSubtitles_settings.json'
+SETTINGS_TITLOVI_PATH = 'SubtitleSearcher/data/user_settings/Titlovi_settings.json'
+SETTINGS_USER_PATH = 'SubtitleSearcher/data/user_settings/User_settings.json'
 
-if not os.path.isfile('SubtitleSearcher/data/user_settings/user_settings.json'):
-    settings_path = 'SubtitleSearcher/data/user_settings/user_settings.json'
-    with open(settings_path, 'w') as file:
-        last_folder_set = {'last_user_path': '~/Downloads'}
-        user_set = json.dump(last_folder_set, file)
+openSubs = OpenS.OpenSubtitlesAPI()
+titlovi = TitloviCom()
+
+def OpenSubtitles_starting_settings():
+    f = open(SETTINGS_OSUBTITLES_PATH, 'w')
+    start_setting = {'username': '', 'password': ''}
+    json.dump(start_setting, f)
+    f.close()
+
+def Titlovi_starting_settings():
+    f = open(SETTINGS_TITLOVI_PATH, 'w')
+    start_setting = {'username': '', 'password': ''}
+    json.dump(start_setting, f)
+    f.close()
+
+def User_starting_settings():
+    f = open(SETTINGS_USER_PATH, 'w')
+    start_setting = {'last_user_path': '~/Downloads'}
+    json.dump(start_setting, f)
+    f.close()
+
+def AutoLogin_Titlovi():
+    f = open(SETTINGS_TITLOVI_PATH, 'r')
+    
+    username = ''
+    password = ''
+    try:
+        settings = json.load(f)
+    except:
+        print('AutoLogin - No valid settings found - Titlovi')
+    else:
+        print('AutoLogin - Settings found - Titlovi')
+        username = settings['username']
+        password = settings['password']
+    finally:
+        f.close()
+    print('AutoLogin - logging user in - Titlovi')
+    titlovi.username = username
+    titlovi.password = password
+    if titlovi.handle_login():
+        print('AutoLogin - User logged in - Titlovi')
+    else:
+        print('AutoLogin - User not logged in - Titlovi')
+
+def AutoLogin_OpenSubtitles():
+    f = open(SETTINGS_OSUBTITLES_PATH, 'r')
+    
+    username = ''
+    password = ''
+    try:
+        settings = json.load(f)
+    except:
+        print('AutoLogin - No valid settings found - OpenSubtitles')
+    else:
+        print('AutoLogin - Settings found - OpenSubtitles')
+        username = settings['username']
+        password = settings['password']
+    finally:
+        f.close()
+    print('AutoLogin - logging user in - OpenSubtitles')
+    if openSubs.user_login(username, password):
+        print('AutoLogin - User logged in - OpenSubtitles')
+    else:
+        print('AutoLogin - User not logged in - OpenSubtitles')
+
+def StartUp():
+    os.makedirs('SubtitleSearcher/data/user_settings', exist_ok=True)
+    if not os.path.isfile(SETTINGS_OSUBTITLES_PATH):
+        OpenSubtitles_starting_settings()
+    if not os.path.isfile(SETTINGS_TITLOVI_PATH):
+        Titlovi_starting_settings()
+    if not os.path.isfile(SETTINGS_USER_PATH):
+        User_starting_settings()
+
+StartUp()
+
+AutoLoginOpenS_thread = threading.Thread(target=AutoLogin_OpenSubtitles)
+AutoLoginOpenS_thread.start()
+AutoLoginTitlovi_thread = threading.Thread(target=AutoLogin_Titlovi)
+AutoLoginTitlovi_thread.start()
 
 system = platform.system()
 if system == 'Windows':
-    icon = 'SubtitleSearcher/static/images/image.ico'
+    icon = 'images/image.ico'
 if system == 'Linux':
-    icon = 'SubtitleSearcher/static/images/image.png'
-
-JSON_USER_SETTINGS_PATH = 'SubtitleSearcher/data/user_settings/user_settings.json'
-
-SINGLE_FILE_MODE = False
-MULTI_FILE_MODE = False
-WINDOWSUBS = False
-OPENSUBSWINDOW = False
-TITLOVIWINDOW = False
-ABOUTWINDOW = False
-language_selected = []
-
+    icon = 'images/image.png'
 main_layout = gui_windows.main_window()
 
-gui_control.intro_dialog()
+#gui_control.intro_dialog()
 
-def load_from_database():
-    pass
+def get_from_titlovi_settings():
+    with open(SETTINGS_TITLOVI_PATH, 'r') as json_obj:
+        try:
+            USERSETTINGS = json.load(json_obj)
+        except json.decoder.JSONDecodeError:
+            USERSETTINGSdict = {'username': '', 'password': ''}
+            with open(SETTINGS_TITLOVI_PATH, 'w') as file:
+                USERSETTINGS = json.dump(USERSETTINGSdict, file)
+    return USERSETTINGS
 
-def getUserSettings():
-    with open(JSON_USER_SETTINGS_PATH, 'r') as json_obj:
+def get_from_user_settings():
+    with open(SETTINGS_USER_PATH, 'r') as json_obj:
         try:
             USERSETTINGS = json.load(json_obj)
         except json.decoder.JSONDecodeError:
             USERSETTINGSdict = {'last_user_path': '~/Downloads'}
-            with open(JSON_USER_SETTINGS_PATH, 'w') as file:
+            with open(SETTINGS_USER_PATH, 'w') as file:
                 USERSETTINGS = json.dump(USERSETTINGSdict, file)
     return USERSETTINGS
 
+def add_to_titlovi_settings(dictionary):
+    try:
+        with open(SETTINGS_TITLOVI_PATH, 'r') as json_obj:
+            USERSETTINGS = json.load(json_obj)
+    except json.decoder.JSONDecodeError:
+        USERSETTINGS = {'username': '', 'password': ''}
+    USERSETTINGS.update(dictionary)
+    with open(SETTINGS_TITLOVI_PATH, 'w') as file:
+        json.dump(USERSETTINGS ,file)
+
 def add_to_user_settings(dictionary):
     try:
-        with open(JSON_USER_SETTINGS_PATH, 'r') as json_obj:
+        with open(SETTINGS_USER_PATH, 'r') as json_obj:
             USERSETTINGS = json.load(json_obj)
     except json.decoder.JSONDecodeError:
         USERSETTINGS = {'last_user_path': '~/Downloads'}
     USERSETTINGS.update(dictionary)
-    with open(JSON_USER_SETTINGS_PATH, 'w') as file:
+    with open(SETTINGS_USER_PATH, 'w') as file:
         json.dump(USERSETTINGS ,file)
 
 def loadTitloviUserSettings(titlovi_object, json_settings):
@@ -78,51 +160,74 @@ def loadTitloviUserSettings(titlovi_object, json_settings):
         titlovi_object.user_id = None
 
 
+
+
+#AutoLogin_OpenSubtitles()
+#AutoLogin_Titlovi()
 # Start infinite loop for your GUI windows and reading from them
 def run():
-    global WINDOWSUBS, language_selected, SINGLE_FILE_MODE, MULTI_FILE_MODE, OPENSUBSWINDOW, TITLOVIWINDOW, ABOUTWINDOW
+    SINGLE_FILE_MODE = False
+    MULTI_FILE_MODE = False
+    WINDOWSUBS = False
+    OPENSUBSWINDOW = False
+    TITLOVIWINDOW = False
+    ABOUTWINDOW = False
+    language_selected = []
+
     window = sg.Window(title='Subbydoo', layout=main_layout, element_justification='center', icon=icon, finalize=True)
 
-    titlovi = TitloviCom()
+    AutoLoginOpenS_thread.join()
+    AutoLoginTitlovi_thread.join()
 
-    while True:
-        event, values = window.read(timeout=300)
-        USER_SETTINGS = getUserSettings()
-        if event == sg.WIN_CLOSED:
-            break
-        try:
-            loadTitloviUserSettings(titlovi, USER_SETTINGS)
-        except KeyError:
-            token = None
+    try:
+        if openSubs.user_token != None:
+            gui_control.StatusBarUpdate(window, 'STATUSBAR2', text_color='green')
         else:
-            token = titlovi.user_token
-
-        if token != None:
-            expired_token, days_left = titlovi.check_for_expiry_date()
+            gui_control.StatusBarUpdate(window, 'STATUSBAR2', text_color='red')
+        if titlovi.user_token != None:
+            gui_control.StatusBarUpdate(window, 'STATUSBAR3', text_color='green')
             window['USETITLOVI'].update(disabled=False)
         else:
-            pass
-        #print(f'Currently active threads: {threading.active_count()}\n')
-        if token != None:
-            expired_token, days_left = titlovi.check_for_expiry_date()
-            gui_control.StatusBarMainUpdate(window, f'SubbyDoo is ready.\nTitlovi.com logged in -->User ID: {titlovi.user_id} -->Token expired: {expired_token}, days left: {days_left}')
-        else:
-            gui_control.StatusBarMainUpdate(window, f'SubbyDoo is ready\nUser is not logged in')
+            gui_control.StatusBarUpdate(window, 'STATUSBAR3', text_color='red')
+    except:
+        pass
+    AutoLoginOpenS_thread.join()
+    AutoLoginTitlovi_thread.join()
+    while True:
+        event, values = window.read(timeout=300)
+        TITLOVI_SETTINGS = get_from_titlovi_settings()
+
+        if event == sg.WIN_CLOSED:
+            break
+
         language_selected = gui_control.language_selector(values)
         lang = language_selected[0]
-        gui_control.StatusBarVersionUpdate(window, 'v.0.0.3-alpha')
+        gui_control.StatusBarUpdate(window, 'STATUSBAR4', value='v.0.0.3-alpha')
         if event == 'Save':
             if values['KeepOnTop'] == False:
                 window.keep_on_top_clear()
             else:
                 window.keep_on_top_set()
 
+        if event == 'Set API key':
+            pass
+
         if event == 'OpenSubtitles':
             OPENSUBSWINDOW = True
             openSubtitles_layout = gui_windows.openSubtitlesWindow()
-            openSubtitles_window = sg.Window(title='OpenSubtitles.org', layout=openSubtitles_layout, element_justification='center')
+            openSubtitles_window = sg.Window(title='OpenSubtitles.org', layout=openSubtitles_layout, element_justification='center', finalize=True)
             
         if OPENSUBSWINDOW:
+            try:
+                if openSubs.user_token != None:
+                        openSubtitles_window['LOGINUSER'].update(visible=False)
+                        openSubtitles_window['OpenSubtitlesUserID'].update(value=openSubs.user_id)
+                        openSubtitles_window['OpenSubtitlesUserLevel'].update(value=openSubs.user_level)
+                        openSubtitles_window['OpenSubtitlesUserAllDownloads'].update(value=openSubs.user_allowed_downloads)
+                        openSubtitles_window['OpenSubtitlesUserVIP'].update(value=openSubs.user_vip)
+                        openSubtitles_window['USERLOGGEDIN'].update(visible=True)
+            except AttributeError:
+                pass
             openSubtitles_event, openSubtitles_values = openSubtitles_window.read()
 
             if openSubtitles_event == sg.WIN_CLOSED:
@@ -131,8 +236,27 @@ def run():
                 continue
 
             if openSubtitles_event == 'OpenSubtitlesSUBMIT':
+                openSubtitles_window['OpenSubtitlesSUBMIT'].update(text='Logging in', button_color=('black', 'yellow'))
+                window.refresh()
                 userName = openSubtitles_values['OpenSubtitlesUSERNAME']
                 passWord = openSubtitles_values['OpenSubtitlesPASSWORD']
+                if openSubtitles_values['RememberMe']:
+                    new_setting = {'username': userName, 'password': passWord}
+                    f = open(SETTINGS_OSUBTITLES_PATH, 'w')
+                    json.dump(new_setting, f)
+                    f.close()
+                if openSubs.user_login(userName, passWord):
+                    openSubtitles_window['OpenSubtitlesSUBMIT'].update(text='Logged in', button_color=('green', 'white'))
+                    gui_control.StatusBarUpdate(window, 'STATUSBAR2', text_color='green')
+                    window.refresh()
+                else:
+                    sg.popup_quick_message('There was a problem logging you in! Please try again.', font='Any 20', text_color='white')
+                    openSubtitles_window['OpenSubtitlesSUBMIT'].update(text='Log in', button_color=('white', 'red'))
+                    window.refresh()
+            
+            if openSubtitles_event == 'OpenSubtitlesLOGOUT':
+                openSubs.user_logout()
+
         
         if event == 'Titlovi.com':
             TITLOVIWINDOW = True
@@ -144,7 +268,7 @@ def run():
                 pass
         
         if TITLOVIWINDOW:
-            if token != None:
+            if titlovi.user_token != None:
                 titloviLogin_window['USERLOGGEDIN'].update(visible=True)
                 titloviLogin_window['TitloviUSERID'].update(value=titlovi.user_id)
                 titloviLogin_window['TitloviTOKEN'].update(value=titlovi.user_token)
@@ -152,8 +276,9 @@ def run():
                 titloviLogin_window['LOGINUSER'].update(visible=False)
                 window['USETITLOVI'].update(disabled=False)
                 titloviLogin_window.refresh()
+
             titloviLogin_event, titloviLogin_values = titloviLogin_window.read()
-            #print(titloviLogin_event)
+
             if titloviLogin_event == sg.WIN_CLOSED:
                 TITLOVIWINDOW = False
                 titloviLogin_window.close()
@@ -165,12 +290,17 @@ def run():
                 titlovi.username = userName
                 titlovi.password = passWord
                 login = titlovi.handle_login()
+                if titloviLogin_values['RememberMe']:
+                    new_setting = {'username': userName, 'password': passWord}
+                    f = open(SETTINGS_TITLOVI_PATH, 'w')
+                    json.dump(new_setting, f)
+                    f.close()
                 if login != None:
                     titlovi.set_user_login_details(login)
                     new_user = {'UserToken': titlovi.user_token,
                                 'ExpiryDate': titlovi.token_expiry_date,
                                 'UserID': titlovi.user_id}
-                    add_to_user_settings(new_user)
+                    add_to_titlovi_settings(new_user)
                     expired_token, days_left = titlovi.check_for_expiry_date()
                 else:
                     sg.popup_ok('Invalid username / password !\nPlease check your login details.', title='Wrong username/password', font='Any 16')
@@ -196,7 +326,7 @@ def run():
 
         if event == 'BROWSE':
             if values['RememberLastFolder']:
-                USER_SETTINGS = getUserSettings()
+                USER_SETTINGS = get_from_user_settings()
                 initial_f = USER_SETTINGS['last_user_path']
             else:
                 initial_f = '~/Downloads'
@@ -222,16 +352,26 @@ def run():
             else:
                 SINGLE_FILE_MODE = True
                 MULTI_FILE_MODE = False
+            path = file_path[0]
+            movie = gui_control.define_movie(path)
         
         if event == 'SEARCHFORSUBS' and SINGLE_FILE_MODE and values['QuickMode'] == False:
             engines = []
             engines = gui_control.select_engine(values)
-            path = file_path[0]
-            movie = gui_control.define_movie(path)
-            window['STATUSBAR'].update(f'Movie name: {movie.title} - IMDB ID: {movie.imdb_id}')
             for engine in engines:
                 if engine == 'OpenSubtitles':
-                    open_subs = gui_control.search_opensubs(lang, movie)
+                    open_search = OpenS.SearchForSubs()
+                    #query = make_OpenSubs_query(movie.title, movie.encoder, movie.excess, movie.quality, movie.resolution)
+                    if movie.kind == 'movie':
+                        payload = open_search.set_payload(moviehash=movie.file_hash, query=movie.title, imdb_id=movie.imdb_id, languages=lang, year=movie.year)
+                    elif movie.kind == 'tv series' or movie.kind == 'season':
+                        payload = open_search.set_payload(moviehash=movie.file_hash, query=movie.title, imdb_id=movie.imdb_id, languages=lang, episode_number=movie.episode, season_number=movie.season)
+                    open_search.search_subtitles(payload)
+                    results = open_search.data
+                    open_subs = []
+                    for nmb, result in enumerate(results):
+                        nmb = OpenS.OpenSubtitlesSubtitleResults(result)
+                        open_subs.append(nmb)
                 if engine == 'Titlovi.com':
                     try:
                         titlovi_subs = gui_control.search_titlovi(lang, movie, titlovi)
@@ -260,7 +400,7 @@ def run():
             subs_names = []
             for sub in subs_list:
                 if sub.engine == 'OpenSubtitles':
-                    subs_names.append(sub.MovieReleaseName)
+                    subs_names.append(sub.release)
                 if sub.engine == 'Titlovi':
                     if sub.season >= 0 or sub.episode >= 0:
                         subs_names.append(f'{sub.title} S{str(sub.season)}E{str(sub.episode)}')
@@ -288,30 +428,21 @@ def run():
                         if sub_name == values_subs['SUBSTABLE'][0]:
                             for sub in subs_list:
                                 sub_selected_engine = sub.engine
-                                if sub.engine == 'OpenSubtitles' and sub.MovieReleaseName == sub_name:
-                                    sub_selected_filename = sub.SubFileName
-                                    sub_selected_zip_down_open = sub.ZipDownloadLink
-                                    window_download_subs['SUBNAME'].update(sub.SubFileName)
-                                    window_download_subs['SUBUSERID'].update(sub.UserID)
-                                    window_download_subs['SUBUSERNICK'].update(sub.UserNickName)
-                                    if sub.UserNickName in starting_settings.trustet_uploaders:
+                                if sub.engine == 'OpenSubtitles' and sub.release == sub_name:
+                                    sub_selected_filename = sub.file_name
+                                    sub_selected_file_id = sub.file_id
+                                    window_download_subs['SUBNAME'].update(sub.title)
+                                    window_download_subs['SUBUSERID'].update(sub.uploader_id)
+                                    window_download_subs['SUBUSERNICK'].update(sub.uploader_name)
+                                    if sub.uploader_name in starting_settings.trustet_uploaders:
                                         window_download_subs['TRUSTED'].update(visible=True)
                                     else:
                                         window_download_subs['TRUSTED'].update(visible=False)
-                                    window_download_subs['SUBADDDATE'].update(sub.SubAddDate)
-                                    window_download_subs['SUBUSERCOMMENT'].update(sub.SubAuthorComment)
-                                    window_download_subs['SUBEXTENSION'].update(sub.SubFormat)
-                                    window_download_subs['SUBLANG'].update(sub.LanguageName)
-                                    window_download_subs['SUBDOWNCOUNT'].update(str(sub.SubDownloadsCnt) + ' times')
-                                    window_download_subs['SUBSCORE'].update(str(sub.Score) + ' %')
-                                    if sub.Score > 0 and sub.Score < 10:
-                                        window_download_subs['SUBSCORE'].update(text_color='black')
-                                    elif sub.Score > 10 and sub.Score < 30:
-                                        window_download_subs['SUBSCORE'].update(text_color='red')
-                                    elif sub.Score > 30 and sub.Score < 60:
-                                        window_download_subs['SUBSCORE'].update(text_color='orange')
-                                    elif sub.Score > 60 and sub.Score < 100:
-                                        window_download_subs['SUBSCORE'].update(text_color='green')
+                                    window_download_subs['SUBADDDATE'].update(sub.upload_date)
+                                    window_download_subs['SUBUSERCOMMENT'].update(sub.comments)
+                                    window_download_subs['SUBEXTENSION'].update(sub.type)
+                                    window_download_subs['SUBLANG'].update(sub.language)
+                                    window_download_subs['SUBDOWNCOUNT'].update(str(sub.download_count) + ' times')
                                 if sub.engine == 'Titlovi' and f'{sub.title} {sub.release}' == sub_name:
                                     window_download_subs['SUBNAME'].update(sub.title)
                                     window_download_subs['SUBADDDATE'].update(sub.date)
@@ -330,17 +461,14 @@ def run():
                 sg.popup_notify('Started download of selected subtitle', title='Downloading subtitles', display_duration_in_ms=800, fade_in_duration=100)
                 TIME_START = time.perf_counter()
                 if sub_selected_engine == 'OpenSubtitles':
-                    file_handler = handle_zip.OpenSubtitlesHandler()
-                    file_handler.download_zip(sub_selected_zip_down_open)
-                    file_handler.extract_zip()
+                    download = OpenS.DownloadSubtitle()
+                    download.get_info(sub_selected_file_id, user_token=openSubs.user_token)
+                    download.download_subtitle()
                     if values_subs['AppendLangCode'] == True:
-                        file_handler.move_files(file_path[0], sub_selected_filename, append_lang_code=lang)
+                        handle_zip.move_subtitle('downloaded/subtitle.srt', file_path[0], append_lang_code=lang)
                     else:
-                        file_handler.move_files(file_path[0], sub_selected_filename)
-                    #zip_handler = handle_zip.OpenSubtitlesHandler(sub_selected_zip_down_open)
-                    #zipThread = threading.Thread(target=threads.ZipDownloaderThreaded, args=[zip_handler])
-                    #zipThread.start()
-                    #zipThread.join()
+                        handle_zip.move_subtitle('downloaded/subtitle.srt', file_path[0])
+                    
                 elif sub_selected_engine == 'Titlovi':
                     file_handler = handle_zip.TitloviFileHandler()
                     file_handler.download(sub_selected_zip_down_titlovi)

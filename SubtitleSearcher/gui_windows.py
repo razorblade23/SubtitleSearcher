@@ -5,7 +5,7 @@ sg.theme('DarkBrown4')
 
 main_menu = [['File', ['Select a file']],
             ['Log in to services', ['OpenSubtitles', 'Titlovi.com']],
-            ['More info', ['About']]]
+            ['More info', ['Set API key', 'About']]]
 
 def openSubtitlesWindow():
     layout = [
@@ -13,21 +13,27 @@ def openSubtitlesWindow():
         Search and download subtitles for movies and TV-Series from OpenSubtitles.org. 
         Search in 75 languages, 4.000.000+ subtitles, daily updates.''', font='Any 14', pad=(200,0))],
         [sg.Column(layout=[
-            [sg.Image(source='SubtitleSearcher/static/images/OpenSubtitles_logo.png')]
+            [sg.Image(source='images/OpenSubtitles_logo.png')]
         ]),
-        sg.Column(pad=(100,0), layout=[
-            [sg.Text()]
-        ]),
-        sg.Column(pad=((100,0),(0,0)), layout=[
+        sg.pin(sg.Column(pad=(100,0), visible=False, key='USERLOGGEDIN', layout=[
+            [sg.Text('User ID')],
+            [sg.Text(key='OpenSubtitlesUserID', font='Any 12', text_color='green')],
+            [sg.Text('User level')],
+            [sg.Text(key='OpenSubtitlesUserLevel', font='Any 12', text_color='green')],
+            [sg.Text('Allowed download per 24 hours')],
+            [sg.Text(key='OpenSubtitlesUserAllDownloads', font='Any 12', text_color='green')],
+            [sg.Text('VIP status?')],
+            [sg.Text(key='OpenSubtitlesUserVIP', font='Any 12', text_color='green')],
+            [sg.Button('Log out', key='OpenSubtitlesLOGOUT')]
+        ])),
+        sg.Column(pad=((100,0),(0,0)), key='LOGINUSER', layout=[
             [sg.Text('Username:')],
-            [sg.Input(key='OpenSubtitlesUSERNAME')],
+            [sg.Input(key='OpenSubtitlesUSERNAME', size=(16,0), focus=True)],
             [sg.Text('Password:')],
-            [sg.Input(key='OpenSubtitlesPASSWORD', password_char='*')],
-            [sg.Button('Submit', key='OpenSubtitlesSUBMIT')]
-        ])],
-        
-        [sg.Text('''You can use OpenSubtitles.org engine for free to find and download subtitles.
-            Log in is needed for upload and rating of subtitles.''', pad=(200,0), font='Any 12')]
+            [sg.Input(key='OpenSubtitlesPASSWORD', password_char='*', size=(16,0))],
+            [sg.Checkbox('Remember me?', enable_events=True, tooltip='Plain JSON save, no security', key='RememberMe')],
+            [sg.Button('Log in', key='OpenSubtitlesSUBMIT')]
+        ])]
     ]
     return layout
 
@@ -40,7 +46,7 @@ def TitloviLoginWindow():
                 After that you need to re-activate by entering your username and password again.    
                 ''', justification='center', font='Any 12')],
         [sg.Column(pad=((0,20), (0,0)), layout=[
-            [sg.Image(source='SubtitleSearcher/static/images/titlovi_logo.png')]
+            [sg.Image(source='images/titlovi_logo.png')]
         ]),
         sg.pin(sg.Column(key='USERLOGGEDIN', visible=False, layout=[
             [sg.Text('User ID', text_color='green')],
@@ -52,10 +58,11 @@ def TitloviLoginWindow():
         ])),
         sg.Column(pad=((100,0),(0,0)), key='LOGINUSER', layout=[
             [sg.Text('Username:')],
-            [sg.Input(key='TitloviUSERNAME', size=(16,0))],
+            [sg.Input(key='TitloviUSERNAME', size=(16,0), focus=True)],
             [sg.Text('Password:')],
             [sg.Input(key='TitloviPASSWORD', password_char='*', size=(16,0))],
-            [sg.Button('Submit', key='TitloviSUBMIT')]
+            [sg.Checkbox('Remember me?', enable_events=True, tooltip='Plain JSON save, no security', key='RememberMe')],
+            [sg.Button('Log in', key='TitloviSUBMIT')]
         ])]
     ]
     return layout
@@ -72,10 +79,10 @@ def AboutWindow():
         [sg.Text('For now there are 2 sources to work with', font='Any 12')],
         [sg.Text('We are powered by (for now):', font='Any 14', text_color='green')],
         [sg.Column(pad=(20,50), layout=[
-            [sg.Image(source='SubtitleSearcher/static/images/OpenSubtitles_logo.png')]
+            [sg.Image(source='images/OpenSubtitles_logo.png')]
         ]),
         sg.Column(pad=(20,50), layout=[
-            [sg.Image(source='SubtitleSearcher/static/images/titlovi_logo.png')]
+            [sg.Image(source='images/titlovi_logo.png')]
         ])]
     ]
     return layout
@@ -83,7 +90,7 @@ def AboutWindow():
 def main_window():
     layout = [
         [sg.Menu(main_menu)],
-        [sg.Image(source='SubtitleSearcher/static/images/logo.png')],
+        [sg.Image(source='images/logo.png')],
         [sg.Text('Project aiming to make finding and downloading subtitles a breeze!', font='Any 16')],
         [sg.TabGroup(enable_events=True, key='MainTabGroup', layout=[
             [sg.Tab(title='Main', key='MainTab', layout=[
@@ -128,7 +135,10 @@ def main_window():
             ])]
         ])],
         [sg.ProgressBar(100, 'h', key='PROGRESSBAR', bar_color=('green', 'black')), sg.Text('Working, please wait', key='WORKINGSTRING', visible=False)],
-        [sg.StatusBar('', key='STATUSBAR', size=(90,2)), sg.StatusBar('', key='STATUSBAR1', size=(10,1), justification='right')]
+        [sg.StatusBar('SubbyDoo - alpha', key='STATUSBAR1', size=(30,1), justification='center'), 
+        sg.StatusBar('OpenSubtitles.org', key='STATUSBAR2', size=(30,1), justification='center'),
+        sg.StatusBar('Titlovi.com', key='STATUSBAR3', size=(30,1), justification='center'),
+        sg.StatusBar('', key='STATUSBAR4', size=(30,1), justification='right'),]
     ]
     return layout
 
