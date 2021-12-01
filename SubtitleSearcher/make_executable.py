@@ -11,5 +11,4 @@ PyInstaller.__main__.run([
     '--clean',
     '-n SubbyDoo',
     '-y',
-    '-i images/image.ico'
 ])
