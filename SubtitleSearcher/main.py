@@ -437,6 +437,7 @@ def run():
                                 if sub.engine == 'OpenSubtitles' and sub.release == sub_name:
                                     sub_selected_filename = sub.file_name
                                     sub_selected_file_id = sub.file_id
+                                    sub_selected_lang = sub.language
                                     window_download_subs['SUBNAME'].update(sub.title)
                                     window_download_subs['SUBUSERID'].update(sub.uploader_id)
                                     window_download_subs['SUBUSERNICK'].update(sub.uploader_name)
@@ -471,7 +472,7 @@ def run():
                     download.get_info(sub_selected_file_id, user_token=openSubs.user_token)
                     download.download_subtitle()
                     if values_subs['AppendLangCode'] == True:
-                        handle_zip.move_subtitle('downloaded/subtitle.srt', file_path[0], append_lang_code=lang)
+                        handle_zip.move_subtitle('downloaded/subtitle.srt', file_path[0], append_lang_code=sub_selected_lang)
                     else:
                         handle_zip.move_subtitle('downloaded/subtitle.srt', file_path[0])
                     
