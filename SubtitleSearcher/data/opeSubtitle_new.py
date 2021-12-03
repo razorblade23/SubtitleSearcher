@@ -1,6 +1,7 @@
 import requests
 import json
 from contextlib import suppress
+import urllib.parse
 
 API_KEY = 'CIVqd03XEgIT4ERQX0AGlUjcaFCfRdyI'
 BASE_URL = 'https://api.opensubtitles.com/api/v1/'
@@ -90,7 +91,9 @@ class SearchForSubs(OpenSubtitlesAPI):
             'Content-Type': "application/json",
             'Api-Key': API_KEY
         }
-        response = requests.get(url, params=payload, headers=headers, allow_redirects=True)
+        url_string = urllib.parse.urlencode(payload, safe=',')
+        replaced = url_string.replace('+', ' ')
+        response = requests.get(url, headers=headers, params=replaced, allow_redirects=True)
         json_dict = json.loads(response.text)
         json_dict_pretty = json.dumps(json_dict, indent=2)
         self.total_pages = json_dict['total_pages']

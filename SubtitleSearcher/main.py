@@ -15,13 +15,16 @@ from SubtitleSearcher import gui_control, gui_windows, threads
 import platform
 import time
 
+# Setting default paths for setting files in JSON format
 SETTINGS_OSUBTITLES_PATH = 'SubtitleSearcher/data/user_settings/OpenSubtitles_settings.json'
 SETTINGS_TITLOVI_PATH = 'SubtitleSearcher/data/user_settings/Titlovi_settings.json'
 SETTINGS_USER_PATH = 'SubtitleSearcher/data/user_settings/User_settings.json'
 
+# Instantiating objects to use
 openSubs = OpenS.OpenSubtitlesAPI()
 titlovi = TitloviCom()
 
+# Set starting settings
 def OpenSubtitles_starting_settings():
     f = open(SETTINGS_OSUBTITLES_PATH, 'w')
     start_setting = {'username': '', 'password': ''}
@@ -40,6 +43,7 @@ def User_starting_settings():
     json.dump(start_setting, f)
     f.close()
 
+# Set AutoLogin
 def AutoLogin_Titlovi():
     f = open(SETTINGS_TITLOVI_PATH, 'r')
     
@@ -84,6 +88,7 @@ def AutoLogin_OpenSubtitles():
     else:
         print('AutoLogin - User not logged in - OpenSubtitles')
 
+# Check for folders and files at start of program
 def StartUp():
     os.makedirs('SubtitleSearcher/data/user_settings', exist_ok=True)
     if not os.path.isfile(SETTINGS_OSUBTITLES_PATH):
@@ -95,11 +100,13 @@ def StartUp():
 
 StartUp()
 
+# Thread AutoLogin scripts
 AutoLoginOpenS_thread = threading.Thread(target=AutoLogin_OpenSubtitles, daemon=True)
 AutoLoginOpenS_thread.start()
 AutoLoginTitlovi_thread = threading.Thread(target=AutoLogin_Titlovi, daemon=True)
 AutoLoginTitlovi_thread.start()
 
+# Check for system and use appropriate image for icon
 system = platform.system()
 if system == 'Windows':
     icon = 'images/image.ico'
@@ -199,7 +206,7 @@ def run():
             break
 
         language_selected = gui_control.language_selector(values)
-        lang = language_selected[0]
+        lang = ','.join(language_selected)
         gui_control.StatusBarUpdate(window, 'STATUSBAR4', value='v.0.0.3-alpha')
         if event == 'Save':
             if values['KeepOnTop'] == False:
@@ -359,9 +366,10 @@ def run():
             for engine in engines:
                 if engine == 'OpenSubtitles':
                     open_search = OpenS.SearchForSubs()
+                    movie_title = movie.title
                     #query = make_OpenSubs_query(movie.title, movie.encoder, movie.excess, movie.quality, movie.resolution)
                     if movie.kind == 'movie':
-                        payload = open_search.set_payload(moviehash=movie.file_hash, query=movie.title, imdb_id=movie.imdb_id, languages=lang, year=movie.year)
+                        payload = open_search.set_payload(imdb_id=movie.imdb_id, languages=lang, moviehash=movie.file_hash,  query=movie_title.lower(), year=movie.year)
                     elif movie.kind == 'tv series' or movie.kind == 'season':
                         payload = open_search.set_payload(moviehash=movie.file_hash, query=movie.title, imdb_id=movie.imdb_id, languages=lang, episode_number=movie.episode, season_number=movie.season)
                     open_search.search_subtitles(payload)

@@ -127,11 +127,11 @@ def main_window():
             ])],
             [sg.Tab(title='Languages', key='LangTab', layout=[
                 [sg.Text('Choose a language for search', font='Any 14')],
-                [sg.Radio('Croatian', key='LangCRO', default=True, group_id=1), 
-                sg.Radio('English', key='LangENG', group_id=1), 
-                sg.Radio('Serbian', key='LangSRB', group_id=1), 
-                sg.Radio('Bosnian', key='LangBOS', group_id=1), 
-                sg.Radio('Slovenian', key='LangSLO', group_id=1)]
+                [sg.Checkbox('Croatian', key='LangCRO', default=True), 
+                sg.Checkbox('English', key='LangENG'), 
+                sg.Checkbox('Serbian', key='LangSRB'), 
+                sg.Checkbox('Bosnian', key='LangBOS'), 
+                sg.Checkbox('Slovenian', key='LangSLO')]
             ])]
         ])],
         [sg.ProgressBar(100, 'h', key='PROGRESSBAR', bar_color=('green', 'black')), sg.Text('Working, please wait', key='WORKINGSTRING', visible=False)],
