@@ -45,6 +45,9 @@ def User_starting_settings():
 
 # Set AutoLogin
 def AutoLogin_Titlovi():
+    '''
+    Autologin function for Titlovi.com engine
+    '''
     f = open(SETTINGS_TITLOVI_PATH, 'r')
     
     username = ''
@@ -68,6 +71,9 @@ def AutoLogin_Titlovi():
         print('AutoLogin - User not logged in - Titlovi')
 
 def AutoLogin_OpenSubtitles():
+    '''
+    Autologin function for OpenSubtitles.com engine
+    '''
     f = open(SETTINGS_OSUBTITLES_PATH, 'r')
     
     username = ''
@@ -90,6 +96,10 @@ def AutoLogin_OpenSubtitles():
 
 # Check for folders and files at start of program
 def StartUp():
+    '''
+    Check for folders and files needed for startup.
+    If there are none, make them
+    '''
     os.makedirs('SubtitleSearcher/data/user_settings', exist_ok=True)
     if not os.path.isfile(SETTINGS_OSUBTITLES_PATH):
         OpenSubtitles_starting_settings()
@@ -98,9 +108,10 @@ def StartUp():
     if not os.path.isfile(SETTINGS_USER_PATH):
         User_starting_settings()
 
+# Run StartUp function
 StartUp()
 
-# Thread AutoLogin scripts
+# Thread AutoLogin scripts - as they are deamon threads there is no need to join them
 AutoLoginOpenS_thread = threading.Thread(target=AutoLogin_OpenSubtitles, daemon=True)
 AutoLoginOpenS_thread.start()
 AutoLoginTitlovi_thread = threading.Thread(target=AutoLogin_Titlovi, daemon=True)
@@ -114,9 +125,15 @@ if system == 'Linux':
     icon = 'images/image.png'
 main_layout = gui_windows.main_window()
 
-#gui_control.intro_dialog()
+# Display intro dialog
+gui_control.intro_dialog()
 
+
+# Get from JSON settings
 def get_from_titlovi_settings():
+    '''
+    Get Titlovi.com settings
+    '''
     with open(SETTINGS_TITLOVI_PATH, 'r') as json_obj:
         try:
             USERSETTINGS = json.load(json_obj)
@@ -127,6 +144,9 @@ def get_from_titlovi_settings():
     return USERSETTINGS
 
 def get_from_user_settings():
+    '''
+    Get user settings
+    '''
     with open(SETTINGS_USER_PATH, 'r') as json_obj:
         try:
             USERSETTINGS = json.load(json_obj)
@@ -137,6 +157,9 @@ def get_from_user_settings():
     return USERSETTINGS
 
 def add_to_titlovi_settings(dictionary):
+    '''
+    Add to Titlovi.com settings
+    '''
     try:
         with open(SETTINGS_TITLOVI_PATH, 'r') as json_obj:
             USERSETTINGS = json.load(json_obj)
@@ -147,6 +170,9 @@ def add_to_titlovi_settings(dictionary):
         json.dump(USERSETTINGS ,file)
 
 def add_to_user_settings(dictionary):
+    '''
+    Add to user settings
+    '''
     try:
         with open(SETTINGS_USER_PATH, 'r') as json_obj:
             USERSETTINGS = json.load(json_obj)
@@ -166,13 +192,12 @@ def loadTitloviUserSettings(titlovi_object, json_settings):
         titlovi_object.token_expiry_date = None
         titlovi_object.user_id = None
 
-
-
-
-#AutoLogin_OpenSubtitles()
-#AutoLogin_Titlovi()
-# Start infinite loop for your GUI windows and reading from them
+'''
+This is main function that controls and links all sub-functions
+Start infinite loop for your GUI windows and reading from them
+'''
 def run():
+    # Set window flags as False
     SINGLE_FILE_MODE = False
     MULTI_FILE_MODE = False
     WINDOWSUBS = False
@@ -181,11 +206,10 @@ def run():
     ABOUTWINDOW = False
     language_selected = []
 
+    # Define main window
     window = sg.Window(title='Subbydoo', layout=main_layout, element_justification='center', icon=icon, finalize=True)
 
-    AutoLoginOpenS_thread.join()
-    AutoLoginTitlovi_thread.join()
-
+    # Check for tokens from engines and display log in status on statusbar
     try:
         if openSubs.user_token != None:
             gui_control.StatusBarUpdate(window, 'STATUSBAR2', text_color='green')
@@ -198,30 +222,39 @@ def run():
             gui_control.StatusBarUpdate(window, 'STATUSBAR3', text_color='red')
     except:
         pass
+    gui_control.StatusBarUpdate(window, 'STATUSBAR4', value='v.0.0.3-alpha')
+
+    # Start infinite loop
     while True:
-        event, values = window.read(timeout=300)
+        event, values = window.read(timeout=300) # Read main window (timeout is 300ms)
         TITLOVI_SETTINGS = get_from_titlovi_settings()
 
+        # If window is closed break the loop
         if event == sg.WIN_CLOSED:
             break
-
+        
+        # Get language selected
         language_selected = gui_control.language_selector(values)
         lang = ','.join(language_selected)
-        gui_control.StatusBarUpdate(window, 'STATUSBAR4', value='v.0.0.3-alpha')
+
+        # If user clicks on save, make changes (only for keep_on_top option)
         if event == 'Save':
             if values['KeepOnTop'] == False:
                 window.keep_on_top_clear()
             else:
                 window.keep_on_top_set()
 
+        # If user wants to set up his own API key (needs work - not finished)
         if event == 'Set API key':
             pass
 
+        # If user selects OpenSubtitles define a window
         if event == 'OpenSubtitles':
             OPENSUBSWINDOW = True
             openSubtitles_layout = gui_windows.openSubtitlesWindow()
             openSubtitles_window = sg.Window(title='OpenSubtitles.org', layout=openSubtitles_layout, element_justification='center', finalize=True)
-            
+        
+        # If OpenSubtitles window is defined and True, display window
         if OPENSUBSWINDOW:
             try:
                 if openSubs.user_token != None:
@@ -235,34 +268,44 @@ def run():
                 pass
             openSubtitles_event, openSubtitles_values = openSubtitles_window.read()
 
+            # If window is closed, break loop
             if openSubtitles_event == sg.WIN_CLOSED:
                 OPENSUBSWINDOW = False
                 openSubtitles_window.close()
                 continue
-
+            
+            # If user submits username and password, log in user and save data
             if openSubtitles_event == 'OpenSubtitlesSUBMIT':
+                # Update button state
                 openSubtitles_window['OpenSubtitlesSUBMIT'].update(text='Logging in', button_color=('black', 'yellow'))
                 window.refresh()
+                # Get username and password from GUI
                 userName = openSubtitles_values['OpenSubtitlesUSERNAME']
                 passWord = openSubtitles_values['OpenSubtitlesPASSWORD']
+
+                # Check if remember me is checked, if yes, save settings to JSON
                 if openSubtitles_values['RememberMe']:
                     new_setting = {'username': userName, 'password': passWord}
                     f = open(SETTINGS_OSUBTITLES_PATH, 'w')
                     json.dump(new_setting, f)
                     f.close()
+
+                # Log user in
                 if openSubs.user_login(userName, passWord):
                     openSubtitles_window['OpenSubtitlesSUBMIT'].update(text='Logged in', button_color=('green', 'white'))
                     gui_control.StatusBarUpdate(window, 'STATUSBAR2', text_color='green')
                     window.refresh()
+                # Wrong username / password ??
                 else:
                     sg.popup_quick_message('There was a problem logging you in! Please try again.', font='Any 20', text_color='white')
                     openSubtitles_window['OpenSubtitlesSUBMIT'].update(text='Log in', button_color=('white', 'red'))
                     window.refresh()
-            
+
+            # If user selects logout, log the user out
             if openSubtitles_event == 'OpenSubtitlesLOGOUT':
                 openSubs.user_logout()
 
-        
+        # If user selects Titlovi.com define a window
         if event == 'Titlovi.com':
             TITLOVIWINDOW = True
             titloviLogin_layout = gui_windows.TitloviLoginWindow()
@@ -272,6 +315,7 @@ def run():
             except TypeError:
                 pass
         
+        # If Titlovi.com window is defined and True, display window
         if TITLOVIWINDOW:
             if titlovi.user_token != None:
                 titloviLogin_window['USERLOGGEDIN'].update(visible=True)
@@ -282,24 +326,32 @@ def run():
                 window['USETITLOVI'].update(disabled=False)
                 titloviLogin_window.refresh()
 
+            # Read Titlovi login window (no timeout)
             titloviLogin_event, titloviLogin_values = titloviLogin_window.read()
 
+            # If window is closed, break the loop
             if titloviLogin_event == sg.WIN_CLOSED:
                 TITLOVIWINDOW = False
                 titloviLogin_window.close()
                 continue
-
+            
+            # If user selects submit, collect data and log user in
             if titloviLogin_event == 'TitloviSUBMIT':
                 userName = titloviLogin_values['TitloviUSERNAME']
                 passWord = titloviLogin_values['TitloviPASSWORD']
+                # Collect data from GUI and set as atributes of instance titlovi
                 titlovi.username = userName
                 titlovi.password = passWord
+                # Log user in
                 login = titlovi.handle_login()
+                # Check if remember me is checked, if yes, save settings to JSON
                 if titloviLogin_values['RememberMe']:
                     new_setting = {'username': userName, 'password': passWord}
                     f = open(SETTINGS_TITLOVI_PATH, 'w')
                     json.dump(new_setting, f)
                     f.close()
+                
+                # If login True, set data
                 if login != None:
                     titlovi.set_user_login_details(login)
                     new_user = {'UserToken': titlovi.user_token,
@@ -307,6 +359,7 @@ def run():
                                 'UserID': titlovi.user_id}
                     add_to_titlovi_settings(new_user)
                     expired_token, days_left = titlovi.check_for_expiry_date()
+                # Wrong username / password
                 else:
                     sg.popup_ok('Invalid username / password !\nPlease check your login details.', title='Wrong username/password', font='Any 16')
                     continue
@@ -316,26 +369,33 @@ def run():
                 sg.popup_quick_message('Log in success!', font='Any 20', text_color='white')
                 continue
         
+        # If user selects About define a window
         if event == 'About':
             about_layout = gui_windows.AboutWindow()
             about_window = sg.Window(title='About', layout=about_layout, element_justification='center')
             ABOUTWINDOW = True
         
+        # If About window defined and True, display window
         if ABOUTWINDOW:
             about_event, about_values = about_window.read()
 
+            # If window closed, break the loop
             if about_event == sg.WIN_CLOSED:
                 ABOUTWINDOW = False
                 about_window.close()
                 continue
-
+        
+        # If user selects Browse
         if event == 'BROWSE':
+            # Check if remember last folder is checked, if yes, load path settings to JSON
             if values['RememberLastFolder']:
                 USER_SETTINGS = get_from_user_settings()
                 initial_f = USER_SETTINGS['last_user_path']
+            # If not, set default path
             else:
                 initial_f = '~/Downloads'
 
+            # Get file path(s) (Popup window)
             file_paths = sg.popup_get_file('Please select a file or files', 
                                             title='Browse', 
                                             multiple_files=True, 
@@ -344,13 +404,19 @@ def run():
                                             no_window=False,
                                             initial_folder=initial_f,
                                             file_types=(('Video files', '.avi'),('Video files', '.mkv'),))
+            # If file paths not selected, do not execute further
             if file_paths == None:
                 continue
+
+            # Split file path(s)
             file_path = file_paths.split(';')
+
+            # Check if Remember Last Folder is checked, if yes, save settings to JSON
             if values['RememberLastFolder']:
                 file_directory = os.path.dirname(file_path[0])
                 last_folder_set = {'last_user_path': file_directory}
                 add_to_user_settings(last_folder_set)
+            # Check to see if there is one or more paths selected and set mode acording to check
             if len(file_path) > 1:
                 SINGLE_FILE_MODE = False
                 MULTI_FILE_MODE = True
@@ -358,43 +424,60 @@ def run():
                 SINGLE_FILE_MODE = True
                 MULTI_FILE_MODE = False
             path = file_path[0]
+            # Set movie instance from selected file
             movie = gui_control.define_movie(path)
         
+        # If user selects search for subtitles and is single file and quickmode is off
         if event == 'SEARCHFORSUBS' and SINGLE_FILE_MODE and values['QuickMode'] == False:
+            # Check for engines selected
             engines = []
             engines = gui_control.select_engine(values)
+
+            # Iterate thru engines and search with selected
             for engine in engines:
+                # If engine is OpenSubtitles
                 if engine == 'OpenSubtitles':
+                    # Set instance name for OpenSubtitles
                     open_search = OpenS.SearchForSubs()
-                    movie_title = movie.title
-                    #query = make_OpenSubs_query(movie.title, movie.encoder, movie.excess, movie.quality, movie.resolution)
+                    movie_title = movie.title # Get movie title
+
+                    # Check for movie kind and make payload accordingly
                     if movie.kind == 'movie':
                         payload = open_search.set_payload(imdb_id=movie.imdb_id, languages=lang, moviehash=movie.file_hash,  query=movie_title.lower(), year=movie.year)
                     elif movie.kind == 'tv series' or movie.kind == 'season':
                         payload = open_search.set_payload(moviehash=movie.file_hash, query=movie.title, imdb_id=movie.imdb_id, languages=lang, episode_number=movie.episode, season_number=movie.season)
+                    # Search OpenSubtitles server with payload
                     open_search.search_subtitles(payload)
+                    # Get results
                     results = open_search.data
                     open_subs = []
+                    # Enumerate results and put them in list
                     for nmb, result in enumerate(results):
                         nmb = OpenS.OpenSubtitlesSubtitleResults(result)
                         open_subs.append(nmb)
+                # If engine is Titlovi.com
                 if engine == 'Titlovi.com':
                     try:
                         titlovi_subs = gui_control.search_titlovi(lang, movie, titlovi)
                     except UnboundLocalError:
                         sg.popup_error('User is not validated.\nPlease validate your account to use Titlovi.com')
             print('Searching single file with QuickMode off')
+
+            # When all subs have been collected set up window to display the results
             WINDOWSUBS = True
             single_sub_layout = gui_windows.subs_window()
             window_download_subs = sg.Window(title='Subbydoo - download subs', layout=single_sub_layout, element_justification='center', icon=icon, finalize=True)
             
-
+        # If window has been configured, display the window
         if WINDOWSUBS:
+            # Make changes to empty movie fields (upper part - movie information)
             window_download_subs['MOVIENAME'].update(movie.title)
             window_download_subs['MOVIEYEAR'].update(movie.year)
             window_download_subs['IMDBID'].update(movie.imdb_id)
             window_download_subs['KIND'].update(movie.kind)
             window_download_subs['VIDEOFILENAME'].update(movie.file_name)
+
+            # Make list of all subtitles objects from engines
             subs_list = []
             for engine in engines:
                 if engine == 'OpenSubtitles':
@@ -403,6 +486,7 @@ def run():
                 if engine == 'Titlovi.com':
                     for w in range(len(titlovi_subs)):
                         with suppress(AttributeError): subs_list.append(titlovi_subs[w])
+            # Make a list of all subtitles names to display in list
             subs_names = []
             for sub in subs_list:
                 if sub.engine == 'OpenSubtitles':
@@ -412,22 +496,21 @@ def run():
                         subs_names.append(f'{sub.title} S{str(sub.season)}E{str(sub.episode)}')
                     else:
                         subs_names.append(f'{sub.title} {sub.release}')
-            #window_download_subs['SUBSTABLE'].update(values=subs_names)
-
-            if movie.kind == 'tv series' or movie.kind == 'episode':
-                window_download_subs['TVSERIESINFO'].update(visible=False)
-                window_download_subs['SEASON'].update(value=movie.season)
-                window_download_subs['EPISODE'].update(value=movie.episode)
-
+            
+            # Read the window with a timeout of 200ms
             event_subs, values_subs = window_download_subs.read(timeout=200)
             window_download_subs['STATUSBAR'].update(value='Language selected: {}'.format(language_selected[0]))
-
+            
+            # If window closed, close the window and break
             if event_subs == sg.WIN_CLOSED:
                 WINDOWSUBS = False
                 window_download_subs.close()
                 continue
             
+            # Put list of subtitle names in table of subtitles in GUI
             window_download_subs['SUBSTABLE'].update(values=subs_names)
+
+            # If user clicks on subtitle, get all of information about choice and display them
             if event_subs == 'SUBSTABLE':
                 with suppress(IndexError):
                     for sub_name in subs_names:
@@ -464,9 +547,14 @@ def run():
                 window_download_subs['DOWNLOADSUB'].update(disabled=False)
                 window_download_subs.refresh()
 
+            # If user selects download subtitle
             if event_subs == 'DOWNLOADSUB':
+                # Display popup
                 sg.popup_notify('Started download of selected subtitle', title='Downloading subtitles', display_duration_in_ms=800, fade_in_duration=100)
+                # Set start time
                 TIME_START = time.perf_counter()
+                
+                # Check for engine and run download depending on it
                 if sub_selected_engine == 'OpenSubtitles':
                     download = OpenS.DownloadSubtitle()
                     download.get_info(sub_selected_file_id, user_token=openSubs.user_token)
@@ -483,11 +571,17 @@ def run():
                         file_handler.move_file(file_path[0], append_lang_code=lang)
                     else:
                         file_handler.move_file(file_path[0])
+
+                # Check end time
                 TIME_END = time.perf_counter()
                 time_took = round(TIME_END-TIME_START, 2)
                 print(f'\n*** Took {time_took} to download subtitles ***\n')
                 sg.popup_notify('File downloaded succesfully.\nYou can find your subtitle in movie folder', title='Subtitle downloaded', display_duration_in_ms=3000, fade_in_duration=100)
-
+        
+        '''
+            If user selects search for subtitles and is single file and quickmode is on
+            Do everything as in QuickMode off, but select first subtitle from list automatic.
+        '''
         if event == 'SEARCHFORSUBS' and SINGLE_FILE_MODE and values['QuickMode'] == True:
             movie, all_subs = gui_control.search_by_single_file(values, lang, window, file_path[0])
             TIME_START = time.perf_counter()
@@ -507,6 +601,11 @@ def run():
             time_took = round(TIME_END-TIME_START, 2)
             print(f'\n***Download took {time_took} seconds ***\n')
         
+        '''
+            If user selects search for subtitles and is multy-file and quickmode is on.
+            Runs thru all of files listed searching for subtitles.
+            Do everything as in QuickMode off, but select first subtitle from list automatic.
+        '''
         if event == 'SEARCHFORSUBS' and MULTI_FILE_MODE and values['QuickMode'] == True:
             sg.popup_quick_message('Preparing ...\nPlease wait', font='Any 14', background_color='white', text_color='black')
             TIME_START = time.perf_counter()
@@ -551,12 +650,5 @@ def run():
             window['PROGRESSBAR'].update(current_count=0)
             sg.PopupQuickMessage('All subtitles downloaded', font='Any 18', background_color='white', text_color='black')
 
-
-        #if values['SINGLEFILE'] != 'Browse this to select a single file !':
-        #    window['SEARCHBYSINGLEFILE'].update(disabled=False)
-        #
-        #if values['MULTIPLEFILES'] != 'Browse this to select multiple files !':
-        #    window['SEARCHBYMULTIFILE'].update(disabled=False)
-            
     window.close() # Closes main window
     return
