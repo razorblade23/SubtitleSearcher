@@ -1,5 +1,18 @@
+# Import modules
 from SubtitleSearcher.main import sg
 from psgtray import SystemTray
+
+'''
+This script contains all GUI windows, their elements and starting settings
+
+This is well documented in PySimpleGUI module, so nothing special to add about it
+
+Separating windows like this allows you to re-build them when ever you want, as you cannot re-use already build window.
+
+For all of documentation please see PySimpleGui documentation
+https://pysimplegui.readthedocs.io/en/latest/
+
+'''
 
 sg.theme('DarkBrown4')
 

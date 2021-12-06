@@ -1,9 +1,11 @@
+# Importing modules
 import zipfile
 import requests
 import os
 from zipfile import ZipFile
 import shutil
 
+# Move subtitles (OpenSubtitles.com)
 def move_subtitle(source_path, dst_path, append_lang_code=None):
     org_string = dst_path
     size = len(org_string)
@@ -13,6 +15,7 @@ def move_subtitle(source_path, dst_path, append_lang_code=None):
     final_path = os.path.join(dst_path, f'{mod_string}.srt')
     shutil.move(source_path, final_path)
 
+# Move subtitles (Titlovi.com)
 class SubFileHandler:
     '''
     Base class of File Handler. Not to be called directly. Instantiate from child classes.

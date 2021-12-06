@@ -1,3 +1,4 @@
+# Import modules
 from os import access
 import PTN
 from contextlib import suppress
@@ -6,6 +7,11 @@ import json
 from collections import namedtuple
 
 class Movie:
+    '''Build movie object from file
+    param: byte_size - size of selected file
+    param: file_hash - hash of selected file calculated by OpenSubtitles provided algoritam
+    param: file_path - path to selected file
+    param: file_name - filename of selected file'''
     def __init__(self, byte_size, file_hash, file_path, file_name):
         self.byte_size = byte_size
         self.file_hash = file_hash
@@ -56,6 +62,11 @@ class Movie:
         self.threeD = None
 
     def set_from_filename(self):
+        '''This method sets movie information from filename
+        It uses PTN (parse-torrent-name) module to do this
+        PTN is really outdated and not maintained so there is parse-torrent-title that we use instead
+        There is even a newer module to do this - GuessIt
+        Somewhere in near future we will use GuessIt for this job'''
         self.movie_info = PTN.parse(self.file_name, standardise=False)
         with suppress(KeyError): self.audio = self.movie_info['audio']
         with suppress(KeyError): self.bitDepth = self.movie_info['bitDepth']
@@ -101,7 +112,7 @@ class Movie:
         with suppress(KeyError): self.threeD = self.movie_info['3d']
 
         
-    # Function to convert  
+    # Method to convert list to string
     def listToString(self, s): 
         
         # initialize an empty string
