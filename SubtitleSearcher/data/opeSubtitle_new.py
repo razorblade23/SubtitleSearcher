@@ -1,13 +1,17 @@
+# Import needed modules
 import requests
 import json
 from contextlib import suppress
 import urllib.parse
 
+# Sets main variables
 API_KEY = 'CIVqd03XEgIT4ERQX0AGlUjcaFCfRdyI'
 BASE_URL = 'https://api.opensubtitles.com/api/v1/'
 
 class OpenSubtitlesAPI:
+    '''Builds OpenSubtitles API object'''
     def __init__(self):
+        # Inicialization sets all as None and they populate as user interacts or thru AutoLogin
         self.user_allowed_translations = None
         self.user_allowed_downloads = None
         self.user_level = None
@@ -15,7 +19,12 @@ class OpenSubtitlesAPI:
         self.user_ext_installed = None
         self.user_vip = None
         self.user_token = None
+
     def user_login(self, username, password):
+        '''Log the user in
+        param: username - username registered on site
+        param: password - password registered on site'''
+
         url = f'{BASE_URL}login'
         payload = {
             'username': username,
@@ -44,6 +53,7 @@ class OpenSubtitlesAPI:
             return response
     
     def user_logout(self):
+        '''Log user out'''
         url = f'{BASE_URL}logout'
 
         headers = {
@@ -58,7 +68,7 @@ class OpenSubtitlesAPI:
             print(f'There was a problem with logout. response code: {response.status_code}\n{response.text}')
 
 class SearchForSubs(OpenSubtitlesAPI):
-
+    '''Child class of OpenSubs API that searches for subtitles'''
     def __init__(self):
         self.ai_translated = 'exclude'  # exclude, include (default: exclude)
         self.episode_number = 0  # for TV shows
@@ -83,9 +93,13 @@ class SearchForSubs(OpenSubtitlesAPI):
         self.year = 0  # Filter by movie/episode year
 
     def set_payload(self, **kwargs):
+        '''Make a dictionary of payload options'''
         return kwargs
 
     def search_subtitles(self, payload):
+        '''Search for subtitles based on payload
+        param: payload - parameters for searchin subtitle like movie name, IMDB ID, etc...'''
+
         url = f'{BASE_URL}subtitles'
         headers = {
             'Content-Type': "application/json",
@@ -102,7 +116,12 @@ class SearchForSubs(OpenSubtitlesAPI):
         self.data = json_dict['data']
 
 class DownloadSubtitle:
+    '''Donwload selected subtitle'''
     def get_info(self, file_id, user_token=''):
+        '''Get subtitle file information from server
+        param: file_id - file ID from subtitle search
+        param: user_token - user token to be able to download subtitle'''
+
         url = "https://api.opensubtitles.com/api/v1/download"
 
         payload = {
@@ -125,15 +144,14 @@ class DownloadSubtitle:
         with suppress(KeyError): self.download_message = json_data['message']
     
     def download_subtitle(self):
+        '''Download actual subtitle'''
         r = requests.get(self.download_link, allow_redirects=True, timeout=20)
         open('downloaded/subtitle.srt', 'wb').write(r.content)
 
-
-
-
-
 class OpenSubtitlesSubtitleResults:
     def __init__(self, results_data):
+        '''Sets all of results from subtitle search as objects
+        param: results_data - dictionary - results from subtitle search'''
         data = results_data
         self.engine = 'OpenSubtitles'
         self.id = data['id']
@@ -175,15 +193,3 @@ class OpenSubtitlesSubtitleResults:
         self.cd_number = data['attributes']['files'][0]['cd_number']
         self.file_name = data['attributes']['files'][0]['file_name']
         self.moviehash_match = data['attributes']['moviehash_match']
-        
-
-        
-
-#avatar = SearchForSubs()
-#avatar.user_login('smartakus', 'MojeKarlovacko@23')
-#
-#
-#payload = avatar.set_payload(query='Avatar', year=2009, languages='hr')
-#avatar.search_subtitles(payload)
-#
-#print(avatar.data[0])
