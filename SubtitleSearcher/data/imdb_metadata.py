@@ -1,4 +1,4 @@
-from SubtitleSearcher.data.openSubtitles import requests
+import requests
 import json
 from imdb import IMDb
 

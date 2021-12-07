@@ -3,8 +3,8 @@ import ntpath
 from SubtitleSearcher import threads
 from SubtitleSearcher.data import imdb_metadata
 from SubtitleSearcher.main import sg
-from SubtitleSearcher.data import openSubtitles, movies, titlovi_com
-from SubtitleSearcher.threads import SearchForSubtitles, movieQueve, subsQueve
+from SubtitleSearcher.threads import movieQueve, subsQueve
+from SubtitleSearcher.data.movies import hashFile, sizeOfFile, Movie
 
 import urllib
 import threading
@@ -15,8 +15,6 @@ import queue
 movieQueve = queue.Queue()
 allSubsQueve = queue.Queue()
 
-# Sets instance of searchOpenSubtitles
-opensubs = openSubtitles.searchOpenSubtitles()
 
 def intro_dialog():
     dialog = sg.popup_ok('''
@@ -84,7 +82,7 @@ def language_selector(values):
 
 # Set up movie object 1
 def movie_setup(file_size, file_hash, file_path):
-    movie = movies.Movie(file_size, file_hash, file_path, ntpath.basename(file_path))
+    movie = Movie(file_size, file_hash, file_path, ntpath.basename(file_path))
     movie.set_from_filename()
     metadata = imdb_metadata.search_imdb_by_title(movie.title)
     type_of_video = metadata[0]['kind']
@@ -107,8 +105,8 @@ def select_engine(values):
 # Set up movie object 2
 def define_movie(file_path):
     try:
-        hashed_file = opensubs.hashFile(file_path)
-        fileSize = opensubs.sizeOfFile(file_path)
+        hashed_file = hashFile(file_path)
+        fileSize = sizeOfFile(file_path)
     except FileNotFoundError:
         sg.popup_ok('File not found, please try again', title='File not found')
     else:
