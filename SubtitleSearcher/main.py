@@ -226,7 +226,7 @@ def run():
 
     # Start infinite loop
     while True:
-        event, values = window.read(timeout=300) # Read main window (timeout is 300ms)
+        event, values = window.read() # Read main window 
         TITLOVI_SETTINGS = get_from_titlovi_settings()
 
         # If window is closed break the loop
@@ -267,6 +267,7 @@ def run():
             except AttributeError:
                 pass
             openSubtitles_event, openSubtitles_values = openSubtitles_window.read()
+            print(openSubtitles_event)
 
             # If window is closed, break loop
             if openSubtitles_event == sg.WIN_CLOSED:
@@ -404,7 +405,7 @@ def run():
                                             no_window=False,
                                             initial_folder=initial_f,
                                             file_types=(('Video files', '.avi'),('Video files', '.mkv'),),
-                                            background_color='green',
+                                            background_color='#7E8D85',
                                             text_color='black',
                                             keep_on_top=True)
             # If file paths not selected, do not execute further
@@ -432,6 +433,7 @@ def run():
         
         # If user selects search for subtitles and is single file and quickmode is off
         if event == 'SEARCHFORSUBS' and SINGLE_FILE_MODE and values['QuickMode'] == False:
+            
             # Check for engines selected
             engines = []
             engines = gui_control.select_engine(values)
@@ -443,7 +445,7 @@ def run():
                     # Set instance name for OpenSubtitles
                     open_search = OpenS.SearchForSubs()
                     movie_title = movie.title # Get movie title
-
+                    gui_control.setImdbIdFromThread(movie)
                     # Check for movie kind and make payload accordingly
                     if movie.kind == 'movie':
                         payload = open_search.set_payload(imdb_id=movie.imdb_id, languages=lang, moviehash=movie.file_hash,  query=movie_title.lower(), year=movie.year)
@@ -473,113 +475,115 @@ def run():
             
         # If window has been configured, display the window
         if WINDOWSUBS:
-            # Make changes to empty movie fields (upper part - movie information)
-            window_download_subs['MOVIENAME'].update(movie.title)
-            window_download_subs['MOVIEYEAR'].update(movie.year)
-            window_download_subs['IMDBID'].update(movie.imdb_id)
-            window_download_subs['KIND'].update(movie.kind)
-            window_download_subs['VIDEOFILENAME'].update(movie.file_name)
+            while True:
+                # Make changes to empty movie fields (upper part - movie information)
+                window_download_subs['MOVIENAME'].update(movie.title)
+                window_download_subs['MOVIEYEAR'].update(movie.year)
+                window_download_subs['IMDBID'].update(movie.imdb_id)
+                window_download_subs['KIND'].update(movie.kind)
+                window_download_subs['VIDEOFILENAME'].update(movie.file_name)
 
-            # Make list of all subtitles objects from engines
-            subs_list = []
-            for engine in engines:
-                if engine == 'OpenSubtitles':
-                    for q in range(len(open_subs)):
-                        with suppress(AttributeError): subs_list.append(open_subs[q])
-                if engine == 'Titlovi.com':
-                    for w in range(len(titlovi_subs)):
-                        with suppress(AttributeError): subs_list.append(titlovi_subs[w])
-            # Make a list of all subtitles names to display in list
-            subs_names = []
-            for sub in subs_list:
-                if sub.engine == 'OpenSubtitles':
-                    subs_names.append(sub.release)
-                if sub.engine == 'Titlovi':
-                    if sub.season >= 0 or sub.episode >= 0:
-                        subs_names.append(f'{sub.title} S{str(sub.season)}E{str(sub.episode)}')
-                    else:
-                        subs_names.append(f'{sub.title} {sub.release}')
-            
-            # Put list of subtitle names in table of subtitles in GUI
-            window_download_subs['SUBSTABLE'].update(values=subs_names)
-
-            # Read the window with a timeout of 200ms
-            event_subs, values_subs = window_download_subs.read()
-            window_download_subs['STATUSBAR'].update(value='Language selected: {}'.format(language_selected[0]))
-            
-            # If window closed, close the window and break
-            if event_subs == sg.WIN_CLOSED:
-                WINDOWSUBS = False
-                window_download_subs.close()
-                continue
-
-            # If user clicks on subtitle, get all of information about choice and display them
-            if event_subs == 'SUBSTABLE':
-                with suppress(IndexError):
-                    for sub_name in subs_names:
-                        if sub_name == values_subs['SUBSTABLE'][0]:
-                            for sub in subs_list:
-                                sub_selected_engine = sub.engine
-                                if sub.engine == 'OpenSubtitles' and sub.release == sub_name:
-                                    sub_selected_filename = sub.file_name
-                                    sub_selected_file_id = sub.file_id
-                                    sub_selected_lang = sub.language
-                                    window_download_subs['SUBNAME'].update(sub.title)
-                                    window_download_subs['SUBUSERID'].update(sub.uploader_id)
-                                    window_download_subs['SUBUSERNICK'].update(sub.uploader_name)
-                                    if sub.uploader_name in starting_settings.trustet_uploaders:
-                                        window_download_subs['TRUSTED'].update(visible=True)
-                                    else:
-                                        window_download_subs['TRUSTED'].update(visible=False)
-                                    window_download_subs['SUBADDDATE'].update(sub.upload_date)
-                                    window_download_subs['SUBUSERCOMMENT'].update(sub.comments)
-                                    window_download_subs['SUBEXTENSION'].update(sub.type)
-                                    window_download_subs['SUBLANG'].update(sub.language)
-                                    window_download_subs['SUBDOWNCOUNT'].update(str(sub.download_count) + ' times')
-                                if sub.engine == 'Titlovi' and f'{sub.title} {sub.release}' == sub_name:
-                                    window_download_subs['SUBNAME'].update(sub.title)
-                                    window_download_subs['SUBADDDATE'].update(sub.date)
-                                    window_download_subs['SUBLANG'].update(sub.lang)
-                                    window_download_subs['SUBDOWNCOUNT'].update(str(sub.downloadCount) + ' times')
-                                    window_download_subs['SUBUSERID'].update('')
-                                    window_download_subs['SUBUSERNICK'].update('')
-                                    window_download_subs['SUBUSERCOMMENT'].update('')
-                                    window_download_subs['SUBEXTENSION'].update('')
-                                    window_download_subs['SUBSCORE'].update('')
-                                    sub_selected_zip_down_titlovi = sub.link
-                window_download_subs['DOWNLOADSUB'].update(disabled=False)
-                window_download_subs.refresh()
-
-            # If user selects download subtitle
-            if event_subs == 'DOWNLOADSUB':
-                # Display popup
-                sg.popup_notify('Started download of selected subtitle', title='Downloading subtitles', display_duration_in_ms=800, fade_in_duration=100)
-                # Set start time
-                TIME_START = time.perf_counter()
+                # Make list of all subtitles objects from engines
+                subs_list = []
+                for engine in engines:
+                    if engine == 'OpenSubtitles':
+                        for q in range(len(open_subs)):
+                            with suppress(AttributeError): subs_list.append(open_subs[q])
+                    if engine == 'Titlovi.com':
+                        for w in range(len(titlovi_subs)):
+                            with suppress(AttributeError): subs_list.append(titlovi_subs[w])
+                # Make a list of all subtitles names to display in list
+                subs_names = []
+                for sub in subs_list:
+                    if sub.engine == 'OpenSubtitles':
+                        subs_names.append(sub.release)
+                    if sub.engine == 'Titlovi':
+                        if sub.season >= 0 or sub.episode >= 0:
+                            subs_names.append(f'{sub.title} S{str(sub.season)}E{str(sub.episode)}')
+                        else:
+                            subs_names.append(f'{sub.title} {sub.release}')
                 
-                # Check for engine and run download depending on it
-                if sub_selected_engine == 'OpenSubtitles':
-                    download = OpenS.DownloadSubtitle()
-                    download.get_info(sub_selected_file_id, user_token=openSubs.user_token)
-                    download.download_subtitle()
-                    if values_subs['AppendLangCode'] == True:
-                        handle_zip.move_subtitle('downloaded/subtitle.srt', file_path[0], append_lang_code=sub_selected_lang)
-                    else:
-                        handle_zip.move_subtitle('downloaded/subtitle.srt', file_path[0])
-                    
-                elif sub_selected_engine == 'Titlovi':
-                    file_handler = handle_zip.TitloviFileHandler()
-                    file_handler.download(sub_selected_zip_down_titlovi)
-                    if values_subs['AppendLangCode'] == True:
-                        file_handler.move_file(file_path[0], append_lang_code=lang)
-                    else:
-                        file_handler.move_file(file_path[0])
+                # Put list of subtitle names in table of subtitles in GUI
+                window_download_subs['SUBSTABLE'].update(values=subs_names)
 
-                # Check end time
-                TIME_END = time.perf_counter()
-                time_took = round(TIME_END-TIME_START, 2)
-                print(f'\n*** Took {time_took} to download subtitles ***\n')
-                sg.popup_notify('File downloaded succesfully.\nYou can find your subtitle in movie folder', title='Subtitle downloaded', display_duration_in_ms=3000, fade_in_duration=100)
+                window_download_subs['STATUSBAR'].update(value='Language selected: {}'.format(language_selected[0]))
+                
+                # Read the window with a timeout of 200ms
+                event_subs, values_subs = window_download_subs.read()
+
+                # If window closed, close the window and break
+                if event_subs == sg.WIN_CLOSED:
+                    WINDOWSUBS = False
+                    window_download_subs.close()
+                    break
+
+                # If user clicks on subtitle, get all of information about choice and display them
+                if event_subs == 'SUBSTABLE':
+                    with suppress(IndexError):
+                        for sub_name in subs_names:
+                            if sub_name == values_subs['SUBSTABLE'][0]:
+                                for sub in subs_list:
+                                    sub_selected_engine = sub.engine
+                                    if sub.engine == 'OpenSubtitles' and sub.release == sub_name:
+                                        sub_selected_filename = sub.file_name
+                                        sub_selected_file_id = sub.file_id
+                                        sub_selected_lang = sub.language
+                                        window_download_subs['SUBNAME'].update(sub.title)
+                                        window_download_subs['SUBUSERID'].update(sub.uploader_id)
+                                        window_download_subs['SUBUSERNICK'].update(sub.uploader_name)
+                                        if sub.uploader_name in starting_settings.trustet_uploaders:
+                                            window_download_subs['TRUSTED'].update(visible=True)
+                                        else:
+                                            window_download_subs['TRUSTED'].update(visible=False)
+                                        window_download_subs['SUBADDDATE'].update(sub.upload_date)
+                                        window_download_subs['SUBUSERCOMMENT'].update(sub.comments)
+                                        window_download_subs['SUBEXTENSION'].update(sub.type)
+                                        window_download_subs['SUBLANG'].update(sub.language)
+                                        window_download_subs['SUBDOWNCOUNT'].update(str(sub.download_count) + ' times')
+                                    if sub.engine == 'Titlovi' and f'{sub.title} {sub.release}' == sub_name:
+                                        window_download_subs['SUBNAME'].update(sub.title)
+                                        window_download_subs['SUBADDDATE'].update(sub.date)
+                                        window_download_subs['SUBLANG'].update(sub.lang)
+                                        window_download_subs['SUBDOWNCOUNT'].update(str(sub.downloadCount) + ' times')
+                                        window_download_subs['SUBUSERID'].update('')
+                                        window_download_subs['SUBUSERNICK'].update('')
+                                        window_download_subs['SUBUSERCOMMENT'].update('')
+                                        window_download_subs['SUBEXTENSION'].update('')
+                                        window_download_subs['SUBSCORE'].update('')
+                                        sub_selected_zip_down_titlovi = sub.link
+                    #window_download_subs.refresh()
+                    window_download_subs['DOWNLOADSUB'].update(disabled=False)
+
+                # If user selects download subtitle
+                if event_subs == 'DOWNLOADSUB':
+                    # Display popup
+                    sg.popup_notify('Started download of selected subtitle', title='Downloading subtitles', display_duration_in_ms=800, fade_in_duration=100)
+                    # Set start time
+                    TIME_START = time.perf_counter()
+                    
+                    # Check for engine and run download depending on it
+                    if sub_selected_engine == 'OpenSubtitles':
+                        download = OpenS.DownloadSubtitle()
+                        download.get_info(sub_selected_file_id, user_token=openSubs.user_token)
+                        download.download_subtitle()
+                        if values_subs['AppendLangCode'] == True:
+                            handle_zip.move_subtitle('downloaded/subtitle.srt', file_path[0], append_lang_code=sub_selected_lang)
+                        else:
+                            handle_zip.move_subtitle('downloaded/subtitle.srt', file_path[0])
+                        
+                    elif sub_selected_engine == 'Titlovi':
+                        file_handler = handle_zip.TitloviFileHandler()
+                        file_handler.download(sub_selected_zip_down_titlovi)
+                        if values_subs['AppendLangCode'] == True:
+                            file_handler.move_file(file_path[0], append_lang_code=lang)
+                        else:
+                            file_handler.move_file(file_path[0])
+
+                    # Check end time
+                    TIME_END = time.perf_counter()
+                    time_took = round(TIME_END-TIME_START, 2)
+                    print(f'\n*** Took {time_took} to download subtitles ***\n')
+                    sg.popup_notify('File downloaded succesfully.\nYou can find your subtitle in movie folder', title='Subtitle downloaded', display_duration_in_ms=3000, fade_in_duration=100)
         
         '''
             If user selects search for subtitles and is single file and quickmode is on

@@ -1,10 +1,12 @@
 # Importing modules
 import ntpath
+
+import imdb
 from SubtitleSearcher import threads
-from SubtitleSearcher.data import imdb_metadata
+from SubtitleSearcher.data.imdb_metadata import search_imdb_by_title, ImdbID_queve
 from SubtitleSearcher.main import sg
 from SubtitleSearcher.threads import movieQueve, subsQueve
-from SubtitleSearcher.data.movies import hashFile, sizeOfFile, Movie
+from SubtitleSearcher.data.movies import hashFile, sizeOfFile, Movie, titloviComSub
 
 import urllib
 import threading
@@ -80,17 +82,6 @@ def language_selector(values):
         language_selected.append('en')
     return language_selected
 
-# Set up movie object 1
-def movie_setup(file_size, file_hash, file_path):
-    movie = Movie(file_size, file_hash, file_path, ntpath.basename(file_path))
-    movie.set_from_filename()
-    metadata = imdb_metadata.search_imdb_by_title(movie.title)
-    type_of_video = metadata[0]['kind']
-    movie.set_movie_kind(type_of_video)
-    movie_imdb_id = metadata[0].movieID
-    movie.set_imdb_id(movie_imdb_id)
-    return movie
-
 # Set up engine select
 def select_engine(values):
     engines = []
@@ -102,7 +93,7 @@ def select_engine(values):
         engines = ['Titlovi.com']
     return engines
 
-# Set up movie object 2
+# Set up movie object
 def define_movie(file_path):
     try:
         hashed_file = hashFile(file_path)
@@ -110,8 +101,18 @@ def define_movie(file_path):
     except FileNotFoundError:
         sg.popup_ok('File not found, please try again', title='File not found')
     else:
-        movie = movie_setup(fileSize, hashed_file, file_path)
+        movie = Movie(fileSize, hashed_file, file_path, ntpath.basename(file_path))
+        movie.set_from_filename()
+        findImdbId = threading.Thread(target=search_imdb_by_title, args=[movie.title], daemon=True)
+        findImdbId.start()
     return movie
+
+def setImdbIdFromThread(movie):
+    metadata = ImdbID_queve.get()
+    type_of_video = metadata[0]['kind']
+    movie.set_movie_kind(type_of_video)
+    movie_imdb_id = metadata[0].movieID
+    movie.set_imdb_id(movie_imdb_id)
 
 # Search titlovi.com
 def search_titlovi(language, movie, user_object):
@@ -127,7 +128,7 @@ def search_titlovi(language, movie, user_object):
     user_object.set_language(language)
     user_object.search_API()
     for number, subtitle in enumerate(user_object.subtitles):
-        number = movies.titloviComSub(subtitle)
+        number = titloviComSub(subtitle)
         titlovi_subs.append(number)
     return titlovi_subs
 

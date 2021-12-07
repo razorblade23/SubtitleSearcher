@@ -1,3 +1,5 @@
+import queue
+import threading
 import requests
 import json
 from imdb import IMDb
@@ -35,6 +37,8 @@ def search_by_id(id_raw):
 
     return json.loads(response.text)
 
+ImdbID_queve = queue.Queue()
 def search_imdb_by_title(title):
     search = IMDB.search_movie(title)
-    return search
+    ImdbID_queve.put(search)
+    
