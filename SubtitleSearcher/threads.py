@@ -1,12 +1,12 @@
 from threading import ThreadError
 from SubtitleSearcher.main import threading
 from SubtitleSearcher.data import imdb_metadata
-from SubtitleSearcher.data import openSubtitles, movies
+from SubtitleSearcher.data import movies
 import ntpath
 import queue
 import time
 
-opensubs = openSubtitles.searchOpenSubtitles()
+
 FileHandlerLock = threading.Lock()
 FileSearcherLock = threading.Lock()
 movieQueve = queue.Queue()

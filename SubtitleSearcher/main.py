@@ -403,7 +403,10 @@ def run():
                                             default_extension='.mkv',
                                             no_window=False,
                                             initial_folder=initial_f,
-                                            file_types=(('Video files', '.avi'),('Video files', '.mkv'),))
+                                            file_types=(('Video files', '.avi'),('Video files', '.mkv'),),
+                                            background_color='green',
+                                            text_color='black',
+                                            keep_on_top=True)
             # If file paths not selected, do not execute further
             if file_paths == None:
                 continue
@@ -497,8 +500,11 @@ def run():
                     else:
                         subs_names.append(f'{sub.title} {sub.release}')
             
+            # Put list of subtitle names in table of subtitles in GUI
+            window_download_subs['SUBSTABLE'].update(values=subs_names)
+
             # Read the window with a timeout of 200ms
-            event_subs, values_subs = window_download_subs.read(timeout=200)
+            event_subs, values_subs = window_download_subs.read()
             window_download_subs['STATUSBAR'].update(value='Language selected: {}'.format(language_selected[0]))
             
             # If window closed, close the window and break
@@ -506,9 +512,6 @@ def run():
                 WINDOWSUBS = False
                 window_download_subs.close()
                 continue
-            
-            # Put list of subtitle names in table of subtitles in GUI
-            window_download_subs['SUBSTABLE'].update(values=subs_names)
 
             # If user clicks on subtitle, get all of information about choice and display them
             if event_subs == 'SUBSTABLE':

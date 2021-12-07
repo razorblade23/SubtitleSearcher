@@ -5,7 +5,47 @@ from contextlib import suppress
 from SubtitleSearcher.data import starting_settings
 import json
 from collections import namedtuple
+import os
 
+
+def sizeOfFile(name):
+    size = os.path.getsize(name)
+    return size
+
+def hashFile(name):
+    import struct
+    try: 
+        longlongformat = '<q'  # little-endian long long
+        bytesize = struct.calcsize(longlongformat) 
+            
+        f = open(name, "rb") 
+            
+        filesize = os.path.getsize(name) 
+        hash = filesize 
+            
+        if filesize < 65536 * 2: 
+            return "SizeError" 
+            
+        for x in range(int(65536/bytesize)):
+            buffer = f.read(bytesize)
+            (l_value,)= struct.unpack(longlongformat, buffer)
+            hash += l_value
+            hash = hash & 0xFFFFFFFFFFFFFFFF #to remain as 64bit number
+                    
+
+        f.seek(max(0,filesize-65536),0) 
+        for x in range(int(65536/bytesize)): 
+            buffer = f.read(bytesize) 
+            (l_value,)= struct.unpack(longlongformat, buffer)  
+            hash += l_value 
+            hash = hash & 0xFFFFFFFFFFFFFFFF 
+            
+        f.close() 
+        returnedhash =  "%016x" % hash 
+        return returnedhash
+    
+    except(IOError): 
+        return "IOError"
 class Movie:
     '''Build movie object from file
     param: byte_size - size of selected file
@@ -110,7 +150,6 @@ class Movie:
         with suppress(KeyError): self.widescreen = self.movie_info['widescreen']
         with suppress(KeyError): self.year = self.movie_info['year']
         with suppress(KeyError): self.threeD = self.movie_info['3d']
-
         
     # Method to convert list to string
     def listToString(self, s): 
