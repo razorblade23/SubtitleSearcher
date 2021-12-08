@@ -201,6 +201,7 @@ def run():
     SINGLE_FILE_MODE = False
     MULTI_FILE_MODE = False
     WINDOWSUBS = False
+    MULTYFILEWINDOW = False
     OPENSUBSWINDOW = False
     TITLOVIWINDOW = False
     ABOUTWINDOW = False
@@ -247,6 +248,14 @@ def run():
         # If user wants to set up his own API key (needs work - not finished)
         if event == 'Set API key':
             pass
+        
+        if event == 'MultyFileWindow':
+            MULTYFILEWINDOW = True
+            multyFile_layout = gui_windows.multyfileSelectWindow()
+            multyFile_window = sg.Window(title='Multiple file search - manual mode', layout=multyFile_layout, element_justification='center', finalize=True)
+
+        if MULTYFILEWINDOW:
+            multyWindow_event, multyWindow_values = multyFile_window.read()
 
         # If user selects OpenSubtitles define a window
         if event == 'OpenSubtitles':

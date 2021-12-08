@@ -16,9 +16,9 @@ https://pysimplegui.readthedocs.io/en/latest/
 
 sg.theme('DarkBrown4')
 
-main_menu = [['File', ['Select a file']],
+main_menu = [['File', ['Select a file', 'MultyFileWindow']],
             ['Log in to services', ['OpenSubtitles', 'Titlovi.com']],
-            ['More info', ['Set API key', 'About']]]
+            ['More info', ['!Set API key', 'About']]]
 
 def openSubtitlesWindow():
     layout = [
@@ -82,7 +82,7 @@ def TitloviLoginWindow():
 
 def AboutWindow():
     layout = [
-        [sg.Image(source='SubtitleSearcher/static/images/logo.png')],
+        [sg.Image(source='images/logo.png')],
         [sg.Text('We were just two guys with an idea.', font='Any 13')],
         [sg.Text('Well one had idea, other had a year\nof programming experience in Python', font='Any 13')],
         [sg.Text('We are now proudly in beta testing stage', font='Any 16', text_color='white')],
@@ -110,8 +110,8 @@ def main_window():
                 [sg.Frame(title='Search for subtitles', layout=[
                     [sg.TabGroup(layout=[
                         [sg.Tab(title='Search by file', layout=[
-                            [sg.Button('Browse', key='BROWSE', size=(8,2), font='Any 30'),
-                            sg.Button('Search for subtitles', key='SEARCHFORSUBS', size=(15,2), font='Any 30')],
+                            [sg.Button(image_filename='images/filefind.png',tooltip='Browse', key='BROWSE', pad=(50,0)),
+                            sg.Button(image_filename='images/Search44.png', tooltip='Search for subtitles', key='SEARCHFORSUBS', pad=(50,0))],
                         ])],
                         [sg.Tab(title='Search by IMDB ID', disabled=True, layout=[
                             [sg.Frame(title='ID', layout=[
@@ -230,5 +230,26 @@ def subs_window():
         ])],
         [sg.Button('Download', key='DOWNLOADSUB', disabled=True)],
         [sg.StatusBar('', key='STATUSBAR', size=(60,1))]
+    ]
+    return layout
+
+def multyfileSelectWindow():
+    layout = [
+        [sg.Text('Video title:')],
+        [sg.Text(key='VideoTitle')],
+        [sg.Frame(title='Files selected', layout=[
+            [sg.Listbox(values=['File1', 'File2', 'File3'], size=(45,10), key='ListBox1')],
+        ]),
+        sg.Frame(title='Subtitles found for selected file', layout=[
+            [sg.Listbox(values=['Subtitle 1', 'Subtitle 2', 'Subtitle 3'], size=(60,10), key='ListBox2'),
+            sg.Button(image_filename='images/edit_add.png', image_subsample=4, tooltip='Add to download list')]
+        ]),
+        sg.Frame(title='Selected subtitles for download', layout=[
+            [sg.Listbox(values=['SUB ID 1', 'SUB ID 2', 'SUB ID 3'], size=(15,10), key='ListBox2'),
+            sg.Column(layout=[
+                [sg.Button(image_filename='images/button_cancel.png', image_subsample=4, tooltip='Clear download list')], 
+                [sg.Button(image_filename='images/Creative player 256_green.png', image_subsample=8, tooltip='Download subtitles')]
+            ])]
+        ])]
     ]
     return layout
