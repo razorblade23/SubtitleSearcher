@@ -1,10 +1,14 @@
 from threading import ThreadError
-from SubtitleSearcher.main import threading
-from SubtitleSearcher.data import imdb_metadata
-from SubtitleSearcher.data import movies
-import ntpath
+from SubtitleSearcher.main import threading, log
+from SubtitleSearcher.data.opeSubtitle_new import SearchForSubs
+import urllib
 import queue
-import time
+import requests
+import json
+from imdb import IMDb
+import asyncio
+IMDB = IMDb()
+
 
 
 FileHandlerLock = threading.Lock()
@@ -35,48 +39,33 @@ def ZipDownloaderThreaded(zip_handler, thread_nmb='1'):
                 print(f'Job done, releasing lock - thread {thread_nmb}\n')
                 FileHandlerLock.release()
 
-def SearchForSubtitles(link):
-    subtitles = opensubs.request_subtitles(link)
-    return subtitles
+def findVideoDetails_threaded(title, queve_in):
+    log.info(f'Searching IMDB details by: {title}')
+    search = IMDB.search_movie(title)
+    queve_in.put(search)
 
-def search_by_multy_file(OpenSubtitlesSearchAlg, file_path, language, count):
-    print(f'Starting thread: {count}')
-    try:
-        hashed_file = opensubs.hashFile(file_path)
-        fileSize = opensubs.sizeOfFile(file_path)
-    except FileNotFoundError:
-        print('File not found, please try again')
-        FileSearcherLock.release()
-    else:
-        movie = movies.Movie(fileSize, hashed_file, file_path, ntpath.basename(file_path))
-        FileSearcherLock.acquire()
-        movie.set_from_filename()
-        FileSearcherLock.release()
-        #print(f'\nMetadata extracted from filename:\n{movie.movie_info}')
-        metadata = imdb_metadata.search_imdb_by_title(movie.title)
-        #metadata = imdb_metadata.search_imdb_by_title(movie.title)
-        #print(metadata)
-        type_of_video = metadata[0]['kind']
-        movie.set_movie_kind(type_of_video)
-        movie_imdb_id = metadata[0].movieID
-        movie.set_imdb_id(movie_imdb_id)
-        #movie = movie_setup(fileSize, hashed_file, values, file_path)
-        search_alg = OpenSubtitlesSearchAlg(movie, language)
-        subtitles, all_subs = search_alg.subtitleSearchStep1()
-        #subtitles = []
-        if len(subtitles) == 0:
-            subtitles, all_subs = search_alg.subtitleSearchStep2()
-            if len(subtitles) == 0:
-                subtitles, all_subs = search_alg.subtitleSearchStep3()
-        #subtitles=[] # Comment / Uncomment this to simulate finding hash failed
-        
-    first_sub = all_subs[0]
-    subsQueve.put(first_sub)
-    print(f'''
-    Job done - {movie.title}
-    Episode: {movie.episode} Season: {movie.season}
-    Video filename: {movie.file_name}
-    Subtitle filename: {first_sub.SubFileName}
-    Thread {count}
-    ''')
-    
+def searchOpenSubtitles_threaded(payload, queve_in):
+    API_KEY = 'CIVqd03XEgIT4ERQX0AGlUjcaFCfRdyI'
+    BASE_URL = 'https://api.opensubtitles.com/api/v1/'
+    #search = SearchForSubs()
+    '''Search for subtitles based on payload
+    param: payload - parameters for searchin subtitle like movie name, IMDB ID, etc...'''
+
+    log.debug(f'Searching OpenSubtitles using payload: {payload}')
+    url = f'{BASE_URL}subtitles'
+    headers = {
+        'Content-Type': "application/json",
+        'Api-Key': API_KEY
+    }
+    url_string = urllib.parse.urlencode(payload, safe=',')
+    replaced = url_string.replace('+', ' ')
+    response = requests.get(url, headers=headers, params=replaced, allow_redirects=True)
+    json_dict = json.loads(response.text)
+    data = json_dict['data']
+    for subtitle in data:
+        queve_in.put(subtitle)
+
+def searchTitlovi_threded():
+    pass
+
+

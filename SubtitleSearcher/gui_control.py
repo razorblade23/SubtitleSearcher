@@ -6,7 +6,7 @@ from SubtitleSearcher import threads
 from SubtitleSearcher.data.imdb_metadata import search_imdb_by_title, ImdbID_queve
 from SubtitleSearcher.main import sg
 from SubtitleSearcher.threads import movieQueve, subsQueve
-from SubtitleSearcher.data.movies import hashFile, sizeOfFile, Movie, titloviComSub
+from SubtitleSearcher.data.movies import GetFileHash, GetFileSize, Movie, titloviComSub
 
 import urllib
 import threading
@@ -96,8 +96,8 @@ def select_engine(values):
 # Set up movie object
 def define_movie(file_path):
     try:
-        hashed_file = hashFile(file_path)
-        fileSize = sizeOfFile(file_path)
+        hashed_file = GetFileHash(file_path)
+        fileSize = GetFileSize(file_path)
     except FileNotFoundError:
         sg.popup_ok('File not found, please try again', title='File not found')
     else:
@@ -107,12 +107,16 @@ def define_movie(file_path):
         findImdbId.start()
     return movie
 
-def setImdbIdFromThread(movie):
-    metadata = ImdbID_queve.get()
-    type_of_video = metadata[0]['kind']
-    movie.set_movie_kind(type_of_video)
-    movie_imdb_id = metadata[0].movieID
-    movie.set_imdb_id(movie_imdb_id)
+def setImdbIdFromThread(metadata, movie):
+    #try:
+    #    metadata = ImdbID_queve.get_nowait()
+    #except queue.Empty:
+    #    metadata = None
+    if metadata is not None:
+        type_of_video = metadata[0]['kind']
+        movie.set_movie_kind(type_of_video)
+        movie_imdb_id = metadata[0].movieID
+        movie.set_imdb_id(movie_imdb_id)
 
 # Search titlovi.com
 def search_titlovi(language, movie, user_object):

@@ -3,6 +3,7 @@ import requests
 import json
 from contextlib import suppress
 import urllib.parse
+from SubtitleSearcher.main import log
 
 # Sets main variables
 API_KEY = 'CIVqd03XEgIT4ERQX0AGlUjcaFCfRdyI'
@@ -35,6 +36,7 @@ class OpenSubtitlesAPI:
             'Content-Type': "application/json",
             'Api-Key': API_KEY
         }
+        log.info('Logging user in')
         response = requests.post(url, json=payload, headers=headers)
         respond = False
         if response.ok:
@@ -49,7 +51,7 @@ class OpenSubtitlesAPI:
             respond = True
             return respond
         else:
-            print(f'There was a problem logging user in, error code: {response.status_code}')
+            log.warning(f'There was a problem logging user in, error code: {response.status_code}')
             return response
     
     def user_logout(self):
@@ -63,9 +65,9 @@ class OpenSubtitlesAPI:
         }
         response = requests.delete(url, headers=headers)
         if response.ok:
-            print('User logged out')
+            log.info('User logged out')
         else:
-            print(f'There was a problem with logout. response code: {response.status_code}\n{response.text}')
+            log.warning(f'There was a problem with logout. response code: {response.status_code}\n{response.text}')
 
 class SearchForSubs(OpenSubtitlesAPI):
     '''Child class of OpenSubs API that searches for subtitles'''

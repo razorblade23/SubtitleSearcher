@@ -2,17 +2,18 @@
 from os import access
 import PTN
 from contextlib import suppress
-from SubtitleSearcher.data import starting_settings
+from SubtitleSearcher.main import log
 import json
 from collections import namedtuple
 import os
 
 
-def sizeOfFile(name):
+def GetFileSize(name):
     size = os.path.getsize(name)
+    log.debug(f'File size set as: {size}')
     return size
 
-def hashFile(name):
+def GetFileHash(name):
     import struct
     try: 
         longlongformat = '<q'  # little-endian long long
@@ -23,7 +24,8 @@ def hashFile(name):
         filesize = os.path.getsize(name) 
         hash = filesize 
             
-        if filesize < 65536 * 2: 
+        if filesize < 65536 * 2:
+            log.critical('SizeError')
             return "SizeError" 
             
         for x in range(int(65536/bytesize)):
@@ -42,9 +44,11 @@ def hashFile(name):
             
         f.close() 
         returnedhash =  "%016x" % hash 
+        log.debug(f'File hash set as: {returnedhash}')
         return returnedhash
     
-    except(IOError): 
+    except(IOError):
+        log.critical('IOError')
         return "IOError"
 class Movie:
     '''Build movie object from file
@@ -52,6 +56,7 @@ class Movie:
     param: file_hash - hash of selected file calculated by OpenSubtitles provided algoritam
     param: file_path - path to selected file
     param: file_name - filename of selected file'''
+
     def __init__(self, byte_size, file_hash, file_path, file_name):
         self.byte_size = byte_size
         self.file_hash = file_hash
@@ -107,6 +112,8 @@ class Movie:
         PTN is really outdated and not maintained so there is parse-torrent-title that we use instead
         There is even a newer module to do this - GuessIt
         Somewhere in near future we will use GuessIt for this job'''
+        log.info('Building Movie object')
+
         self.movie_info = PTN.parse(self.file_name, standardise=False)
         with suppress(KeyError): self.audio = self.movie_info['audio']
         with suppress(KeyError): self.bitDepth = self.movie_info['bitDepth']
