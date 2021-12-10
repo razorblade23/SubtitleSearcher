@@ -36,10 +36,11 @@ class OpenSubtitlesAPI:
             'Content-Type': "application/json",
             'Api-Key': API_KEY
         }
-        log.info('Logging user in')
+        log.info(f'Logging user in: user {username}')
         response = requests.post(url, json=payload, headers=headers)
         respond = False
         if response.ok:
+            log.info('User logged in')
             json_dict = json.loads(response.text)
             self.user_allowed_translations = json_dict['user']['allowed_translations']
             self.user_allowed_downloads = json_dict['user']['allowed_downloads']
@@ -67,7 +68,7 @@ class OpenSubtitlesAPI:
         if response.ok:
             log.info('User logged out')
         else:
-            log.warning(f'There was a problem with logout. response code: {response.status_code}\n{response.text}')
+            log.warning(f'There was a problem with logout. response code: {response.status_code}')
 
 class SearchForSubs(OpenSubtitlesAPI):
     '''Child class of OpenSubs API that searches for subtitles'''

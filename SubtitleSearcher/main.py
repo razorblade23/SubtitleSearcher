@@ -10,10 +10,10 @@ def make_logger():
     log = logging.getLogger('MainLogger')
     log.setLevel(logging.DEBUG)
     handler = logging.handlers.RotatingFileHandler(
-                LOG_FILENAME, backupCount=2)
+                LOG_FILENAME, maxBytes=100000, backupCount=2)
     log_format = logging.Formatter('%(asctime)s - %(levelname)s - %(filename)s - %(threadName)s - %(message)s')
     handler.setFormatter(log_format)
-    handler.doRollover()
+    #handler.doRollover()
     log.addHandler(handler)
     return log
 log = make_logger()
@@ -549,7 +549,6 @@ def run():
                     log.info(f'Movie set as: title - {movie.title}, kind - {movie.kind}')
                     movieDetailsThread.join()
                     # Check for movie kind and make payload accordingly
-                    log.info(f'Video kind: {movie.kind}')
                     if movie.kind == 'movie':
                         payload = open_search.set_payload(imdb_id=movie.imdb_id, languages=lang, moviehash=movie.file_hash,  query=movie_title.lower(), year=movie.year)
                     elif movie.kind == 'tv series' or movie.kind == 'season':
@@ -561,11 +560,12 @@ def run():
                     OpenSubtitlesThread.start()
                     ##open_search.search_subtitles(payload)
                     # Get results
-                    log.info('Getting from threads')
+                    log.info('Getting subtitles from threads')
+                    results = []
                     while True:
                         try:
-                            results = OpenSubtitlesQueve.get(timeout=2)
-                            log.debug('Got result')
+                            result = OpenSubtitlesQueve.get(timeout=2)
+                            results.append(result)
                         except queue.Empty:
                             log.warning('Queve is empty')
                             break
@@ -595,6 +595,28 @@ def run():
             
         # If window has been configured, display the window
         if WINDOWSUBS:
+            # Make list of all subtitles objects from engines
+            subs_list = []
+            log.info('Enumerating all objects to list')
+            for engine in engines:
+                if engine == 'OpenSubtitles':
+                    for q in range(len(open_subs)):
+                        with suppress(AttributeError): subs_list.append(open_subs[q])
+                if engine == 'Titlovi.com':
+                    for w in range(len(titlovi_subs)):
+                        with suppress(AttributeError): subs_list.append(titlovi_subs[w])
+            # Make a list of all subtitles names to display in list
+            subs_names = []
+            log.info('Enumerating all titles to list ')
+            for sub in subs_list:
+                if sub.engine == 'OpenSubtitles':
+                    subs_names.append(sub.release)
+                if sub.engine == 'Titlovi':
+                    if sub.season >= 0 or sub.episode >= 0:
+                        subs_names.append(f'{sub.title} S{str(sub.season)}E{str(sub.episode)}')
+                    else:
+                        subs_names.append(f'{sub.title} {sub.release}')
+
             while True:
                 # Make changes to empty movie fields (upper part - movie information)
                 window_download_subs['MOVIENAME'].update(movie.title)
@@ -602,28 +624,6 @@ def run():
                 window_download_subs['IMDBID'].update(movie.imdb_id)
                 window_download_subs['KIND'].update(movie.kind)
                 window_download_subs['VIDEOFILENAME'].update(movie.file_name)
-
-                # Make list of all subtitles objects from engines
-                subs_list = []
-                log.info('Enumerating all objects to list')
-                for engine in engines:
-                    if engine == 'OpenSubtitles':
-                        for q in range(len(open_subs)):
-                            with suppress(AttributeError): subs_list.append(open_subs[q])
-                    if engine == 'Titlovi.com':
-                        for w in range(len(titlovi_subs)):
-                            with suppress(AttributeError): subs_list.append(titlovi_subs[w])
-                # Make a list of all subtitles names to display in list
-                subs_names = []
-                log.info('Enumerating all titles to list ')
-                for sub in subs_list:
-                    if sub.engine == 'OpenSubtitles':
-                        subs_names.append(sub.release)
-                    if sub.engine == 'Titlovi':
-                        if sub.season >= 0 or sub.episode >= 0:
-                            subs_names.append(f'{sub.title} S{str(sub.season)}E{str(sub.episode)}')
-                        else:
-                            subs_names.append(f'{sub.title} {sub.release}')
                 
                 # Put list of subtitle names in table of subtitles in GUI
                 window_download_subs['SUBSTABLE'].update(values=subs_names)
