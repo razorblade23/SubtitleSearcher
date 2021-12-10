@@ -555,13 +555,21 @@ def run():
                     # Get results
                     log.info('Getting subtitles from threads')
                     results = []
-                    while True:
+                    while OpenSubtitlesQueve.not_empty:
                         try:
-                            result = OpenSubtitlesQueve.get(timeout=6)
+                            result = OpenSubtitlesQueve.get(timeout=2)
                             results.append(result)
                         except queue.Empty:
                             log.warning('Queve is empty')
                             break
+                    #while True:
+                    #    try:
+                    #        result = OpenSubtitlesQueve.join()
+                    #        results.append(result)
+                    #        OpenSubtitlesQueve.task_done()
+                    #    except queue.Empty:
+                    #        log.warning('Queve is empty')
+                    #        break
                     log.info(f'Found {len(results)} results on OpenSubtitles')
 
                     #results = open_search.data
@@ -668,7 +676,6 @@ def run():
                                         window_download_subs['SUBDOWNCOUNT'].update(str(sub.downloadCount) + ' times')
                                         window_download_subs['SUBUSERID'].update('No data from this engine')
                                         window_download_subs['SUBUSERNICK'].update('No data from this engine')
-                                        window_download_subs['SUBUSERCOMMENT'].update('No data from this engine')
                                         window_download_subs['SUBEXTENSION'].update('No data from this engine')
                                         window_download_subs['SUBSCORE'].update('No data from this engine')
                                         sub_selected_zip_down_titlovi = sub.link
