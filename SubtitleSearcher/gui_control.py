@@ -4,10 +4,9 @@ import ntpath
 import imdb
 from SubtitleSearcher import threads
 from SubtitleSearcher.data.imdb_metadata import search_imdb_by_title, ImdbID_queve
-from SubtitleSearcher.main import sg
+from SubtitleSearcher.main import sg, log
 from SubtitleSearcher.threads import movieQueve, subsQueve
 from SubtitleSearcher.data.movies import GetFileHash, GetFileSize, Movie, titloviComSub
-
 import urllib
 import threading
 import queue
@@ -19,6 +18,7 @@ allSubsQueve = queue.Queue()
 
 
 def intro_dialog():
+    log.info('Starting intro dialog')
     dialog = sg.popup_ok('''
     This app is still in early alpha. 
     Current version is 0.0.2-alpha.
@@ -62,6 +62,7 @@ def intro_dialog():
 
 # Update status bar helper function
 def StatusBarUpdate(window, element_name, value=None, text_color=None, font=None, visible=None):
+    log.info('Updating Status bar')
     return window[element_name].update(value=value, text_color=text_color, font=font, visible=visible)
 
 # Get languges from GUI and set them in list
@@ -80,6 +81,7 @@ def language_selector(values):
             language_selected.append('sl')
     except TypeError:
         language_selected.append('en')
+    log.info(f'Languages selected: {language_selected}')
     return language_selected
 
 # Set up engine select
@@ -128,10 +130,12 @@ def search_titlovi(language, movie, user_object):
             user_object.search_by_filename(movie.title, movie.year, season=movie.season)
     else:
         user_object.search_by_filename(movie.title, movie.year)
-    user_object.set_language(language)
-    user_object.search_API()
-    for number, subtitle in enumerate(user_object.subtitles):
-        number = titloviComSub(subtitle)
-        titlovi_subs.append(number)
+    user_object.handle_languages(language)
+    log.info(f'Running Titlovi search with languages: {user_object.modified_lang_list}')
+    for language in user_object.modified_lang_list:    
+        user_object.search_API(language)
+        for number, subtitle in enumerate(user_object.subtitles):
+            number = titloviComSub(subtitle)
+            titlovi_subs.append(number)
     return titlovi_subs
 

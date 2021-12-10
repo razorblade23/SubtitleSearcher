@@ -3,7 +3,7 @@ from dateutil import parser
 from SubtitleSearcher.main import log
 from datetime import datetime
 import requests
-import json
+
 api_url = 'https://kodi.titlovi.com/api/subtitles'
 
 
@@ -24,6 +24,8 @@ class TitloviCom:
         self.user_token = None
         self.token_expiry_date = None
         self.user_id = None
+
+        self.MULTI_LANGUAGE_MODE = False
 
     def handle_login(self):
         """
@@ -86,11 +88,21 @@ class TitloviCom:
         self.search_param['episode'] = episode
         self.search_param['imdbID'] = imdb_id
     
-    def set_language(self, language):
-        lang = self.LANGUAGE_MAPPING[language]
-        self.search_param['lang'] = lang
+    def handle_languages(self, language):
+        languge_list = language.split(',')
+        self.modified_lang_list = []
+        if len(languge_list) > 1: # If multyple languages selected
+            for lang in languge_list:
+                self.MULTI_LANGUAGE_MODE = True
+                conv_lang = self.LANGUAGE_MAPPING[lang]
+                self.modified_lang_list.append(conv_lang)
+        else: # Else there is 1 language in list so use that
+            conv_lang = self.LANGUAGE_MAPPING[language[0]]
+            self.modified_lang_list.append(conv_lang)
+        
 
-    def search_API(self):
+    def search_API(self, language):
+        self.search_param['lang'] = language
         self.search_param['token'] = self.user_token
         self.search_param['userid'] = self.user_id
         self.search_param['json'] = True
