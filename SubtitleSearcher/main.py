@@ -13,7 +13,7 @@ def make_logger():
                 LOG_FILENAME, maxBytes=100000, backupCount=2)
     log_format = logging.Formatter('%(asctime)s - %(levelname)s - %(filename)s - %(threadName)s - %(message)s')
     handler.setFormatter(log_format)
-    #handler.doRollover()
+    handler.doRollover()
     log.addHandler(handler)
     return log
 log = make_logger()
@@ -156,6 +156,17 @@ main_layout = gui_windows.main_window()
 # Display intro dialog
 gui_control.intro_dialog()
 
+def getVideoDetailsFromThread(movie, singleVideoQueve, movieDetailsThread):
+    log.info('Getting video details from thread')
+    try:
+        movie_details = singleVideoQueve.get(timeout=2)
+    except:
+        log.critical('Movie details queve is empty')
+    gui_control.setImdbIdFromThread(movie_details, movie)
+    log.info(f'Movie set as: title - {movie.title}, kind - {movie.kind}')
+    movieDetailsThread.join()
+    return movie_details
+
 
 # Get from JSON settings
 def get_from_titlovi_settings():
@@ -238,27 +249,27 @@ def run():
 
     # Define main window
     window = sg.Window(title='Subbydoo', layout=main_layout, element_justification='center', icon=icon, finalize=True)
-
-    log.info('Checking for user tokens...')
-    # Check for tokens from engines and display log in status on statusbar
-    try:
-        if openSubs.user_token != None:
-            gui_control.StatusBarUpdate(window, 'STATUSBAR2', text_color='green')
-        else:
-            gui_control.StatusBarUpdate(window, 'STATUSBAR2', text_color='red')
-        if titlovi.user_token != None:
-            gui_control.StatusBarUpdate(window, 'STATUSBAR3', text_color='green')
-            window['USETITLOVI'].update(disabled=False)
-        else:
-            gui_control.StatusBarUpdate(window, 'STATUSBAR3', text_color='red')
-    except:
-        pass
     gui_control.StatusBarUpdate(window, 'STATUSBAR4', value='v.0.0.3-alpha')
 
     # Start infinite loop
     while True:
+        log.info('Checking for user tokens...')
+        # Check for tokens from engines and display log in status on statusbar
+        try:
+            if openSubs.user_token != None:
+                gui_control.StatusBarUpdate(window, 'STATUSBAR2', text_color='green')
+            else:
+                gui_control.StatusBarUpdate(window, 'STATUSBAR2', text_color='red')
+            if titlovi.user_token != None:
+                gui_control.StatusBarUpdate(window, 'STATUSBAR3', text_color='green')
+                window['USETITLOVI'].update(disabled=False)
+            else:
+                gui_control.StatusBarUpdate(window, 'STATUSBAR3', text_color='red')
+        except:
+            pass
+
         log.info('Started GUI event loop')
-        event, values = window.read() # Read main window 
+        event, values = window.read() # Read main window
         TITLOVI_SETTINGS = get_from_titlovi_settings()
         
         # If window is closed break the loop
@@ -514,6 +525,8 @@ def run():
         
         # If user selects search for subtitles and is single file and quickmode is off
         if event == 'SEARCHFORSUBS' and SINGLE_FILE_MODE and values['QuickMode'] == False:
+            if movie.imdb_id == None:
+                getVideoDetailsFromThread(movie, singleVideoQueve, movieDetailsThread)
             log.info('START CONDITIONS: SINGLE FILE MODE - QUICKMODE OFF')
             # Check for engines selected
             engines = []
@@ -528,11 +541,6 @@ def run():
                     # Set instance name for OpenSubtitles
                     open_search = OpenS.SearchForSubs()
                     movie_title = movie.title # Get movie title
-                    log.info('Getting video details from thread')
-                    movie_details = singleVideoQueve.get()
-                    gui_control.setImdbIdFromThread(movie_details, movie)
-                    log.info(f'Movie set as: title - {movie.title}, kind - {movie.kind}')
-                    movieDetailsThread.join()
                     # Check for movie kind and make payload accordingly
                     if movie.kind == 'movie':
                         payload = open_search.set_payload(imdb_id=movie.imdb_id, languages=lang, moviehash=movie.file_hash,  query=movie_title.lower(), year=movie.year)
@@ -554,6 +562,7 @@ def run():
                         except queue.Empty:
                             log.warning('Queve is empty')
                             break
+                    log.info(f'Found {len(results)} results on OpenSubtitles')
 
                     #results = open_search.data
                     open_subs = []
@@ -567,6 +576,7 @@ def run():
                     log.info('Starting Titlovi search')
                     try:
                         titlovi_subs = gui_control.search_titlovi(lang, movie, titlovi)
+                        log.info(f'Found {len(titlovi_subs)} results on Titlovi')
                     except UnboundLocalError:
                         log.critical('User is not validated, cant continue')
                         sg.popup_error('User is not validated.\nPlease validate your account to use Titlovi.com')
@@ -776,3 +786,4 @@ def run():
 
     window.close() # Closes main window
     return
+

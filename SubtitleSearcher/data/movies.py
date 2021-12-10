@@ -63,6 +63,9 @@ class Movie:
         self.file_path = file_path
         self.file_name = file_name
 
+        self.imdb_id = None
+        self.kind = None
+
         self.audio = None
         self.bitDepth = None
         self.codec = None

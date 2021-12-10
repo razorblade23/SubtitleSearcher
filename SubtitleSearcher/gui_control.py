@@ -121,7 +121,6 @@ def setImdbIdFromThread(metadata, movie):
 # Search titlovi.com
 def search_titlovi(language, movie, user_object):
     titlovi_subs = []
-    print('Running Titlovi.com search')
     if movie.episode != None or movie.season != None:
         if movie.episode != None:
             user_object.search_by_filename(movie.title, movie.year, episode=movie.episode)
