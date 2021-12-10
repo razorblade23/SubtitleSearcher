@@ -34,21 +34,6 @@ import ntpath
 import platform
 import time
 
-def make_logger():
-    with suppress(FileExistsError): os.mkdir('logs')
-    LOG_FILENAME = 'logs/main.log'
-    # Set up a specific logger with our desired output level
-    log = logging.getLogger('MainLogger')
-    log.setLevel(logging.DEBUG)
-    handler = logging.handlers.RotatingFileHandler(
-                LOG_FILENAME, backupCount=2)
-    log_format = logging.Formatter('%(asctime)s - %(levelname)s - %(filename)s - %(threadName)s - %(message)s')
-    handler.setFormatter(log_format)
-    handler.doRollover()
-    log.addHandler(handler)
-    return log
-log = make_logger()
-
 # Setting default paths for setting files in JSON format
 SETTINGS_OSUBTITLES_PATH = 'SubtitleSearcher/data/user_settings/OpenSubtitles_settings.json'
 SETTINGS_TITLOVI_PATH = 'SubtitleSearcher/data/user_settings/Titlovi_settings.json'
