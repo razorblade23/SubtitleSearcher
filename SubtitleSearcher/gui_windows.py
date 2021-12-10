@@ -1,4 +1,5 @@
 # Import modules
+from tkinter import font
 from SubtitleSearcher.main import sg
 from psgtray import SystemTray
 
@@ -200,32 +201,33 @@ def subs_window():
         ]),
         sg.Frame(title='Selected subtitle metadata', layout=[
             [sg.Column(layout=[
+                [sg.T('Found using: '), sg.T(key='ENGINE', text_color='#00acb5', font='Any 14')],
                 [sg.T('Subtitle name:', size=(20,1)), sg.T('TRUSTED UPLOADER', text_color='green', visible=False, key='TRUSTED')],
-                [sg.T(key='SUBNAME', text_color='white', size=(65,1))]
+                [sg.T(key='SUBNAME', text_color='white')]
             ])],
             [sg.Column(layout=[
                 [sg.T('Subtitle user ID: '),
-                sg.T(key='SUBUSERID', text_color='white', size=(10,1))],
+                sg.T(key='SUBUSERID', text_color='white')],
                 [sg.T('Subtitle user nickname: '),
-                sg.T(key='SUBUSERNICK', text_color='white', size=(16,1))],
-                [sg.T('Subtitle author comment: '),
-                sg.T(key='SUBUSERCOMMENT', text_color='white', size=(16,1))],
+                sg.T(key='SUBUSERNICK', text_color='white')],
+                [sg.T('Subtitle author comment: ')],
+                [sg.Multiline('No comment', key='SUBUSERCOMMENT', text_color='white', size=(60,3), no_scrollbar=True)],
                 [sg.T('Subtitle add date: '),
-                sg.T(key='SUBADDDATE', text_color='white', size=(20,1))],
+                sg.T(key='SUBADDDATE', text_color='white')],
             ])],
             [sg.Column(layout=[
                 [sg.T('Subtitle extension: '),
-                sg.T(key='SUBEXTENSION', text_color='white', size=(10,1))],
+                sg.T(key='SUBEXTENSION', text_color='white')],
                 [sg.T('Subtitle language: '),
-                sg.T(key='SUBLANG', text_color='white', size=(10,1))]
+                sg.T(key='SUBLANG', text_color='white')]
             ])],
             [sg.Column(layout=[
                 [sg.T('Subtitle downloads count: '),
-                sg.T(key='SUBDOWNCOUNT', text_color='white', size=(10,1))]
+                sg.T(key='SUBDOWNCOUNT', text_color='white')]
             ])],
             [sg.Column(layout=[
                 [sg.T('Subtitle score: '),
-                sg.T(key='SUBSCORE', text_color='white', size=(10,1))]
+                sg.T(key='SUBSCORE', text_color='white')]
             ])],
         ])],
         [sg.Button('Download', key='DOWNLOADSUB', disabled=True)],

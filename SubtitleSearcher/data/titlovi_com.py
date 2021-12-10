@@ -97,7 +97,7 @@ class TitloviCom:
                 conv_lang = self.LANGUAGE_MAPPING[lang]
                 self.modified_lang_list.append(conv_lang)
         else: # Else there is 1 language in list so use that
-            conv_lang = self.LANGUAGE_MAPPING[language[0]]
+            conv_lang = self.LANGUAGE_MAPPING[languge_list[0]]
             self.modified_lang_list.append(conv_lang)
         
 

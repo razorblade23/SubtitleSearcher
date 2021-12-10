@@ -647,6 +647,7 @@ def run():
                                         sub_selected_filename = sub.file_name
                                         sub_selected_file_id = sub.file_id
                                         sub_selected_lang = sub.language
+                                        window_download_subs['ENGINE'].update(sub.engine)
                                         window_download_subs['SUBNAME'].update(sub.title)
                                         window_download_subs['SUBUSERID'].update(sub.uploader_id)
                                         window_download_subs['SUBUSERNICK'].update(sub.uploader_name)
@@ -660,15 +661,16 @@ def run():
                                         window_download_subs['SUBLANG'].update(sub.language)
                                         window_download_subs['SUBDOWNCOUNT'].update(str(sub.download_count) + ' times')
                                     if sub.engine == 'Titlovi' and f'{sub.title} {sub.release}' == sub_name:
+                                        window_download_subs['ENGINE'].update(sub.engine)
                                         window_download_subs['SUBNAME'].update(sub.title)
                                         window_download_subs['SUBADDDATE'].update(sub.date)
                                         window_download_subs['SUBLANG'].update(sub.lang)
                                         window_download_subs['SUBDOWNCOUNT'].update(str(sub.downloadCount) + ' times')
-                                        window_download_subs['SUBUSERID'].update('')
-                                        window_download_subs['SUBUSERNICK'].update('')
-                                        window_download_subs['SUBUSERCOMMENT'].update('')
-                                        window_download_subs['SUBEXTENSION'].update('')
-                                        window_download_subs['SUBSCORE'].update('')
+                                        window_download_subs['SUBUSERID'].update('No data from this engine')
+                                        window_download_subs['SUBUSERNICK'].update('No data from this engine')
+                                        window_download_subs['SUBUSERCOMMENT'].update('No data from this engine')
+                                        window_download_subs['SUBEXTENSION'].update('No data from this engine')
+                                        window_download_subs['SUBSCORE'].update('No data from this engine')
                                         sub_selected_zip_down_titlovi = sub.link
                     #window_download_subs.refresh()
                     window_download_subs['DOWNLOADSUB'].update(disabled=False)
