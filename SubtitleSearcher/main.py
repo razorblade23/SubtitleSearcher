@@ -557,7 +557,7 @@ def run():
                     results = []
                     while True:
                         try:
-                            result = OpenSubtitlesQueve.get(timeout=2)
+                            result = OpenSubtitlesQueve.get(timeout=6)
                             results.append(result)
                         except queue.Empty:
                             log.warning('Queve is empty')

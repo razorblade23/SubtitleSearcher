@@ -134,6 +134,7 @@ def search_titlovi(language, movie, user_object):
     log.info(f'Running Titlovi search with languages: {user_object.modified_lang_list}')
     for language in user_object.modified_lang_list:    
         user_object.search_API(language)
+        log.info(f'Found {len(user_object.subtitles)} subtitles for {language} language')
         for number, subtitle in enumerate(user_object.subtitles):
             number = titloviComSub(subtitle)
             titlovi_subs.append(number)
