@@ -3,7 +3,6 @@ from os import access
 import PTN
 from contextlib import suppress
 from SubtitleSearcher.main import log
-import json
 from collections import namedtuple
 import os
 
