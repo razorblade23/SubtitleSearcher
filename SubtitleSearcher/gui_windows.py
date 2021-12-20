@@ -1,6 +1,5 @@
 # Import modules
 from SubtitleSearcher.main import sg
-from psgtray import SystemTray
 
 '''
 This script contains all GUI windows, their elements and starting settings
@@ -16,9 +15,9 @@ https://pysimplegui.readthedocs.io/en/latest/
 
 sg.theme('DarkBrown4')
 
-main_menu = [['File', ['Select a file']],
+main_menu = [['File', ['Select a file', 'MultyFileWindow']],
             ['Log in to services', ['OpenSubtitles', 'Titlovi.com']],
-            ['More info', ['Set API key', 'About']]]
+            ['More info', ['!Set API key', 'About']]]
 
 def openSubtitlesWindow():
     layout = [
@@ -44,8 +43,8 @@ def openSubtitlesWindow():
             [sg.Input(key='OpenSubtitlesUSERNAME', size=(16,0), focus=True)],
             [sg.Text('Password:')],
             [sg.Input(key='OpenSubtitlesPASSWORD', password_char='*', size=(16,0))],
-            [sg.Checkbox('Remember me?', enable_events=True, tooltip='Plain JSON save, no security', key='RememberMe')],
-            [sg.Button('Log in', key='OpenSubtitlesSUBMIT')]
+            [sg.Checkbox('Remember me?', tooltip='Plain JSON save, no security', key='RememberMe')],
+            [sg.Button('Log in', key='OpenSubtitlesSUBMIT', enable_events=True)]
         ])]
     ]
     return layout
@@ -75,14 +74,14 @@ def TitloviLoginWindow():
             [sg.Text('Password:')],
             [sg.Input(key='TitloviPASSWORD', password_char='*', size=(16,0))],
             [sg.Checkbox('Remember me?', enable_events=True, tooltip='Plain JSON save, no security', key='RememberMe')],
-            [sg.Button('Log in', key='TitloviSUBMIT')]
+            [sg.Button('Log in', key='LOGIN', enable_events=True)]
         ])]
     ]
     return layout
 
 def AboutWindow():
     layout = [
-        [sg.Image(source='SubtitleSearcher/static/images/logo.png')],
+        [sg.Image(source='images/logo.png')],
         [sg.Text('We were just two guys with an idea.', font='Any 13')],
         [sg.Text('Well one had idea, other had a year\nof programming experience in Python', font='Any 13')],
         [sg.Text('We are now proudly in beta testing stage', font='Any 16', text_color='white')],
@@ -110,8 +109,8 @@ def main_window():
                 [sg.Frame(title='Search for subtitles', layout=[
                     [sg.TabGroup(layout=[
                         [sg.Tab(title='Search by file', layout=[
-                            [sg.Button('Browse', key='BROWSE', size=(8,2), font='Any 30'),
-                            sg.Button('Search for subtitles', key='SEARCHFORSUBS', size=(15,2), font='Any 30')],
+                            [sg.Button(image_filename='images/filefind.png',tooltip='Browse', key='BROWSE', pad=(50,0)),
+                            sg.Button(image_filename='images/Search44.png', tooltip='Search for subtitles', key='SEARCHFORSUBS', pad=(50,0))],
                         ])],
                         [sg.Tab(title='Search by IMDB ID', disabled=True, layout=[
                             [sg.Frame(title='ID', layout=[
@@ -190,39 +189,65 @@ def subs_window():
             [sg.Checkbox('Match subtitle filename with movie filename?', default=True)], [sg.Checkbox('Append language code to end of subtitle file?', default=True, key='AppendLangCode')]
         ])],
         [sg.Frame(title='Select subtitle', layout=[
-            [sg.Listbox(values=[''], key='SUBSTABLE', size=(80,20), select_mode='LISTBOX_SELECT_MODE_SINGLE', enable_events=True, horizontal_scroll = True)]
+            [sg.Listbox(values=[' '],
+                        size=(120,20),
+                        key='SUBSTABLE',
+                        select_mode='browse', 
+                        enable_events=True)]
         ]),
         sg.Frame(title='Selected subtitle metadata', layout=[
             [sg.Column(layout=[
+                [sg.T('Found using: '), sg.T(key='ENGINE', text_color='#00acb5', font='Any 14')],
                 [sg.T('Subtitle name:', size=(20,1)), sg.T('TRUSTED UPLOADER', text_color='green', visible=False, key='TRUSTED')],
-                [sg.T(key='SUBNAME', text_color='white', size=(65,1))]
+                [sg.T(key='SUBNAME', text_color='white')]
             ])],
             [sg.Column(layout=[
                 [sg.T('Subtitle user ID: '),
-                sg.T(key='SUBUSERID', text_color='white', size=(10,1))],
+                sg.T(key='SUBUSERID', text_color='white')],
                 [sg.T('Subtitle user nickname: '),
-                sg.T(key='SUBUSERNICK', text_color='white', size=(16,1))],
-                [sg.T('Subtitle author comment: '),
-                sg.T(key='SUBUSERCOMMENT', text_color='white', size=(16,1))],
+                sg.T(key='SUBUSERNICK', text_color='white')],
+                [sg.T('Subtitle author comment: ')],
+                [sg.Multiline('No comment', key='SUBUSERCOMMENT', text_color='white', size=(60,3), no_scrollbar=True)],
                 [sg.T('Subtitle add date: '),
-                sg.T(key='SUBADDDATE', text_color='white', size=(20,1))],
+                sg.T(key='SUBADDDATE', text_color='white')],
             ])],
             [sg.Column(layout=[
                 [sg.T('Subtitle extension: '),
-                sg.T(key='SUBEXTENSION', text_color='white', size=(10,1))],
+                sg.T(key='SUBEXTENSION', text_color='white')],
                 [sg.T('Subtitle language: '),
-                sg.T(key='SUBLANG', text_color='white', size=(10,1))]
+                sg.T(key='SUBLANG', text_color='white')]
             ])],
             [sg.Column(layout=[
                 [sg.T('Subtitle downloads count: '),
-                sg.T(key='SUBDOWNCOUNT', text_color='white', size=(10,1))]
+                sg.T(key='SUBDOWNCOUNT', text_color='white')]
             ])],
             [sg.Column(layout=[
                 [sg.T('Subtitle score: '),
-                sg.T(key='SUBSCORE', text_color='white', size=(10,1))]
+                sg.T(key='SUBSCORE', text_color='white')]
             ])],
         ])],
         [sg.Button('Download', key='DOWNLOADSUB', disabled=True)],
         [sg.StatusBar('', key='STATUSBAR', size=(60,1))]
+    ]
+    return layout
+
+def multyfileSelectWindow():
+    layout = [
+        [sg.Text('Video title:')],
+        [sg.Text(key='VideoTitle')],
+        [sg.Frame(title='Files selected', layout=[
+            [sg.Listbox(values=['File1', 'File2', 'File3'], size=(45,10), key='ListBox1')],
+        ]),
+        sg.Frame(title='Subtitles found for selected file', layout=[
+            [sg.Listbox(values=['Subtitle 1', 'Subtitle 2', 'Subtitle 3'], size=(60,10), key='ListBox2'),
+            sg.Button(image_filename='images/edit_add.png', image_subsample=4, tooltip='Add to download list')]
+        ]),
+        sg.Frame(title='Selected subtitles for download', layout=[
+            [sg.Listbox(values=['SUB ID 1', 'SUB ID 2', 'SUB ID 3'], size=(15,10), key='ListBox2'),
+            sg.Column(layout=[
+                [sg.Button(image_filename='images/button_cancel.png', image_subsample=4, tooltip='Clear download list')], 
+                [sg.Button(image_filename='images/Creative player 256_green.png', image_subsample=8, tooltip='Download subtitles')]
+            ])]
+        ])]
     ]
     return layout

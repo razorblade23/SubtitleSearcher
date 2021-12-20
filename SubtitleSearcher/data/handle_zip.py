@@ -6,13 +6,16 @@ from zipfile import ZipFile
 import shutil
 
 # Move subtitles (OpenSubtitles.com)
-def move_subtitle(source_path, dst_path, append_lang_code=None):
+def move_subtitle(mode, source_path, dst_path, append_lang_code=None):
     org_string = dst_path
     size = len(org_string)
     mod_string = org_string[:size - 4]
     if append_lang_code != None:
         mod_string = f'{mod_string}-{append_lang_code}'
-    final_path = os.path.join(dst_path, f'{mod_string}.srt')
+    if mode == 'zip':
+        final_path = os.path.join(dst_path, f'{mod_string}.zip')
+    if mode == 'srt':
+        final_path = os.path.join(dst_path, f'{mod_string}.srt')
     shutil.move(source_path, final_path)
 
 # Move subtitles (Titlovi.com)
