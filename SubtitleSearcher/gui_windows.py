@@ -1,7 +1,5 @@
 # Import modules
-from tkinter import font
 from SubtitleSearcher.main import sg
-from psgtray import SystemTray
 
 '''
 This script contains all GUI windows, their elements and starting settings
@@ -76,7 +74,7 @@ def TitloviLoginWindow():
             [sg.Text('Password:')],
             [sg.Input(key='TitloviPASSWORD', password_char='*', size=(16,0))],
             [sg.Checkbox('Remember me?', enable_events=True, tooltip='Plain JSON save, no security', key='RememberMe')],
-            [sg.Button('Log in', key='TitloviSUBMIT', enable_events=True)]
+            [sg.Button('Log in', key='LOGIN', enable_events=True)]
         ])]
     ]
     return layout
@@ -191,13 +189,11 @@ def subs_window():
             [sg.Checkbox('Match subtitle filename with movie filename?', default=True)], [sg.Checkbox('Append language code to end of subtitle file?', default=True, key='AppendLangCode')]
         ])],
         [sg.Frame(title='Select subtitle', layout=[
-            [sg.Listbox(values=[''], key='SUBSTABLE', 
-                        size=(80,20), 
-                        select_mode='LISTBOX_SELECT_MODE_SINGLE', 
-                        enable_events=True, 
-                        horizontal_scroll = True,
-                        highlight_background_color='green',
-                        highlight_text_color='yellow')]
+            [sg.Listbox(values=[' '],
+                        size=(120,20),
+                        key='SUBSTABLE',
+                        select_mode='browse', 
+                        enable_events=True)]
         ]),
         sg.Frame(title='Selected subtitle metadata', layout=[
             [sg.Column(layout=[

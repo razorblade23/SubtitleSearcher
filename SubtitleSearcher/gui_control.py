@@ -1,13 +1,8 @@
 # Importing modules
 import ntpath
-
-import imdb
-from SubtitleSearcher import threads
-from SubtitleSearcher.data.imdb_metadata import search_imdb_by_title, ImdbID_queve
+from SubtitleSearcher.data.imdb_metadata import search_imdb_by_title
 from SubtitleSearcher.main import sg, log
-from SubtitleSearcher.threads import movieQueve, subsQueve
 from SubtitleSearcher.data.movies import GetFileHash, GetFileSize, Movie, titloviComSub
-import urllib
 import threading
 import queue
 
