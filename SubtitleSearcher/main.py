@@ -175,6 +175,51 @@ def loadTitloviUserSettings(titlovi_object, json_settings):
         titlovi_object.token_expiry_date = None
         titlovi_object.user_id = None
 
+
+def run_search_in_engines(engines, lang, movie):
+    log.info('START CONDITIONS: SINGLE FILE MODE - QUICKMODE OFF')
+            # Check for engines selected
+    open_subs = []
+    titlovi_subs = []
+            # Iterate thru engines and search with selected
+    for engine in engines:
+                # If engine is OpenSubtitles
+        if engine == 'OpenSubtitles':
+            log.info('Starting OpenSubtitles search')
+                    # Set instance name for OpenSubtitles
+            movie_title = movie.title # Get movie title
+                    # Check for movie kind and make payload accordingly
+            response = openSubtitlesAPI.search_for_subtitle(languages=lang, moviehash=movie.file_hash, query=movie_title, year=movie.year)
+                    # Search OpenSubtitles server with payload
+            openSubtitlesAPI.proccess_subtitle_search_response(response)
+            results = []
+            for sub in openSubtitlesAPI.data:
+                results.append(sub)
+            log.info(f'Found {len(results)} results on OpenSubtitles')
+                    # Enumerate results and put them in list
+            log.info('Making objects from results')
+            for nmb, subtitle in enumerate(results):
+                name = nmb
+                name = ProccessOpenSubtitlesSubs()
+                name.make_objects_from_subtitles(subtitle)
+                open_subs.append(name)
+                # If engine is Titlovi.com
+        if engine == 'Titlovi.com':
+            log.info('Starting Titlovi search')
+            languages = titloviAPI.handle_language_conversion(lang)
+            payload = titloviAPI.prepare_payload(query=movie.title)
+            for language in languages:
+                response = titloviAPI.search_for_subtitles(payload, language)
+                titloviAPI.proccess_subtitle_search_response(response)
+                for nmb, subtitle in enumerate(titloviAPI.subtitles):
+                    name = nmb
+                    name = ProccessTitloviSubs()
+                    name.proccess_subtitle_results(subtitle)
+                    titlovi_subs.append(name)
+            log.info(f'Found {len(titlovi_subs)} subtitles - Titlovi')
+    log.info('All engines run')
+    return open_subs,titlovi_subs
+
 '''
 This is main function that controls and links all sub-functions
 Start infinite loop for your GUI windows and reading from them
@@ -422,6 +467,17 @@ def run():
                 log.info('MODE - Multiple files')
                 SINGLE_FILE_MODE = False
                 MULTI_FILE_MODE = True
+                movie_list = []
+                paths = file_path
+                for path in paths:
+                    log.info('Getting file hash')
+                    file_hash = GetFileHash(path)
+                    file_size = GetFileSize(path)
+                    log.info('Defining Movie object')
+                    movie = Movie(file_size, file_hash, path, ntpath.basename(path))
+                    log.info('Setting Movie details from filename')
+                    movie.set_from_filename()
+                    movie_list.append(movie)
             else:
                 log.info('MODE - Single file')
                 SINGLE_FILE_MODE = True
@@ -434,54 +490,11 @@ def run():
                 movie = Movie(file_size, file_hash, path, ntpath.basename(path))
                 log.info('Setting Movie details from filename')
                 movie.set_from_filename()
-        
+        engines = gui_control.select_engine(values)
+        log.info(f'Set engines: {engines}')
         # If user selects search for subtitles and is single file and quickmode is off
         if event == 'SEARCHFORSUBS' and SINGLE_FILE_MODE and values['QuickMode'] == False:
-            log.info('START CONDITIONS: SINGLE FILE MODE - QUICKMODE OFF')
-            # Check for engines selected
-            engines = []
-            open_subs = []
-            titlovi_subs = []
-            engines = gui_control.select_engine(values)
-            log.info(f'Set engines: {engines}')
-
-            # Iterate thru engines and search with selected
-            for engine in engines:
-                # If engine is OpenSubtitles
-                if engine == 'OpenSubtitles':
-                    log.info('Starting OpenSubtitles search')
-                    # Set instance name for OpenSubtitles
-                    movie_title = movie.title # Get movie title
-                    # Check for movie kind and make payload accordingly
-                    response = openSubtitlesAPI.search_for_subtitle(languages=lang, moviehash=movie.file_hash, query=movie_title, year=movie.year)
-                    # Search OpenSubtitles server with payload
-                    openSubtitlesAPI.proccess_subtitle_search_response(response)
-                    results = []
-                    for sub in openSubtitlesAPI.data:
-                        results.append(sub)
-                    log.info(f'Found {len(results)} results on OpenSubtitles')
-                    # Enumerate results and put them in list
-                    log.info('Making objects from results')
-                    for nmb, subtitle in enumerate(results):
-                        name = nmb
-                        name = ProccessOpenSubtitlesSubs()
-                        name.make_objects_from_subtitles(subtitle)
-                        open_subs.append(name)
-                # If engine is Titlovi.com
-                if engine == 'Titlovi.com':
-                    log.info('Starting Titlovi search')
-                    languages = titloviAPI.handle_language_conversion(lang)
-                    payload = titloviAPI.prepare_payload(query=movie.title)
-                    for language in languages:
-                        response = titloviAPI.search_for_subtitles(payload, language)
-                        titloviAPI.proccess_subtitle_search_response(response)
-                        for nmb, subtitle in enumerate(titloviAPI.subtitles):
-                            name = nmb
-                            name = ProccessTitloviSubs()
-                            name.proccess_subtitle_results(subtitle)
-                            titlovi_subs.append(name)
-                    log.info(f'Found {len(titlovi_subs)} subtitles - Titlovi')
-            log.info('All engines run')
+            open_subs, titlovi_subs = run_search_in_engines(engines, lang, movie)
 
             # When all subs have been collected set up window to display the results
             log.info('Creating window for displaying subtitles')
@@ -599,20 +612,40 @@ def run():
             Do everything as in QuickMode off, but select first subtitle from list automatic.
         '''
         if event == 'SEARCHFORSUBS' and SINGLE_FILE_MODE and values['QuickMode'] == True:
-            movie, all_subs = gui_control.search_by_single_file(values, lang, window, file_path[0])
             TIME_START = time.perf_counter()
-            print('Searching single file with QuickMode on')
-            print('Searching and downloading your subtitle')
-            try:
-                sub = all_subs[0]
-            except:
-                sg.popup_error('Cant find any subtitles for your language.\nPlease choose another.')
-            else:
-                zip_handler = handle_zip.OpenSubtitlesHandler(sub.SubFileName, sub.ZipDownloadLink, file_path[0])
-                zipThread = threading.Thread(target=threads.ZipDownloaderThreaded, args=[zip_handler])
-                zipThread.start()
-                zipThread.join()
-                sg.PopupQuickMessage('Subtitle downloaded', font='Any 18', background_color='white', text_color='black')
+            window['PROGRESSBAR'].update(current_count=0, max=4)
+            window['WORKINGSTRING'].update(value='Working ...')
+            window.refresh()
+            log.info('Searching single file with QuickMode on')
+            window['PROGRESSBAR'].update(current_count=1)
+            open_subs, titlovi_subs = run_search_in_engines(engines, lang, movie)
+            if len(open_subs) > 0:
+                subtitle_to_download = open_subs[0]
+                file_download = openSubtitlesAPI.prepare_download(subtitle_to_download.id)
+                window['PROGRESSBAR'].update(current_count=2)
+                openSubtitlesAPI.proccess_download_response(file_download)
+                window['PROGRESSBAR'].update(current_count=3)
+                log.info('Downloading subtitle')
+                openSubtitlesAPI.download_subtitle(openSubtitlesAPI.download_link)
+                log.debug('Appending language code to name of subtitle')
+                handle_zip.move_subtitle(mode='srt', source_path='downloaded/subtitle.srt', dst_path=file_path[0], append_lang_code=subtitle_to_download.language)
+                window['PROGRESSBAR'].update(current_count=4)
+                window['WORKINGSTRING'].update(value='Job done')
+                window.refresh()
+            if len(titlovi_subs) > 0:
+                window['PROGRESSBAR'].update(current_count=2)
+                subtitle_to_download = titlovi_subs[0]
+                log.info('Downloading subtitle zip using Titlovi')
+                log.info('Downloading subtitle')
+                titloviAPI.download_subtitle(subtitle_to_download.link)
+                window['PROGRESSBAR'].update(current_count=3)
+                handle_zip.move_subtitle(mode='zip', source_path='downloaded/sub.zip', dst_path=file_path[0])
+                window['PROGRESSBAR'].update(current_count=4)
+                window['WORKINGSTRING'].update(value='Job done')
+                window.refresh()
+
+                
+
             TIME_END = time.perf_counter()
             time_took = round(TIME_END-TIME_START, 2)
             print(f'\n***Download took {time_took} seconds ***\n')
@@ -668,4 +701,6 @@ def run():
 
     window.close() # Closes main window
     return
+
+
 
