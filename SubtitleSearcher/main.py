@@ -660,44 +660,35 @@ def run():
             TIME_START = time.perf_counter()
             print(f'*** Ready to download {len(file_path)} subtitles ***')
             window['WORKINGSTRING'].update(visible=True)
-            window['PROGRESSBAR'].update(current_count=0, max=len(file_path))
-            treads1 = []
-            treads2 = []
-            subs_list = []
-            window['WORKINGSTRING'].update(value='Step 1 of 4')
-            for file in range(len(file_path)):
-                print(f'Threading search of subtitle {file+1} of {len(file_path)}')
-                movieThread = threading.Thread(target=threads.search_by_multy_file, args=[gui_control.OpenSubtitlesSearchAlg, file_path[file], lang, file+1])
-                movieThread.start()
-                treads1.append(movieThread)
-                window['PROGRESSBAR'].update(current_count=file+1)
-            window['WORKINGSTRING'].update(value='Step 2 of 4')
-            for sub in range(len(treads1)):
-                subtitle = threads.subsQueve.get()
-                subs_list.append(subtitle)
-                window['PROGRESSBAR'].update(current_count=sub+1)
-            window['WORKINGSTRING'].update(value='Step 3 of 4')
-            for sub in range(len(subs_list)):
-                print(f'Threading download of subtitle {sub+1} of {len(subs_list)}')
-                zip_handler = handle_zip.OpenSubtitlesHandler(subs_list[sub].SubFileName, subs_list[sub].ZipDownloadLink, file_path[sub])
-                zipThread = threading.Thread(target=threads.ZipDownloaderThreaded, args=[zip_handler, sub+1])
-                zipThread.start()
-                treads2.append(zipThread)
-                window['PROGRESSBAR'].update(current_count=sub+1)
-            print('\n---------- WAITING FOR FILE DOWNLOAD TO COMPLETE ----------\n')
-            window['WORKINGSTRING'].update(value='Step 4 of 4')
-            for number, thread in enumerate(treads1):
-                thread.join()
-            for number, thread in enumerate(treads2):
-                thread.join()
-                window['PROGRESSBAR'].update(current_count=number+1)
-            zip_handler.delete_remains()
+            window['PROGRESSBAR'].update(current_count=0, max=len(movie_list))
+            for movie_nmb, movie in enumerate(movie_list):
+                log.info(f'Running search with {engines} engines, with {lang} languages and {movie.title} video file')
+                open_subs, titlovi_subs = run_search_in_engines(engines, lang, movie)
+                if len(open_subs) > 0:
+                    subtitle_to_download = open_subs[0]
+                    log.info(f'Subtitle selected for download {subtitle_to_download.id}')
+                    file_download = openSubtitlesAPI.prepare_download(subtitle_to_download.id)
+                    log.info(f'Prepared download for {file_download}')
+                    openSubtitlesAPI.proccess_download_response(file_download)
+                    log.info('Downloading subtitle')
+                    openSubtitlesAPI.download_subtitle(openSubtitlesAPI.download_link)
+                    log.debug('Appending language code to name of subtitle')
+                    handle_zip.move_subtitle(mode='srt', source_path='downloaded/subtitle.srt', dst_path=file_path[0], append_lang_code=subtitle_to_download.language)
+                    window['WORKINGSTRING'].update(value='Job done')
+                    window.refresh()
+                if len(titlovi_subs) > 0:
+                    subtitle_to_download = titlovi_subs[0]
+                    log.info('Downloading subtitle zip using Titlovi')
+                    log.info('Downloading subtitle')
+                    titloviAPI.download_subtitle(subtitle_to_download.link)
+                    handle_zip.move_subtitle(mode='zip', source_path='downloaded/sub.zip', dst_path=file_path[0])
+                    window['WORKINGSTRING'].update(value='Job done')
+                    window.refresh()
+                window['PROGRESSBAR'].update(current_count=movie_nmb+1)
             TIME_END = time.perf_counter()
             time_took = round(TIME_END-TIME_START, 2)
-            print(f'\n*** Took {time_took} to download subtitles ***\n')
-            window['WORKINGSTRING'].update(visible=False)
-            window['PROGRESSBAR'].update(current_count=0)
-            sg.PopupQuickMessage('All subtitles downloaded', font='Any 18', background_color='white', text_color='black')
+            print(f'\n***Download took {time_took} seconds ***\n')
+
 
     window.close() # Closes main window
     return
