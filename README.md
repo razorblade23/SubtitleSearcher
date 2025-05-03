@@ -1,3 +1,6 @@
+## WARNING
+This project is no longer maintained due to lack of time and old codebase.
+
 # Subbydoo
 Main purpose of the app is to help people finding appropriate subtitles for their Movie/TV-Show match from multiple subtitle sources.
 
